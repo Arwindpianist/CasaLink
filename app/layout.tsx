@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://casalink.com",
+    url: "https://casalink.arwindpianist.store",
     siteName: "CasaLink",
     title: "CasaLink - Condominium Management System",
     description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
@@ -68,7 +68,7 @@ export const metadata: Metadata = {
     ]
   },
   manifest: "/casalink-favicon/site.webmanifest",
-  metadataBase: new URL("https://casalink.com"),
+  metadataBase: new URL("https://casalink.arwindpianist.store"),
   alternates: {
     canonical: "/",
   },
