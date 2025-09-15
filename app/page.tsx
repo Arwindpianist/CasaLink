@@ -29,7 +29,7 @@ import { motion } from "framer-motion"
 import { WordRotate } from "@/components/magicui/word-rotate"
 import { MagicCard } from "@/components/magicui/magic-card"
 import { useTheme } from "next-themes"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 
 function CostCalculator() {
   const { theme } = useTheme()
@@ -178,15 +178,15 @@ export default function LandingPage() {
               <Button variant="ghost" className="hidden sm:inline-flex">
                 Pricing
               </Button>
-              <Button variant="outline" className="warm-hover" asChild>
+              <Button variant="outline" className="warm-hover hidden sm:inline-flex" asChild>
                 <a href="/demo">Try Demo</a>
               </Button>
-              <Button className="warm-button" asChild>
+              <Button className="warm-button hidden sm:inline-flex" asChild>
                 <a href="https://forms.zohopublic.com/arwinarwind1/form/FreeTrialRequest/formperma/m5kv-J7Xef4Cftd0DUtmptNpg040nGDm-496ngM4_4A" target="_blank" rel="noopener noreferrer">
                   Request Access
                 </a>
               </Button>
-              <ThemeToggle />
+              <AnimatedThemeToggler />
             </div>
           </div>
         </div>

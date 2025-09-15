@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { QrCode, Plus, Clock, Users, Calendar, Bell, ChevronRight } from "lucide-react"
 import { motion } from "framer-motion"
 import { BottomNavigation } from "@/components/resident/bottom-navigation"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 
 export default function ResidentDashboard() {
   const [activeTab, setActiveTab] = useState("home")
@@ -83,7 +83,7 @@ export default function ResidentDashboard() {
             <p className="warm-text-secondary">Unit 12-A, Tower 1</p>
           </div>
           <div className="flex items-center space-x-2">
-            <ThemeToggle />
+            <AnimatedThemeToggler />
             <div className="relative">
               <Button variant="ghost" size="icon" className="warm-hover">
                 <Bell className="h-5 w-5" />

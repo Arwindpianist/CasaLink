@@ -26,7 +26,7 @@ import {
   EyeOff,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 
 // Mock data for demo
 const mockResidents = [
@@ -837,7 +837,7 @@ export default function DemoPage() {
                 <span className="hidden sm:inline">{isConnected ? "Connected" : "Disconnected"}</span>
                 <span className="sm:hidden">{isConnected ? "On" : "Off"}</span>
               </Badge>
-              <ThemeToggle />
+              <AnimatedThemeToggler />
             </div>
           </div>
         </div>
