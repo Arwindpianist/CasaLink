@@ -37,10 +37,10 @@ export const metadata: Metadata = {
     description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
     images: [
       {
-        url: "/og",
+        url: "https://casalink.arwindpianist.store/casalink-screenshot.png",
         width: 1200,
         height: 630,
-        alt: "CasaLink - Condominium Management System",
+        alt: "CasaLink Landing Page Screenshot",
         type: "image/png",
       }
     ],
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     creator: "@casalink",
     title: "CasaLink - Condominium Management System",
     description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
-    images: ["/og"],
+    images: ["https://casalink.arwindpianist.store/casalink-screenshot.png"],
   },
   icons: {
     icon: [
