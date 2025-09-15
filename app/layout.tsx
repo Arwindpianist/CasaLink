@@ -9,8 +9,50 @@ import "./globals.css"
 
 export const metadata: Metadata = {
   title: "CasaLink - Condominium Management System",
-  description: "A smarter, friendlier way to manage your condominium",
-  generator: "v0.app",
+  description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
+  keywords: ["condominium management", "visitor management", "QR code", "property management", "community platform"],
+  authors: [{ name: "CasaLink Team" }],
+  creator: "CasaLink",
+  publisher: "CasaLink",
+  generator: "Next.js",
+  applicationName: "CasaLink",
+  referrer: "origin-when-cross-origin",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://casalink.com",
+    siteName: "CasaLink",
+    title: "CasaLink - Condominium Management System",
+    description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
+    images: [
+      {
+        url: "/og",
+        width: 1200,
+        height: 630,
+        alt: "CasaLink - Condominium Management System",
+        type: "image/png",
+      }
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: "@casalink",
+    creator: "@casalink",
+    title: "CasaLink - Condominium Management System",
+    description: "A smarter, friendlier way to manage your condominium. Transform visitor management, community connection, and daily operations with QR-based solutions.",
+    images: ["/og"],
+  },
   icons: {
     icon: [
       { url: "/casalink-favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -25,7 +67,11 @@ export const metadata: Metadata = {
       { url: "/casalink-favicon/android-chrome-512x512.png", sizes: "512x512", type: "image/png" }
     ]
   },
-  manifest: "/casalink-favicon/site.webmanifest"
+  manifest: "/casalink-favicon/site.webmanifest",
+  metadataBase: new URL("https://casalink.com"),
+  alternates: {
+    canonical: "/",
+  },
 }
 
 export default function RootLayout({

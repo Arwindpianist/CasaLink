@@ -125,7 +125,11 @@ function CostCalculator() {
           </div>
         </CardContent>
         <CardFooter className="p-6 border-t border-border/50">
-          <Button className="w-full warm-button">Get Started Today</Button>
+          <Button className="w-full warm-button" asChild>
+            <a href="https://forms.zohopublic.com/arwinarwind1/form/FreeTrialRequest/formperma/m5kv-J7Xef4Cftd0DUtmptNpg040nGDm-496ngM4_4A" target="_blank" rel="noopener noreferrer">
+              Get Started Today
+            </a>
+          </Button>
         </CardFooter>
       </Card>
     </div>
@@ -164,19 +168,21 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
-              <img 
-                src="/casalink-favicon/favicon-32x32.png" 
-                alt="CasaLink Logo" 
-                className="h-8 w-8"
-              />
-              <span className="text-xl font-bold warm-text-primary font-premium">CasaLink</span>
+              <a href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
+                <img 
+                  src="/casalink-favicon/favicon-32x32.png" 
+                  alt="CasaLink Logo" 
+                  className="h-8 w-8"
+                />
+                <span className="text-xl font-bold warm-text-primary font-premium">CasaLink</span>
+              </a>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" className="hidden sm:inline-flex">
-                Features
+              <Button variant="ghost" className="hidden sm:inline-flex" asChild>
+                <a href="#features">Features</a>
               </Button>
-              <Button variant="ghost" className="hidden sm:inline-flex">
-                Pricing
+              <Button variant="ghost" className="hidden sm:inline-flex" asChild>
+                <a href="#pricing">Pricing</a>
               </Button>
               <Button variant="outline" className="warm-hover hidden sm:inline-flex" asChild>
                 <a href="/demo">Try Demo</a>
@@ -222,7 +228,9 @@ export default function LandingPage() {
                   </a>
                 </Button>
                 <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent warm-hover" asChild>
-                  <a href="/demo">Try Demo</a>
+                  <a href="https://forms.zohopublic.com/arwinarwind1/form/FreeTrialRequest/formperma/m5kv-J7Xef4Cftd0DUtmptNpg040nGDm-496ngM4_4A" target="_blank" rel="noopener noreferrer">
+                    Request Access
+                  </a>
                 </Button>
               </div>
             </motion.div>
@@ -380,7 +388,7 @@ export default function LandingPage() {
       </section>
 
       {/* Key Features Grid */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
+      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-muted/30">
         <div className="container mx-auto">
           <motion.div className="text-center mb-16" {...fadeInUp}>
             <h2 className="dashboard-title warm-text-primary mb-4">Everything You Need in One Platform</h2>
@@ -571,7 +579,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
+      <section id="pricing" className="py-20 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto">
           <motion.div className="text-center mb-16" {...fadeInUp}>
             <h2 className="dashboard-title warm-text-primary mb-4">Fair, Scalable Pricing</h2>
@@ -860,7 +868,7 @@ export default function LandingPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="text-lg px-8" asChild>
-                <a href="/demo">
+                <a href="https://forms.zohopublic.com/arwinarwind1/form/FreeTrialRequest/formperma/m5kv-J7Xef4Cftd0DUtmptNpg040nGDm-496ngM4_4A" target="_blank" rel="noopener noreferrer">
                   Get Started Today
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </a>
@@ -894,17 +902,17 @@ export default function LandingPage() {
               <h3 className="font-semibold text-foreground mb-4">Product</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="#features" className="hover:text-primary transition-colors">
                     Features
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="#pricing" className="hover:text-primary transition-colors">
                     Pricing
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="/demo" className="hover:text-primary transition-colors">
                     Demo
                   </a>
                 </li>
@@ -914,17 +922,17 @@ export default function LandingPage() {
               <h3 className="font-semibold text-foreground mb-4">Support</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="mailto:support@casalink.com" className="hover:text-primary transition-colors">
                     Help Center
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="mailto:contact@casalink.com" className="hover:text-primary transition-colors">
                     Contact Us
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="https://status.casalink.com" className="hover:text-primary transition-colors" target="_blank" rel="noopener noreferrer">
                     Status
                   </a>
                 </li>
@@ -934,17 +942,17 @@ export default function LandingPage() {
               <h3 className="font-semibold text-foreground mb-4">Company</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="/about" className="hover:text-primary transition-colors">
                     About
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="/privacy" className="hover:text-primary transition-colors">
                     Privacy
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-primary transition-colors">
+                  <a href="/terms" className="hover:text-primary transition-colors">
                     Terms
                   </a>
                 </li>
