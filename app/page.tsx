@@ -433,8 +433,8 @@ export default function LandingPage() {
               },
               {
                 icon: BarChart3,
-                title: "SaaS Owner Dashboard",
-                description: "Global analytics, system monitoring, and support tools for platform administrators.",
+                title: "Decentralized Database with RXDB and a backup",
+                description: "CasaLink runs on a hybrid offline-first architecture: resident apps store data locally and sync to the cloud, ensuring both independence and reliability. Even if the server goes down, the condo keeps functioning.",
                 color: "text-primary",
               },
               {
