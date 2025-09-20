@@ -54,7 +54,7 @@ export default clerkMiddleware((auth, req) => {
 
   // Protect routes that require authentication
   if (isProtectedRoute(req)) {
-    auth().protect();
+    auth.protect();
   }
 });
 
