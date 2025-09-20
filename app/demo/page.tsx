@@ -27,6 +27,8 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
+import { useAuth } from "@/components/auth/auth-provider"
+import { UserProfile } from "@/components/auth/user-profile"
 
 // Mock data for demo
 const mockResidents = [
@@ -762,6 +764,7 @@ function DesktopMockup({ isActive, onVisitorApproval, onMessageReceived, scanned
 }
 
 export default function DemoPage() {
+  const { user } = useAuth()
   const [activeView, setActiveView] = useState<'resident' | 'visitor' | 'desktop'>('resident')
   const [ws, setWs] = useState<DemoWebSocket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -819,29 +822,35 @@ export default function DemoPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-14 sm:h-16">
-            <div className="flex items-center space-x-2">
-              <img 
-                src="/casalink-favicon/favicon-32x32.png" 
-                alt="CasaLink Logo" 
-                className="h-6 w-6 sm:h-8 sm:w-8"
-              />
-              <span className="text-lg sm:text-xl font-bold text-primary font-premium">CasaLink Demo</span>
-            </div>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
-                <Wifi className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">{isConnected ? "Connected" : "Disconnected"}</span>
-                <span className="sm:hidden">{isConnected ? "On" : "Off"}</span>
-              </Badge>
-              <AnimatedThemeToggler />
+        {/* Navigation */}
+        <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-14 sm:h-16">
+              <div className="flex items-center space-x-2">
+                <img 
+                  src="/casalink-favicon/favicon-32x32.png" 
+                  alt="CasaLink Logo" 
+                  className="h-6 w-6 sm:h-8 sm:w-8"
+                />
+                <span className="text-lg sm:text-xl font-bold text-primary font-premium">CasaLink Demo</span>
+                {user && (
+                  <Badge variant="outline" className="text-xs">
+                    {user.role}
+                  </Badge>
+                )}
+              </div>
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <Badge variant={isConnected ? "default" : "secondary"} className="text-xs">
+                  <Wifi className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+                  <span className="hidden sm:inline">{isConnected ? "Connected" : "Disconnected"}</span>
+                  <span className="sm:hidden">{isConnected ? "On" : "Off"}</span>
+                </Badge>
+                <AnimatedThemeToggler />
+                <UserProfile />
+              </div>
             </div>
           </div>
-        </div>
-      </nav>
+        </nav>
 
       {/* Demo Header */}
       <section className="py-8 px-4 sm:px-6 lg:px-8">

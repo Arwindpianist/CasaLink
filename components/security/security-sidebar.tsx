@@ -137,11 +137,18 @@ export function SecuritySidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-destructive hover:text-destructive">
-              <a href="#">
-                <LogOut className="size-4" />
-                <span>Sign Out</span>
-              </a>
+            <SidebarMenuButton 
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('casalink-demo-user')
+                  document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                  window.location.href = '/login'
+                }
+              }}
+              className="text-destructive hover:text-destructive warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md"
+            >
+              <LogOut className="size-4" />
+              <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

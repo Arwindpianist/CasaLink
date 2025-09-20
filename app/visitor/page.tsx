@@ -5,23 +5,39 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Building2, Clock, User, CheckCircle, XCircle, AlertCircle, MapPin, Phone } from "lucide-react"
+import { Building2, Clock, User, CheckCircle, XCircle, AlertCircle, MapPin, Phone, QrCode, LogOut } from "lucide-react"
 import { motion } from "framer-motion"
+import { ProtectedRoute } from "@/components/auth/protected-route"
+import { RoleNavigation } from "@/components/navigation/role-navigation"
 
-// Mock visitor data - in real app this would come from QR code scan or URL params
+// Mock visitor data - in real app this would come from database lookup by email
 const mockVisitorData = {
   id: "VIS-2024-001",
   visitorName: "John Doe",
-  hostName: "Sarah Chen",
-  hostUnit: "12-A, Tower 1",
-  hostPhone: "+60 12-345 6789",
+  visitorEmail: "john.doe@email.com",
   building: "Pavilion Residences",
   purpose: "Family Visit",
   validFrom: "Today, 2:00 PM",
   validUntil: "Today, 8:00 PM",
-  status: "pending", // pending, approved, expired, denied
+  status: "pending", // pending, approved, expired, denied, no_qr
   createdAt: "Today, 1:45 PM",
   qrCode: "/qr-code-visitor.jpg",
+  hasQrCode: true, // This would be determined by database query for this email
+}
+
+// Example of visitor without QR code
+const mockVisitorNoQR = {
+  id: null,
+  visitorName: "Jane Smith",
+  visitorEmail: "jane.smith@email.com",
+  building: "Pavilion Residences",
+  purpose: "Business Meeting",
+  validFrom: null,
+  validUntil: null,
+  status: "no_qr",
+  createdAt: null,
+  qrCode: null,
+  hasQrCode: false, // No QR code found for this email
 }
 
 export default function VisitorAccess() {
@@ -34,6 +50,13 @@ export default function VisitorAccess() {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
+
+  // In real app, this would:
+  // 1. Get visitor email from URL params or authentication
+  // 2. Query database: SELECT * FROM visitors WHERE visitor_email = ?
+  // 3. If found: show QR code and status
+  // 4. If not found: show "no QR code" message
+  // For demo purposes, we'll use the mock data
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -73,6 +96,15 @@ export default function VisitorAccess() {
           description: "This QR code is no longer valid",
           bgColor: "bg-background",
         }
+      case "no_qr":
+        return {
+          color: "amber-warning",
+          icon: AlertCircle,
+          iconColor: "text-primary",
+          title: "No QR Code Found",
+          description: "Please contact your host to create a visitor QR code",
+          bgColor: "bg-background",
+        }
       default:
         return {
           color: "warm-text-secondary",
@@ -95,17 +127,37 @@ export default function VisitorAccess() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4">
+    <ProtectedRoute>
+      <RoleNavigation />
+      <div className="min-h-screen bg-background p-4">
       <div className="max-w-md mx-auto space-y-6">
         {/* Header */}
         <motion.div className="text-center py-6" {...fadeInUp}>
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Building2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Building2 className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('casalink-demo-user')
+                  document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                  window.location.href = '/login'
+                }
+              }}
+              className="warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
           <h1 className="accent-text warm-text-primary">Visitor Access</h1>
           <p className="warm-text-secondary">{visitorData.building}</p>
         </motion.div>
+
 
         {/* Status Card */}
         <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
@@ -136,21 +188,6 @@ export default function VisitorAccess() {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="/sarah-profile.jpg" />
-                    <AvatarFallback>
-                      {visitorData.hostName
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium warm-text-primary">{visitorData.hostName}</p>
-                    <p className="text-sm warm-text-secondary">Host • {visitorData.hostUnit}</p>
-                  </div>
-                </div>
 
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-secondary/10 rounded-full flex items-center justify-center">
@@ -178,12 +215,16 @@ export default function VisitorAccess() {
           </Card>
         </motion.div>
 
-        {/* QR Code Display */}
-        {visitorData.status === "approved" && (
+        {/* QR Code Display - Show immediately when received */}
+        {visitorData.hasQrCode && (
           <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
             <Card className="warm-card">
               <CardContent className="p-6 text-center">
-                <h3 className="font-semibold warm-text-primary mb-4">Show this QR Code to Security</h3>
+                <h3 className="font-semibold warm-text-primary mb-4">
+                  {visitorData.status === "approved" 
+                    ? "Show this QR Code to Security" 
+                    : "QR Code Ready - Awaiting Security Approval"}
+                </h3>
                 <div className="bg-white p-4 rounded-lg inline-block shadow-sm">
                   <img
                     src={visitorData.qrCode || "/placeholder.svg?height=200&width=200&query=QR code"}
@@ -192,6 +233,38 @@ export default function VisitorAccess() {
                   />
                 </div>
                 <p className="text-xs warm-text-secondary mt-4">ID: {visitorData.id}</p>
+                {visitorData.status === "pending" && (
+                  <p className="text-xs warm-text-secondary mt-2">
+                    Security will scan this QR code at the entrance
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* No QR Code Message */}
+        {!visitorData.hasQrCode && (
+          <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
+            <Card className="warm-card border-2 border-amber-200 bg-amber-50/50">
+              <CardContent className="p-6 text-center">
+                <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto mb-4">
+                  <QrCode className="h-8 w-8 text-amber-600" />
+                </div>
+                <h3 className="font-semibold warm-text-primary mb-2">No QR Code Generated</h3>
+                <p className="warm-text-secondary text-sm mb-4">
+                  No visitor QR code has been created for you yet. Please contact the resident you're visiting to generate one.
+                </p>
+                <div className="space-y-3">
+                  <Button className="w-full warm-button" variant="outline">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Contact Resident
+                  </Button>
+                  <Button className="w-full bg-transparent warm-hover" variant="outline">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Contact Building Management
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -200,34 +273,51 @@ export default function VisitorAccess() {
         {/* Action Buttons */}
         <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
           <div className="space-y-3">
-            {visitorData.status === "pending" && (
-              <Button className="w-full warm-button" onClick={() => setVisitorData({ ...visitorData, status: "approved" })}>
-                Refresh Status
+            {visitorData.status === "approved" && visitorData.hasQrCode && (
+              <Button className="w-full bg-transparent warm-hover" variant="outline">
+                <Phone className="h-4 w-4 mr-2" />
+                Contact Resident
               </Button>
             )}
 
-            {visitorData.status === "approved" && (
+            {(visitorData.status === "denied" || visitorData.status === "expired") && visitorData.hasQrCode && (
+              <Button className="w-full bg-transparent warm-hover" variant="outline">
+                <Phone className="h-4 w-4 mr-2" />
+                Contact Resident
+              </Button>
+            )}
+
+            {/* Show contact options when no QR code exists */}
+            {!visitorData.hasQrCode && (
               <div className="space-y-3">
-                <Button className="w-full bg-transparent warm-hover" variant="outline">
+                <Button className="w-full warm-button" variant="outline">
                   <Phone className="h-4 w-4 mr-2" />
-                  Call Host: {visitorData.hostPhone}
+                  Contact Resident
                 </Button>
-                <Button
-                  className="w-full bg-transparent warm-hover"
-                  variant="outline"
-                  onClick={() => setVisitorData({ ...visitorData, status: "expired" })}
-                >
-                  Mark as Used
+                <Button className="w-full bg-transparent warm-hover" variant="outline">
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Contact Building Management
                 </Button>
               </div>
             )}
 
-            {(visitorData.status === "denied" || visitorData.status === "expired") && (
-              <Button className="w-full bg-transparent warm-hover" variant="outline">
-                <Phone className="h-4 w-4 mr-2" />
-                Contact Host: {visitorData.hostPhone}
+            {/* Logout Button */}
+            <div className="pt-4 border-t border-border">
+              <Button 
+                className="w-full bg-transparent warm-hover" 
+                variant="outline"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('casalink-demo-user')
+                    document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                    window.location.href = '/login'
+                  }
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Switch Role / Logout
               </Button>
-            )}
+            </div>
           </div>
         </motion.div>
 
@@ -244,49 +334,8 @@ export default function VisitorAccess() {
           </Card>
         </motion.div>
 
-        {/* Demo Controls */}
-        <motion.div {...fadeInUp} transition={{ delay: 0.6 }}>
-          <Card className="warm-card border-dashed border-2 border-border/50">
-            <CardContent className="p-4">
-              <p className="text-xs warm-text-secondary text-center mb-3">Demo Controls</p>
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="warm-hover"
-                  onClick={() => setVisitorData({ ...visitorData, status: "pending" })}
-                >
-                  Pending
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="warm-hover"
-                  onClick={() => setVisitorData({ ...visitorData, status: "approved" })}
-                >
-                  Approved
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="warm-hover"
-                  onClick={() => setVisitorData({ ...visitorData, status: "denied" })}
-                >
-                  Denied
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="warm-hover"
-                  onClick={() => setVisitorData({ ...visitorData, status: "expired" })}
-                >
-                  Expired
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
       </div>
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

@@ -19,12 +19,15 @@ import {
   Shield,
   BarChart3,
   Settings,
+  Crown,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { ShineBorderCard } from "@/components/magicui/shine-border-card"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { ProtectedRoute } from "@/components/auth/protected-route"
+import { RoleNavigation } from "@/components/navigation/role-navigation"
 
 export default function AdminDashboard() {
 
@@ -130,21 +133,25 @@ export default function AdminDashboard() {
   }
 
   return (
-    <SidebarProvider>
-      <AdminSidebar />
-      <SidebarInset>
-        {/* Header */}
-        <header className="warm-card border-b border-border px-4 lg:px-8 py-6">
+    <ProtectedRoute requiredRole="platform_admin">
+      <SidebarProvider>
+        <AdminSidebar />
+        <SidebarInset>
+        {/* Enhanced Header with Glass Effect */}
+        <header className="glass-header border-b border-border/50 px-4 lg:px-8 py-6 rounded-b-2xl">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="-ml-1" />
-              <div>
-                <h1 className="dashboard-title warm-text-primary">SaaS Admin Dashboard</h1>
-                <p className="warm-text-secondary">Global platform monitoring and management</p>
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="-ml-1 warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md" />
+              <div className="flex items-center space-x-2">
+                <Crown className="h-8 w-8 text-primary" />
+                <div>
+                  <h1 className="dashboard-title warm-text-primary">SaaS Admin Dashboard</h1>
+                  <p className="warm-text-secondary">Global platform monitoring and management</p>
+                </div>
               </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="secondary" className="sage-success">
+            <div className="flex items-center space-x-3">
+              <Badge variant="secondary" className="sage-success backdrop-blur-sm">
                 <Activity className="h-3 w-3 mr-1" />
                 All Systems Operational
               </Badge>
@@ -154,37 +161,43 @@ export default function AdminDashboard() {
         </header>
 
         <div className="p-4 lg:p-8 space-y-8">
-          {/* Global Stats */}
+          {/* Enhanced Global Stats with Glass Effects */}
           <motion.div {...fadeInUp}>
             <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Building2 className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">{globalStats.totalCondos}</p>
                       <p className="text-xs warm-text-secondary">Total Condos</p>
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
 
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Users className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                      <Users className="h-5 w-5 text-blue-600" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">{globalStats.activeUsers.toLocaleString()}</p>
                       <p className="text-xs warm-text-secondary">Active Users</p>
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
 
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <DollarSign className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">
                         RM{globalStats.monthlyRevenue.toLocaleString()}
@@ -193,43 +206,49 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
 
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Server className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                      <Server className="h-5 w-5 text-purple-600" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">{globalStats.systemUptime}%</p>
                       <p className="text-xs warm-text-secondary">System Uptime</p>
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
 
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Zap className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                      <Zap className="h-5 w-5 text-orange-600" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">{globalStats.qrScansToday.toLocaleString()}</p>
                       <p className="text-xs warm-text-secondary">QR Scans Today</p>
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
 
-              <ShineBorderCard className="warm-hover">
+              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
                 <CardContent className="p-4">
-                  <div className="flex items-center space-x-2">
-                    <Shield className="h-5 w-5 text-primary" />
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <Shield className="h-5 w-5 text-red-600" />
+                    </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">{globalStats.supportTickets}</p>
                       <p className="text-xs warm-text-secondary">Support Tickets</p>
                     </div>
                   </div>
                 </CardContent>
-              </ShineBorderCard>
+              </Card>
             </div>
           </motion.div>
 
@@ -238,9 +257,11 @@ export default function AdminDashboard() {
             <motion.div className="lg:col-span-2" {...fadeInUp} transition={{ delay: 0.1 }}>
               <Card className="warm-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center warm-text-primary">
-                    <Building2 className="h-5 w-5 mr-2 text-primary" />
-                    Active Condominiums
+                  <CardTitle className="flex items-center warm-text-primary space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-primary" />
+                    </div>
+                    <span>Active Condominiums</span>
                   </CardTitle>
                   <CardDescription className="warm-text-secondary">Overview of registered properties and their performance</CardDescription>
                 </CardHeader>
@@ -300,9 +321,11 @@ export default function AdminDashboard() {
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
               <Card className="warm-card">
                 <CardHeader>
-                  <CardTitle className="flex items-center warm-text-primary">
-                    <AlertTriangle className="h-5 w-5 mr-2 text-primary" />
-                    System Alerts
+                  <CardTitle className="flex items-center warm-text-primary space-x-3">
+                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                      <AlertTriangle className="h-5 w-5 text-red-600" />
+                    </div>
+                    <span>System Alerts</span>
                   </CardTitle>
                   <CardDescription className="warm-text-secondary">Recent system events and notifications</CardDescription>
                 </CardHeader>
@@ -386,37 +409,9 @@ export default function AdminDashboard() {
             </Card>
           </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="warm-card">
-              <CardHeader>
-                <CardTitle className="warm-text-primary">Admin Quick Actions</CardTitle>
-                <CardDescription className="warm-text-secondary">Common administrative tasks and system management</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <Button variant="outline" className="h-20 flex-col bg-transparent warm-hover">
-                    <Building2 className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Add New Condo</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex-col bg-transparent warm-hover">
-                    <Users className="h-6 w-6 mb-2" />
-                    <span className="text-sm">User Management</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex-col bg-transparent warm-hover">
-                    <BarChart3 className="h-6 w-6 mb-2" />
-                    <span className="text-sm">Generate Reports</span>
-                  </Button>
-                  <Button variant="outline" className="h-20 flex-col bg-transparent warm-hover">
-                    <Settings className="h-6 w-6 mb-2" />
-                    <span className="text-sm">System Settings</span>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
         </div>
-      </SidebarInset>
-    </SidebarProvider>
+        </SidebarInset>
+      </SidebarProvider>
+    </ProtectedRoute>
   )
 }

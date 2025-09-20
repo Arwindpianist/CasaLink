@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Building2, QrCode, Camera, User, Phone, MapPin } from "lucide-react"
+import { Building2, QrCode, Camera, User, Phone, MapPin, LogOut } from "lucide-react"
 import { motion } from "framer-motion"
 
 export default function VisitorScan() {
@@ -36,9 +36,26 @@ export default function VisitorScan() {
         <div className="max-w-md mx-auto space-y-6">
           {/* Header */}
           <motion.div className="text-center py-6" {...fadeInUp}>
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Building2 className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Building2 className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('casalink-demo-user')
+                    document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                    window.location.href = '/login'
+                  }
+                }}
+                className="warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
             <h1 className="text-xl font-semibold warm-text-primary">Visitor Check-in</h1>
             <p className="warm-text-secondary">Scan your QR code to proceed</p>
@@ -93,9 +110,26 @@ export default function VisitorScan() {
         <div className="max-w-md mx-auto space-y-6">
           {/* Header */}
           <motion.div className="text-center py-6" {...fadeInUp}>
-            <div className="flex items-center justify-center space-x-2 mb-4">
-              <Building2 className="h-8 w-8 text-primary" />
-              <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Building2 className="h-8 w-8 text-primary" />
+                <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('casalink-demo-user')
+                    document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                    window.location.href = '/login'
+                  }
+                }}
+                className="warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
+              </Button>
             </div>
             <h1 className="text-xl font-semibold warm-text-primary">Visitor Information</h1>
             <p className="warm-text-secondary">Please provide your details</p>
@@ -177,9 +211,26 @@ export default function VisitorScan() {
       <div className="max-w-md mx-auto space-y-6">
         {/* Header */}
         <motion.div className="text-center py-6" {...fadeInUp}>
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Building2 className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-2">
+              <Building2 className="h-8 w-8 text-primary" />
+              <span className="text-2xl font-bold text-foreground font-premium">CasaLink</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('casalink-demo-user')
+                  document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                  window.location.href = '/login'
+                }
+              }}
+              className="warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border-red-200 hover:border-red-300 text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
           </div>
           <h1 className="text-xl font-semibold warm-text-primary">Check-in Successful</h1>
           <p className="warm-text-secondary">Your information has been submitted</p>

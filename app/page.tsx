@@ -185,7 +185,7 @@ export default function LandingPage() {
                 <a href="#pricing">Pricing</a>
               </Button>
               <Button variant="outline" className="warm-hover hidden sm:inline-flex" asChild>
-                <a href="/demo">Try Demo</a>
+                <a href="/login">Try Demo</a>
               </Button>
               <Button className="warm-button hidden sm:inline-flex" asChild>
                 <a href="https://forms.zohopublic.com/arwinarwind1/form/FreeTrialRequest/formperma/m5kv-J7Xef4Cftd0DUtmptNpg040nGDm-496ngM4_4A" target="_blank" rel="noopener noreferrer">
@@ -222,7 +222,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="text-lg px-8 warm-button" asChild>
-                  <a href="/demo">
+                  <a href="/login">
                     See It In Action
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </a>
@@ -874,7 +874,7 @@ export default function LandingPage() {
                 </a>
               </Button>
               <Button size="lg" variant="outline" className="text-lg px-8 bg-transparent" asChild>
-                <a href="/demo">Schedule Demo</a>
+                <a href="/login">Schedule Demo</a>
               </Button>
             </div>
           </motion.div>
@@ -912,7 +912,7 @@ export default function LandingPage() {
                   </a>
                 </li>
                 <li>
-                  <a href="/demo" className="hover:text-primary transition-colors">
+                  <a href="/login" className="hover:text-primary transition-colors">
                     Demo
                   </a>
                 </li>

@@ -140,12 +140,63 @@ export function AdminSidebar() {
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
+        </SidebarMenu>
+        
+        {/* Quick Actions Section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#">
+                    <Building2 className="size-4" />
+                    <span>Add New Condo</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#">
+                    <Users className="size-4" />
+                    <span>User Management</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#">
+                    <BarChart3 className="size-4" />
+                    <span>Generate Reports</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <a href="#">
+                    <Settings className="size-4" />
+                    <span>System Settings</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild className="text-destructive hover:text-destructive">
-              <a href="#">
-                <LogOut className="size-4" />
-                <span>Sign Out</span>
-              </a>
+            <SidebarMenuButton 
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('casalink-demo-user')
+                  document.cookie = 'casalink-demo-user=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+                  window.location.href = '/login'
+                }
+              }}
+              className="text-destructive hover:text-destructive warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md"
+            >
+              <LogOut className="size-4" />
+              <span>Sign Out</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
