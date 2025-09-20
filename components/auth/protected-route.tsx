@@ -1,7 +1,7 @@
 "use client"
 
-import { useAuth } from './auth-provider'
-import { hasAccess, getDefaultPath } from '@/lib/auth'
+import { useUser, useAuth } from '@clerk/nextjs'
+import { useClerkSupabase } from '@/hooks/use-clerk-supabase'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -16,36 +16,43 @@ export function ProtectedRoute({
   requiredRole, 
   fallbackPath 
 }: ProtectedRouteProps) {
-  const { user, isAuthenticated, isLoading } = useAuth()
+  const { user: clerkUser, isLoaded: clerkLoaded } = useUser()
+  const { casalinkUser, isLoading: supabaseLoading } = useClerkSupabase()
   const router = useRouter()
 
   useEffect(() => {
-    if (isLoading) return
+    if (!clerkLoaded || supabaseLoading) return
 
-    if (!isAuthenticated || !user) {
+    if (!clerkUser) {
       // Redirect to login if not authenticated
       router.push('/login')
       return
     }
 
+    if (!casalinkUser) {
+      // User exists in Clerk but not synced to Supabase yet
+      // Show loading or redirect to login
+      return
+    }
+
     // Check role-based access
-    if (requiredRole && user.role !== requiredRole) {
+    if (requiredRole && casalinkUser.role !== requiredRole) {
       // Redirect to appropriate default path for user's role
-      const defaultPath = getDefaultPath(user.role)
+      const defaultPaths = {
+        platform_admin: '/admin',
+        management: '/admin',
+        security: '/security',
+        resident: '/resident',
+        visitor: '/visitor',
+        moderator: '/resident'
+      }
+      const defaultPath = defaultPaths[casalinkUser.role as keyof typeof defaultPaths] || '/demo'
       router.push(defaultPath)
       return
     }
+  }, [clerkUser, clerkLoaded, casalinkUser, supabaseLoading, requiredRole, router])
 
-    // Check if user has access to current path
-    const currentPath = window.location.pathname
-    if (!hasAccess(user.role, currentPath)) {
-      const defaultPath = getDefaultPath(user.role)
-      router.push(defaultPath)
-      return
-    }
-  }, [user, isAuthenticated, isLoading, requiredRole, router])
-
-  if (isLoading) {
+  if (!clerkLoaded || supabaseLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -53,8 +60,19 @@ export function ProtectedRoute({
     )
   }
 
-  if (!isAuthenticated || !user) {
+  if (!clerkUser) {
     return null // Will redirect to login
+  }
+
+  if (!casalinkUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Syncing user data...</p>
+        </div>
+      </div>
+    )
   }
 
   return <>{children}</>

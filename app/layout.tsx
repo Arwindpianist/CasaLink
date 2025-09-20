@@ -6,7 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import { ClerkProvider } from "@clerk/nextjs"
 import { ThemeProvider } from "@/components/theme-provider"
-import { AuthProvider } from "@/components/auth/auth-provider"
+import { ClerkSupabaseProvider } from "@/components/auth/clerk-auth-provider"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -109,9 +109,9 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange={false}
           >
-            <AuthProvider>
+            <ClerkSupabaseProvider>
               <Suspense fallback={null}>{children}</Suspense>
-            </AuthProvider>
+            </ClerkSupabaseProvider>
           </ThemeProvider>
           <Analytics />
         </body>
