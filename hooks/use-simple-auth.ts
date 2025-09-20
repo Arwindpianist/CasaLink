@@ -37,11 +37,11 @@ export function useSimpleAuth() {
         setIsLoading(true)
         setError(null)
 
-        const response = await fetch('/api/auth/user')
+        const response = await fetch('/api/auth/verify')
         
         if (response.ok) {
-          const user = await response.json()
-          setCasaLinkUser(user)
+          const data = await response.json()
+          setCasaLinkUser(data.user)
         } else if (response.status === 404) {
           console.warn('User not found in Supabase:', clerkUser.id)
           setCasaLinkUser(null)
@@ -66,11 +66,11 @@ export function useSimpleAuth() {
       setIsLoading(true)
       setError(null)
       
-      const response = await fetch('/api/auth/user')
+      const response = await fetch('/api/auth/verify')
       
       if (response.ok) {
-        const user = await response.json()
-        setCasaLinkUser(user)
+        const data = await response.json()
+        setCasaLinkUser(data.user)
       } else {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
