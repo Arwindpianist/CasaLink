@@ -39,9 +39,10 @@ export function useClerkSupabase() {
             // Update last seen timestamp
             await updateUserLastSeenClient(clerkUser.id, token)
           } else {
-          // User doesn't exist in Supabase yet
-          // This should be handled by the webhook, but we can create a placeholder
-          console.warn('User not found in Supabase:', clerkUser.id)
+            // User doesn't exist in Supabase yet
+            // This should be handled by the webhook, but we can create a placeholder
+            console.warn('User not found in Supabase:', clerkUser.id)
+          }
         }
       } catch (err) {
         console.error('Error syncing user:', err)
