@@ -34,6 +34,20 @@ export async function createServerSupabaseClient() {
   }
 }
 
+// Webhook-specific Supabase client that bypasses RLS
+export function createWebhookSupabaseClient() {
+  return createClient(
+    process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false,
+      },
+    },
+  )
+}
+
 // Client-side Supabase client with Clerk authentication
 export function createClientSupabaseClient(token: string) {
   return createClient(supabaseUrl, supabaseAnonKey, {
@@ -87,7 +101,7 @@ export interface Condominium {
 // Sync Clerk user with Supabase
 export async function syncClerkUserWithSupabase(clerkUser: any, role: UserRole, condoId: string) {
   try {
-    const serverSupabase = await createServerSupabaseClient()
+    const serverSupabase = createWebhookSupabaseClient()
     
     // Check if user already exists
     const { data: existingUser, error: fetchError } = await serverSupabase

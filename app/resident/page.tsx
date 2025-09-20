@@ -18,14 +18,14 @@ import { generateVisitorQR } from "@/lib/qr-utils"
 import { visitorsApi } from "@/lib/api"
 import { useSearchParams } from "next/navigation"
 import { ProtectedRoute } from "@/components/auth/protected-route"
-import { useAuth } from "@/components/auth/auth-provider"
+import { useSimpleAuth } from "@/hooks/use-simple-auth"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
 // Resident page is protected and requires authentication
 
 export default function ResidentApp() {
-  const { user } = useAuth()
+  const { casalinkUser: user, isLoading: authLoading } = useSimpleAuth()
   const searchParams = useSearchParams()
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState("home")
@@ -884,6 +884,18 @@ export default function ResidentApp() {
             ))}
           </div>
         </motion.div>
+      </div>
+    )
+  }
+
+  // Show loading state while authenticating
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
       </div>
     )
   }

@@ -70,17 +70,21 @@ export async function POST(req: NextRequest) {
 
 async function handleUserCreated(data: any) {
   console.log('User created:', data.id)
+  console.log('User metadata:', data.public_metadata)
   
   // For new users, we'll need to get their role and condo_id from metadata
   // This should be set during the sign-up process
   const role = data.public_metadata?.role || 'resident'
-  const condoId = data.public_metadata?.condo_id || 'default-condo'
+  const condoId = data.public_metadata?.condo_id || '550e8400-e29b-41d4-a716-446655440000' // Demo Condominium UUID
+  
+  console.log('Syncing user with role:', role, 'condo_id:', condoId)
   
   try {
     await syncClerkUserWithSupabase(data, role, condoId)
     console.log('User synced to Supabase successfully')
   } catch (error) {
     console.error('Error syncing user to Supabase:', error)
+    console.error('Error details:', error.message)
   }
 }
 
