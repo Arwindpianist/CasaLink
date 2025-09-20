@@ -44,3 +44,6 @@ export function useClerkAuth() {
   }
   return context
 }
+
+// Export ClerkSupabaseProvider as an alias for ClerkAuthProvider
+export const ClerkSupabaseProvider = ClerkAuthProvider

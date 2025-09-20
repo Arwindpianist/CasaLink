@@ -27,8 +27,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
-import { useAuth } from "@/components/auth/auth-provider"
-import { UserProfile } from "@/components/auth/user-profile"
+// Removed auth dependencies for public demo page
 
 // Mock data for demo
 const mockResidents = [
@@ -764,7 +763,8 @@ function DesktopMockup({ isActive, onVisitorApproval, onMessageReceived, scanned
 }
 
 export default function DemoPage() {
-  const { user } = useAuth()
+  // Mock user for demo purposes
+  const user = { role: 'demo', name: 'Demo User' }
   const [activeView, setActiveView] = useState<'resident' | 'visitor' | 'desktop'>('resident')
   const [ws, setWs] = useState<DemoWebSocket | null>(null)
   const [isConnected, setIsConnected] = useState(false)
@@ -846,7 +846,7 @@ export default function DemoPage() {
                   <span className="sm:hidden">{isConnected ? "On" : "Off"}</span>
                 </Badge>
                 <AnimatedThemeToggler />
-                <UserProfile />
+                {/* Removed UserProfile for public demo */}
               </div>
             </div>
           </div>

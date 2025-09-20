@@ -22,6 +22,8 @@ import { useAuth } from "@/components/auth/auth-provider"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 
+// Resident page is protected and requires authentication
+
 export default function ResidentApp() {
   const { user } = useAuth()
   const searchParams = useSearchParams()
