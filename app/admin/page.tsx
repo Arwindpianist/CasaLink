@@ -37,7 +37,11 @@ import {
   Phone,
   Calendar,
   LogOut,
-  MapPin
+  MapPin,
+  Building,
+  HomeIcon,
+  TreePine,
+  Factory
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
@@ -127,6 +131,70 @@ export default function AdminDashboard() {
         return "bg-green-100 text-green-800 border-green-200"
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
+    }
+  }
+
+  // Get property type icon and styling
+  const getPropertyTypeConfig = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case "condo":
+      case "condominium":
+        return {
+          icon: Building2,
+          bgColor: "bg-blue-500/20",
+          iconColor: "text-blue-600",
+          borderColor: "border-blue-200",
+          label: "Condo"
+        }
+      case "apartment":
+        return {
+          icon: Building,
+          bgColor: "bg-purple-500/20",
+          iconColor: "text-purple-600",
+          borderColor: "border-purple-200",
+          label: "Apartment"
+        }
+      case "townhouse":
+        return {
+          icon: HomeIcon,
+          bgColor: "bg-green-500/20",
+          iconColor: "text-green-600",
+          borderColor: "border-green-200",
+          label: "Townhouse"
+        }
+      case "villa":
+        return {
+          icon: Home,
+          bgColor: "bg-orange-500/20",
+          iconColor: "text-orange-600",
+          borderColor: "border-orange-200",
+          label: "Villa"
+        }
+      case "office":
+      case "commercial":
+        return {
+          icon: Factory,
+          bgColor: "bg-gray-500/20",
+          iconColor: "text-gray-600",
+          borderColor: "border-gray-200",
+          label: "Commercial"
+        }
+      case "resort":
+        return {
+          icon: TreePine,
+          bgColor: "bg-emerald-500/20",
+          iconColor: "text-emerald-600",
+          borderColor: "border-emerald-200",
+          label: "Resort"
+        }
+      default:
+        return {
+          icon: Building2,
+          bgColor: "bg-primary/20",
+          iconColor: "text-primary",
+          borderColor: "border-primary/30",
+          label: type || "Property"
+        }
     }
   }
 
@@ -239,7 +307,7 @@ export default function AdminDashboard() {
               variant="outline" 
               onClick={refreshCondominiums}
               disabled={loading}
-              className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
+              className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
             >
               <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -249,7 +317,7 @@ export default function AdminDashboard() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div {...fadeInUp}>
-              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -263,7 +331,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -277,7 +345,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -291,7 +359,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -307,7 +375,7 @@ export default function AdminDashboard() {
 
           {/* Recent Condominiums */}
           <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -327,7 +395,9 @@ export default function AdminDashboard() {
                       {[...Array(3)].map((_, i) => (
                         <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
                           <div className="flex items-center space-x-4">
-                            <Skeleton className="h-10 w-10 rounded-lg" />
+                            <div className="h-10 w-10 bg-primary/20 rounded-lg flex items-center justify-center border border-primary/30">
+                              <Building2 className="h-5 w-5 text-primary" />
+                            </div>
                             <div className="space-y-2">
                               <Skeleton className="h-4 w-48" />
                               <Skeleton className="h-3 w-64" />
@@ -341,25 +411,31 @@ export default function AdminDashboard() {
                       ))}
                     </div>
                   ) : condominiums.length > 0 ? (
-                    condominiums.map((condo, index) => (
-                      <div key={condo.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex items-center space-x-4">
-                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                            <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <div>
-                            <h3 className="font-medium text-foreground">{condo.name}</h3>
-                            <p className="text-sm text-muted-foreground">{condo.address}</p>
+                    condominiums.map((condo, index) => {
+                      const propertyConfig = getPropertyTypeConfig(condo.type)
+                      const PropertyIcon = propertyConfig.icon
+                      return (
+                        <div key={condo.id} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <div className={`w-10 h-10 ${propertyConfig.bgColor} rounded-lg flex items-center justify-center border ${propertyConfig.borderColor}`}>
+                              <PropertyIcon className={`h-5 w-5 ${propertyConfig.iconColor}`} />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-foreground">{condo.name}</h3>
+                              <p className="text-sm text-muted-foreground">{condo.address}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="secondary" className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
+                              {propertyConfig.label}
+                            </Badge>
+                            <Button size="sm" variant="outline" className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary">
+                              <Eye className="h-4 w-4" />
+                            </Button>
                           </div>
                         </div>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="secondary">{condo.type}</Badge>
-                          <Button size="sm" variant="outline">
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))
+                      )
+                    })
                   ) : (
                     <div className="text-center py-8">
                       <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -373,7 +449,7 @@ export default function AdminDashboard() {
 
           {/* Recent Activities */}
           <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
-            <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
+            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
               <CardHeader>
                 <CardTitle className="text-foreground">Recent Activities</CardTitle>
                 <CardDescription className="text-muted-foreground">Latest platform activities and alerts</CardDescription>
@@ -462,14 +538,14 @@ export default function AdminDashboard() {
                 variant="outline" 
                 onClick={refreshCondominiums}
                 disabled={loading}
-                className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
+                className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
               >
                 <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button 
                 onClick={handleCreate}
-                className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+                className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90 dark:border-primary dark:bg-primary dark:hover:bg-primary/80 dark:hover:border-primary/80"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Property
@@ -477,7 +553,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Card className="warm-card border-2 border-border/50 hover:border-primary/20 transition-all duration-200 hover:shadow-lg bg-card/50 backdrop-blur-sm">
+          <Card className="warm-card border-2 border-primary/40 hover:border-primary/20 transition-all duration-200 hover:shadow-lg bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary/40 dark:hover:shadow-primary/20">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -494,7 +570,9 @@ export default function AdminDashboard() {
                       <Card key={i} className="border-2 border-border/50">
                         <CardContent className="p-6">
                           <div className="flex items-start space-x-4">
-                            <Skeleton className="h-16 w-16 rounded-full" />
+                            <div className="h-16 w-16 bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/30">
+                              <Building2 className="h-8 w-8 text-primary" />
+                            </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between">
                                 <div className="space-y-2">
@@ -523,22 +601,22 @@ export default function AdminDashboard() {
                     ))}
                   </div>
                 ) : condominiums.length > 0 ? (
-                  condominiums.map((condo, index) => (
-                    <motion.div
-                      key={condo.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <Card className="warm-card border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
-                        <CardContent className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <Avatar className="h-16 w-16 border-2 border-border">
-                              <AvatarImage src="/placeholder.svg" />
-                              <AvatarFallback>
-                                <Building2 className="h-8 w-8" />
-                              </AvatarFallback>
-                            </Avatar>
+                  condominiums.map((condo, index) => {
+                    const propertyConfig = getPropertyTypeConfig(condo.type)
+                    const PropertyIcon = propertyConfig.icon
+                    return (
+                      <motion.div
+                        key={condo.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.1 }}
+                      >
+                        <Card className="warm-card border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+                          <CardContent className="p-6">
+                            <div className="flex items-start space-x-4">
+                              <div className={`h-16 w-16 ${propertyConfig.bgColor} rounded-full flex items-center justify-center border-2 ${propertyConfig.borderColor}`}>
+                                <PropertyIcon className={`h-8 w-8 ${propertyConfig.iconColor}`} />
+                              </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between">
                                 <div>
@@ -566,6 +644,9 @@ export default function AdminDashboard() {
                                     <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                                       Active
               </Badge>
+                                    <Badge className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
+                                      {propertyConfig.label}
+                                    </Badge>
                                     <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                                       {condo.subscription_plan?.charAt(0).toUpperCase() + condo.subscription_plan?.slice(1) || 'Basic'}
                                     </Badge>
@@ -584,7 +665,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
+                                  className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -612,8 +693,9 @@ export default function AdminDashboard() {
                   </div>
                 </CardContent>
               </Card>
-                    </motion.div>
-                  ))
+                      </motion.div>
+                    )
+                  })
                 ) : (
                   <div className="text-center py-16">
                     <Building2 className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
@@ -623,7 +705,7 @@ export default function AdminDashboard() {
                     </p>
                     <Button 
                       onClick={handleCreate}
-                      className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+                      className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90 dark:border-primary dark:bg-primary dark:hover:bg-primary/80 dark:hover:border-primary/80"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Property
@@ -1329,7 +1411,7 @@ export default function AdminDashboard() {
       <SidebarProvider>
         <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <SidebarInset>
-          <header className="glass-header border-b border-border px-4 py-4">
+          <header className="glass-header border-b border-border px-4 py-4 dark:border-primary/30 dark:bg-background/90">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="-ml-1 warm-hover" />
@@ -1350,7 +1432,7 @@ export default function AdminDashboard() {
             </div>
           </header>
           
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-background/50">
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-background/50 dark:bg-background/80">
             {renderContent()}
         </div>
         </SidebarInset>

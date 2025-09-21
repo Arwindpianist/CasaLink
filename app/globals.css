@@ -401,6 +401,52 @@
     box-shadow: 0 6px 16px var(--primary);
   }
 
+  /* Enhanced admin dashboard dark mode visibility */
+  .dark .border-primary\/40 {
+    border-color: var(--primary);
+    border-width: 2px;
+    opacity: 0.6;
+  }
+
+  .dark .border-primary\/60 {
+    border-color: var(--primary);
+    border-width: 2px;
+    opacity: 0.8;
+  }
+
+  .dark .bg-card\/95 {
+    background-color: var(--card);
+    opacity: 0.95;
+  }
+
+  .dark .hover\:border-primary:hover {
+    border-color: var(--primary) !important;
+    border-width: 2px;
+    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.3);
+  }
+
+  .dark .hover\:shadow-primary\/30:hover {
+    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.3);
+  }
+
+  .dark .hover\:bg-primary\/20:hover {
+    background-color: rgba(177, 57, 107, 0.2);
+  }
+
+  .dark button.warm-hover {
+    border: 2px solid var(--primary);
+    opacity: 0.8;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .dark button.warm-hover:hover {
+    border-color: var(--primary);
+    background-color: rgba(177, 57, 107, 0.2);
+    color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.3);
+  }
+
   /* Typography utilities */
   .font-premium {
     font-family: "Cormorant Garamond", ui-serif, Georgia;
