@@ -1,11 +1,18 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Building2,
   Search,
@@ -19,92 +26,126 @@ import {
   MapPin,
   Calendar,
   TrendingUp,
+  Eye,
+  Edit,
+  Trash2,
+  RefreshCw,
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
+import { CondominiumFormDialog } from "@/components/admin/condominium-form-dialog"
+import { CondominiumDetailsDialog } from "@/components/admin/condominium-details-dialog"
+import { CondominiumDeleteDialog } from "@/components/admin/condominium-delete-dialog"
+import { toast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
+
+interface Condominium {
+  id: string
+  name: string
+  type: string
+  address: string
+  city?: string
+  state?: string
+  country: string
+  postal_code?: string
+  subscription_plan: string
+  monthly_revenue: number
+  status: string
+  settings: Record<string, any>
+  created_at: string
+  updated_at: string
+  users?: { count: number }[]
+  units?: { count: number }[]
+}
+
+interface PaginationInfo {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+}
 
 export default function CondoManagement() {
+  const [condominiums, setCondominiums] = useState<Condominium[]>([])
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0
+  })
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [planFilter, setPlanFilter] = useState("")
+  
+  // Dialog states
+  const [formDialogOpen, setFormDialogOpen] = useState(false)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedCondominium, setSelectedCondominium] = useState<Condominium | null>(null)
 
-  const condominiums = [
-    {
-      id: 1,
-      name: "Pavilion Residences",
-      location: "Kuala Lumpur",
-      address: "168 Jalan Bukit Bintang, 55100 KL",
-      units: 240,
-      activeUsers: 186,
-      plan: "Professional",
-      status: "active",
-      joinDate: "2024-01-15",
-      monthlyRevenue: 1497,
-      lastActivity: "2 hours ago",
-      usage: {
-        qrScans: 1247,
-        chatMessages: 3421,
-        announcements: 12,
-      },
-      avatar: "/pavilion-residences.jpg",
-    },
-    {
-      id: 2,
-      name: "KLCC Suites",
-      location: "Kuala Lumpur",
-      address: "50 Jalan Ampang, 50450 KL",
-      units: 180,
-      activeUsers: 142,
-      plan: "Enterprise",
-      status: "active",
-      joinDate: "2024-02-03",
-      monthlyRevenue: 2995,
-      lastActivity: "1 hour ago",
-      usage: {
-        qrScans: 892,
-        chatMessages: 2156,
-        announcements: 8,
-      },
-      avatar: "/klcc-suites.jpg",
-    },
-    {
-      id: 3,
-      name: "Mont Kiara Heights",
-      location: "Mont Kiara",
-      address: "2 Jalan Kiara, Mont Kiara, 50480 KL",
-      units: 320,
-      activeUsers: 298,
-      plan: "Enterprise",
-      status: "active",
-      joinDate: "2024-01-28",
-      monthlyRevenue: 2995,
-      lastActivity: "30 min ago",
-      usage: {
-        qrScans: 1876,
-        chatMessages: 4532,
-        announcements: 15,
-      },
-      avatar: "/mont-kiara-heights.jpg",
-    },
-    {
-      id: 4,
-      name: "Tropicana Gardens",
-      location: "Petaling Jaya",
-      address: "2A Jalan PJU 3, 47410 PJ",
-      units: 150,
-      activeUsers: 89,
-      plan: "Starter",
-      status: "trial",
-      joinDate: "2024-03-10",
-      monthlyRevenue: 0,
-      lastActivity: "5 hours ago",
-      usage: {
-        qrScans: 234,
-        chatMessages: 567,
-        announcements: 3,
-      },
-      avatar: "/tropicana-gardens.jpg",
-    },
-  ]
+  // Fetch condominiums data
+  const fetchCondominiums = async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+      })
+      
+      if (searchTerm) params.append('search', searchTerm)
+      if (statusFilter) params.append('status', statusFilter)
+      if (planFilter) params.append('plan', planFilter)
+
+      const response = await fetch(`/api/condominiums?${params}`)
+      if (!response.ok) {
+        throw new Error('Failed to fetch condominiums')
+      }
+      
+      const data = await response.json()
+      setCondominiums(data.condominiums)
+      setPagination(data.pagination)
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to load condominiums",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    fetchCondominiums()
+  }, [pagination.page, searchTerm, statusFilter, planFilter])
+
+  // CRUD operations
+  const handleCreate = () => {
+    setSelectedCondominium(null)
+    setFormDialogOpen(true)
+  }
+
+  const handleEdit = (condominium: Condominium) => {
+    setSelectedCondominium(condominium)
+    setFormDialogOpen(true)
+  }
+
+  const handleView = (condominium: Condominium) => {
+    setSelectedCondominium(condominium)
+    setDetailsDialogOpen(true)
+  }
+
+  const handleDelete = (condominium: Condominium) => {
+    setSelectedCondominium(condominium)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleSuccess = () => {
+    fetchCondominiums()
+  }
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -114,8 +155,8 @@ export default function CondoManagement() {
         return { color: "bg-blue-100 text-blue-800 border-blue-200", label: "Trial" }
       case "suspended":
         return { color: "bg-red-100 text-red-800 border-red-200", label: "Suspended" }
-      case "pending":
-        return { color: "bg-yellow-100 text-yellow-800 border-yellow-200", label: "Pending" }
+      case "cancelled":
+        return { color: "bg-gray-100 text-gray-800 border-gray-200", label: "Cancelled" }
       default:
         return { color: "bg-gray-100 text-gray-800 border-gray-200", label: "Unknown" }
     }
@@ -123,15 +164,30 @@ export default function CondoManagement() {
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
-      case "Enterprise":
+      case "enterprise":
         return "bg-purple-100 text-purple-800 border-purple-200"
-      case "Professional":
+      case "professional":
         return "bg-blue-100 text-blue-800 border-blue-200"
-      case "Starter":
+      case "basic":
         return "bg-green-100 text-green-800 border-green-200"
       default:
         return "bg-gray-100 text-gray-800 border-gray-200"
     }
+  }
+
+  const getTotalUsers = () => {
+    return condominiums.reduce((sum, condo) => {
+      const userCount = condo.users?.[0]?.count || 0
+      return sum + userCount
+    }, 0)
+  }
+
+  const getTotalRevenue = () => {
+    return condominiums.reduce((sum, condo) => sum + (condo.monthly_revenue || 0), 0)
+  }
+
+  const getActiveCondominiums = () => {
+    return condominiums.filter(condo => condo.status === 'active').length
   }
 
   const fadeInUp = {
@@ -155,11 +211,16 @@ export default function CondoManagement() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={fetchCondominiums}
+                disabled={loading}
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
-              <Button size="sm">
+              <Button size="sm" onClick={handleCreate}>
                 <Plus className="h-4 w-4 mr-2" />
                 Add Condo
               </Button>
@@ -170,14 +231,41 @@ export default function CondoManagement() {
         <div className="p-4 lg:p-8">
           {/* Search and Overview */}
           <motion.div className="mb-8 space-y-4" {...fadeInUp}>
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search condominiums by name, location, or plan..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search condominiums by name, location, or plan..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="trial">Trial</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={planFilter} onValueChange={setPlanFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Plan" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">All Plans</SelectItem>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -186,7 +274,9 @@ export default function CondoManagement() {
                   <div className="flex items-center space-x-2">
                     <Building2 className="h-5 w-5 text-primary" />
                     <div>
-                      <p className="text-2xl font-bold text-foreground">{condominiums.length}</p>
+                      <p className="text-2xl font-bold text-foreground">
+                        {loading ? <Skeleton className="h-6 w-8" /> : pagination.total}
+                      </p>
                       <p className="text-xs text-muted-foreground">Total Properties</p>
                     </div>
                   </div>
@@ -199,7 +289,7 @@ export default function CondoManagement() {
                     <Users className="h-5 w-5 text-blue-600" />
                     <div>
                       <p className="text-2xl font-bold text-foreground">
-                        {condominiums.reduce((sum, condo) => sum + condo.activeUsers, 0)}
+                        {loading ? <Skeleton className="h-6 w-12" /> : getTotalUsers().toLocaleString()}
                       </p>
                       <p className="text-xs text-muted-foreground">Total Users</p>
                     </div>
@@ -213,7 +303,7 @@ export default function CondoManagement() {
                     <DollarSign className="h-5 w-5 text-green-600" />
                     <div>
                       <p className="text-2xl font-bold text-foreground">
-                        RM{condominiums.reduce((sum, condo) => sum + condo.monthlyRevenue, 0).toLocaleString()}
+                        {loading ? <Skeleton className="h-6 w-16" /> : `RM${getTotalRevenue().toLocaleString()}`}
                       </p>
                       <p className="text-xs text-muted-foreground">Monthly Revenue</p>
                     </div>
@@ -227,7 +317,7 @@ export default function CondoManagement() {
                     <Activity className="h-5 w-5 text-orange-600" />
                     <div>
                       <p className="text-2xl font-bold text-foreground">
-                        {condominiums.filter((c) => c.status === "active").length}
+                        {loading ? <Skeleton className="h-6 w-8" /> : getActiveCondominiums()}
                       </p>
                       <p className="text-xs text-muted-foreground">Active Properties</p>
                     </div>
@@ -239,95 +329,195 @@ export default function CondoManagement() {
 
           {/* Condominiums List */}
           <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-            <div className="space-y-6">
-              {condominiums.map((condo) => {
-                const statusConfig = getStatusConfig(condo.status)
-                const planColor = getPlanColor(condo.plan)
-                return (
-                  <Card key={condo.id}>
+            {loading ? (
+              <div className="space-y-6">
+                {[...Array(3)].map((_, i) => (
+                  <Card key={i}>
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
-                        <Avatar className="h-16 w-16">
-                          <AvatarImage src={condo.avatar || "/placeholder.svg"} />
-                          <AvatarFallback>
-                            <Building2 className="h-8 w-8" />
-                          </AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between">
-                            <div>
-                              <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
-                              <div className="flex items-center space-x-2 mt-1">
-                                <MapPin className="h-4 w-4 text-muted-foreground" />
-                                <p className="text-sm text-muted-foreground">{condo.address}</p>
-                              </div>
-                              <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                                <span>{condo.units} units</span>
-                                <span>•</span>
-                                <span>{condo.activeUsers} active users</span>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                  <Calendar className="h-3 w-3 mr-1" />
-                                  Joined {condo.joinDate}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-end space-y-2">
-                              <div className="flex items-center space-x-2">
-                                <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
-                                <Badge className={planColor}>{condo.plan}</Badge>
-                              </div>
-                              <p className="text-lg font-bold text-foreground">
-                                {condo.monthlyRevenue > 0 ? `RM${condo.monthlyRevenue}/month` : "Trial"}
-                              </p>
-                              <p className="text-xs text-muted-foreground">Last active: {condo.lastActivity}</p>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-3 gap-4 mt-4 p-4 bg-muted/30 rounded-lg">
-                            <div className="text-center">
-                              <p className="text-lg font-semibold text-foreground">{condo.usage.qrScans}</p>
-                              <p className="text-xs text-muted-foreground">QR Scans</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-lg font-semibold text-foreground">{condo.usage.chatMessages}</p>
-                              <p className="text-xs text-muted-foreground">Chat Messages</p>
-                            </div>
-                            <div className="text-center">
-                              <p className="text-lg font-semibold text-foreground">{condo.usage.announcements}</p>
-                              <p className="text-xs text-muted-foreground">Announcements</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center space-x-2 mt-4">
-                            <Button size="sm">
-                              <BarChart3 className="h-4 w-4 mr-1" />
-                              View Analytics
-                            </Button>
-                            <Button size="sm" variant="outline">
-                              <Settings className="h-4 w-4 mr-1" />
-                              Configure
-                            </Button>
-                            <Button size="sm" variant="outline">
-                              <Users className="h-4 w-4 mr-1" />
-                              Manage Users
-                            </Button>
-                            {condo.status === "trial" && (
-                              <Button size="sm" variant="outline">
-                                <TrendingUp className="h-4 w-4 mr-1" />
-                                Upgrade Plan
-                              </Button>
-                            )}
+                        <Skeleton className="h-16 w-16 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-6 w-48" />
+                          <Skeleton className="h-4 w-64" />
+                          <Skeleton className="h-4 w-32" />
+                          <div className="flex gap-2 mt-4">
+                            <Skeleton className="h-8 w-24" />
+                            <Skeleton className="h-8 w-24" />
+                            <Skeleton className="h-8 w-24" />
                           </div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
-                )
-              })}
-            </div>
+                ))}
+              </div>
+            ) : condominiums.length === 0 ? (
+              <Card>
+                <CardContent className="p-12 text-center">
+                  <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No condominiums found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchTerm || statusFilter || planFilter 
+                      ? "Try adjusting your search filters"
+                      : "Get started by adding your first condominium"
+                    }
+                  </p>
+                  <Button onClick={handleCreate}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Condominium
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {condominiums.map((condo) => {
+                  const statusConfig = getStatusConfig(condo.status)
+                  const planColor = getPlanColor(condo.subscription_plan)
+                  const userCount = condo.users?.[0]?.count || 0
+                  const unitCount = condo.units?.[0]?.count || 0
+                  
+                  return (
+                    <Card key={condo.id}>
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-4">
+                          <Avatar className="h-16 w-16">
+                            <AvatarImage src="/placeholder.svg" />
+                            <AvatarFallback>
+                              <Building2 className="h-8 w-8" />
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                                  <p className="text-sm text-muted-foreground">{condo.address}</p>
+                                </div>
+                                {condo.city && (
+                                  <p className="text-sm text-muted-foreground ml-6">
+                                    {condo.city}{condo.state && `, ${condo.state}`} {condo.postal_code}
+                                  </p>
+                                )}
+                                <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                                  <span>{unitCount} units</span>
+                                  <span>•</span>
+                                  <span>{userCount} users</span>
+                                  <span>•</span>
+                                  <span className="flex items-center">
+                                    <Calendar className="h-3 w-3 mr-1" />
+                                    Joined {new Date(condo.created_at).toLocaleDateString()}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="flex flex-col items-end space-y-2">
+                                <div className="flex items-center space-x-2">
+                                  <Badge className={statusConfig.color}>{statusConfig.label}</Badge>
+                                  <Badge className={planColor}>
+                                    {condo.subscription_plan.charAt(0).toUpperCase() + condo.subscription_plan.slice(1)}
+                                  </Badge>
+                                </div>
+                                <p className="text-lg font-bold text-foreground">
+                                  {condo.monthly_revenue > 0 ? `RM${condo.monthly_revenue}/month` : "Trial"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Updated {new Date(condo.updated_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center space-x-2 mt-4">
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleView(condo)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                View Details
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleEdit(condo)}
+                              >
+                                <Edit className="h-4 w-4 mr-1" />
+                                Edit
+                              </Button>
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                onClick={() => handleDelete(condo)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Delete
+                              </Button>
+                              {condo.status === "trial" && (
+                                <Button size="sm" variant="outline">
+                                  <TrendingUp className="h-4 w-4 mr-1" />
+                                  Upgrade Plan
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )
+                })}
+              </div>
+            )}
+            
+            {/* Pagination */}
+            {pagination.totalPages > 1 && (
+              <div className="flex items-center justify-between mt-8">
+                <p className="text-sm text-muted-foreground">
+                  Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} condominiums
+                </p>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+                    disabled={pagination.page === 1}
+                  >
+                    Previous
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
+                    disabled={pagination.page === pagination.totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
+
+        {/* Dialog Components */}
+        <CondominiumFormDialog
+          open={formDialogOpen}
+          onOpenChange={setFormDialogOpen}
+          condominium={selectedCondominium}
+          onSuccess={handleSuccess}
+        />
+
+        <CondominiumDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+          condominiumId={selectedCondominium?.id || null}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+
+        <CondominiumDeleteDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          condominium={selectedCondominium}
+          onSuccess={handleSuccess}
+        />
       </SidebarInset>
     </SidebarProvider>
   )
