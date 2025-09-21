@@ -1,7 +1,7 @@
 "use client"
 
-import { useUser, useAuth } from '@clerk/nextjs'
-import { useClerkSupabase } from '@/hooks/use-clerk-supabase'
+import { useUser } from '@clerk/nextjs'
+import { useSimpleAuth } from '@/hooks/use-simple-auth'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
@@ -17,7 +17,7 @@ export function ProtectedRoute({
   fallbackPath 
 }: ProtectedRouteProps) {
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser()
-  const { casalinkUser, isLoading: supabaseLoading } = useClerkSupabase()
+  const { casalinkUser, isLoading: supabaseLoading } = useSimpleAuth()
   const router = useRouter()
 
   useEffect(() => {
