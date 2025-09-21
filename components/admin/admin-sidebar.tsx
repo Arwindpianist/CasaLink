@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -43,18 +45,18 @@ import {
 import { cn } from "@/lib/utils"
 
 export function AdminSidebar() {
-  const [activeItem, setActiveItem] = useState("dashboard")
+  const pathname = usePathname()
 
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
-    { id: "condos", label: "Condominiums", icon: Building2, badge: "47" },
-    { id: "users", label: "User Management", icon: Users, badge: null },
-    { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
-    { id: "billing", label: "Billing & Revenue", icon: DollarSign, badge: "3" },
-    { id: "system", label: "System Health", icon: Globe, badge: null },
-    { id: "security", label: "Security", icon: Shield, badge: null },
-    { id: "alerts", label: "Alerts & Logs", icon: AlertTriangle, badge: "12" },
-    { id: "settings", label: "Platform Settings", icon: Settings, badge: null },
+    { id: "dashboard", label: "Dashboard", icon: Home, href: "/admin", badge: null },
+    { id: "condos", label: "Condominiums", icon: Building2, href: "/admin/condos", badge: null },
+    { id: "users", label: "User Management", icon: Users, href: "/admin/users", badge: null },
+    { id: "analytics", label: "Analytics", icon: BarChart3, href: "/admin/analytics", badge: null },
+    { id: "billing", label: "Billing & Revenue", icon: DollarSign, href: "/admin/billing", badge: null },
+    { id: "system", label: "System Health", icon: Globe, href: "/admin/system", badge: null },
+    { id: "security", label: "Security", icon: Shield, href: "/admin/security", badge: null },
+    { id: "alerts", label: "Alerts & Logs", icon: AlertTriangle, href: "/admin/alerts", badge: null },
+    { id: "settings", label: "Platform Settings", icon: Settings, href: "/admin/settings", badge: null },
   ]
 
   return (
@@ -106,18 +108,17 @@ export function AdminSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const Icon = item.icon
-                const isActive = activeItem === item.id
+                const isActive = pathname === item.href
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton 
                       asChild
                       isActive={isActive}
-                      onClick={() => setActiveItem(item.id)}
                     >
-                      <a href="#" className="w-full">
+                      <Link href={item.href} className="w-full">
                         <Icon className="size-4" />
                         <span>{item.label}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                     {item.badge && (
                       <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
@@ -134,10 +135,10 @@ export function AdminSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <a href="#">
+              <Link href="/admin/notifications">
                 <Bell className="size-4" />
                 <span>System Notifications</span>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -149,34 +150,34 @@ export function AdminSidebar() {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href="/admin/condos">
                     <Building2 className="size-4" />
                     <span>Add New Condo</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href="/admin/users">
                     <Users className="size-4" />
                     <span>User Management</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href="/admin/analytics">
                     <BarChart3 className="size-4" />
                     <span>Generate Reports</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <a href="#">
+                  <Link href="/admin/settings">
                     <Settings className="size-4" />
                     <span>System Settings</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

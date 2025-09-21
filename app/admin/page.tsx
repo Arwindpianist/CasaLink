@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -28,53 +29,81 @@ import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/s
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ProtectedRoute } from "@/components/auth/protected-route"
 import { RoleNavigation } from "@/components/navigation/role-navigation"
+import { Skeleton } from "@/components/ui/skeleton"
+
+interface Condominium {
+  id: string
+  name: string
+  type: string
+  address: string
+  city?: string
+  state?: string
+  country: string
+  postal_code?: string
+  subscription_plan: string
+  monthly_revenue: number
+  status: string
+  settings: Record<string, any>
+  created_at: string
+  updated_at: string
+  users?: { count: number }[]
+  units?: { count: number }[]
+}
 
 export default function AdminDashboard() {
+  const [condominiums, setCondominiums] = useState<Condominium[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const globalStats = {
-    totalCondos: 47,
-    activeUsers: 12847,
-    monthlyRevenue: 89650,
-    systemUptime: 99.97,
-    qrScansToday: 3421,
-    supportTickets: 12,
+  // Fetch condominiums data for dashboard
+  useEffect(() => {
+    const fetchCondominiums = async () => {
+      try {
+        const response = await fetch('/api/condominiums?limit=3')
+        if (response.ok) {
+          const data = await response.json()
+          setCondominiums(data.condominiums || [])
+        }
+      } catch (error) {
+        console.error('Failed to fetch condominiums:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCondominiums()
+  }, [])
+
+  // Calculate real stats from condominiums data
+  const getGlobalStats = () => {
+    const totalCondos = condominiums.length
+    const totalUsers = condominiums.reduce((sum, condo) => {
+      const userCount = condo.users?.[0]?.count || 0
+      return sum + userCount
+    }, 0)
+    const monthlyRevenue = condominiums.reduce((sum, condo) => sum + (condo.monthly_revenue || 0), 0)
+    
+    return {
+      totalCondos,
+      activeUsers: totalUsers,
+      monthlyRevenue,
+      systemUptime: 99.97, // Keep as is
+      qrScansToday: 3421, // Keep as is
+      supportTickets: 12, // Keep as is
+    }
   }
 
-  const recentCondos = [
-    {
-      id: 1,
-      name: "Pavilion Residences",
-      location: "Kuala Lumpur",
-      units: 240,
-      activeUsers: 186,
-      plan: "Professional",
-      status: "active",
-      joinDate: "2024-01-15",
-      revenue: 1497,
-    },
-    {
-      id: 2,
-      name: "KLCC Suites",
-      location: "Kuala Lumpur",
-      units: 180,
-      activeUsers: 142,
-      plan: "Enterprise",
-      status: "active",
-      joinDate: "2024-02-03",
-      revenue: 2995,
-    },
-    {
-      id: 3,
-      name: "Mont Kiara Heights",
-      location: "Mont Kiara",
-      units: 320,
-      activeUsers: 298,
-      plan: "Enterprise",
-      status: "active",
-      joinDate: "2024-01-28",
-      revenue: 2995,
-    },
-  ]
+  const globalStats = getGlobalStats()
+  const recentCondos = condominiums.slice(0, 3).map(condo => ({
+    id: condo.id,
+    name: condo.name,
+    location: condo.city || 'Unknown',
+    units: condo.units?.[0]?.count || 0,
+    activeUsers: condo.users?.[0]?.count || 0,
+    plan: condo.subscription_plan.charAt(0).toUpperCase() + condo.subscription_plan.slice(1),
+    status: condo.status,
+    joinDate: new Date(condo.created_at).toLocaleDateString(),
+    revenue: condo.monthly_revenue,
+  }))
 
   const systemAlerts = [
     {
@@ -171,7 +200,9 @@ export default function AdminDashboard() {
                       <Building2 className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold warm-text-primary">{globalStats.totalCondos}</p>
+                      <p className="text-2xl font-bold warm-text-primary">
+                        {loading ? <Skeleton className="h-6 w-8" /> : globalStats.totalCondos}
+                      </p>
                       <p className="text-xs warm-text-secondary">Total Condos</p>
                     </div>
                   </div>
@@ -185,7 +216,9 @@ export default function AdminDashboard() {
                       <Users className="h-5 w-5 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-2xl font-bold warm-text-primary">{globalStats.activeUsers.toLocaleString()}</p>
+                      <p className="text-2xl font-bold warm-text-primary">
+                        {loading ? <Skeleton className="h-6 w-12" /> : globalStats.activeUsers.toLocaleString()}
+                      </p>
                       <p className="text-xs warm-text-secondary">Active Users</p>
                     </div>
                   </div>
@@ -200,7 +233,7 @@ export default function AdminDashboard() {
                     </div>
                     <div>
                       <p className="text-2xl font-bold warm-text-primary">
-                        RM{globalStats.monthlyRevenue.toLocaleString()}
+                        {loading ? <Skeleton className="h-6 w-16" /> : `RM${globalStats.monthlyRevenue.toLocaleString()}`}
                       </p>
                       <p className="text-xs warm-text-secondary">Monthly Revenue</p>
                     </div>
@@ -266,53 +299,89 @@ export default function AdminDashboard() {
                   <CardDescription className="warm-text-secondary">Overview of registered properties and their performance</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {recentCondos.map((condo) => (
-                    <div key={condo.id} className="border border-border rounded-lg p-4 warm-hover">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start space-x-4">
-                          <Avatar className="h-12 w-12">
-                            <AvatarImage src={`/condo-${condo.id}.jpg`} />
-                            <AvatarFallback>
-                              <Building2 className="h-6 w-6" />
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="font-medium warm-text-primary">{condo.name}</h3>
-                            <p className="text-sm warm-text-secondary">{condo.location}</p>
-                            <div className="flex items-center space-x-4 mt-1 text-xs warm-text-secondary">
-                              <span>{condo.units} units</span>
-                              <span>•</span>
-                              <span>{condo.activeUsers} active users</span>
-                              <span>•</span>
-                              <span>Joined {condo.joinDate}</span>
+                  {loading ? (
+                    // Loading skeletons
+                    [...Array(3)].map((_, i) => (
+                      <div key={i} className="border border-border rounded-lg p-4">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4">
+                            <Skeleton className="h-12 w-12 rounded-full" />
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-32" />
+                              <Skeleton className="h-3 w-24" />
+                              <Skeleton className="h-3 w-40" />
                             </div>
                           </div>
-                        </div>
-                        <div className="text-right">
-                          <Badge variant="secondary" className="mb-2 warm-accent">
-                            {condo.plan}
-                          </Badge>
-                          <p className="text-sm font-medium warm-text-primary">RM{condo.revenue}/month</p>
-                          <Badge
-                            variant="outline"
-                            className="text-xs sage-success mt-1"
-                          >
-                            Active
-                          </Badge>
+                          <div className="space-y-2">
+                            <Skeleton className="h-5 w-16" />
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-4 w-12" />
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2 mt-4">
-                        <Button size="sm" variant="outline" className="warm-hover">
-                          <BarChart3 className="h-4 w-4 mr-1" />
-                          View Analytics
-                        </Button>
-                        <Button size="sm" variant="ghost" className="warm-hover">
-                          <Settings className="h-4 w-4 mr-1" />
-                          Manage
-                        </Button>
-                      </div>
+                    ))
+                  ) : recentCondos.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No condominiums yet</h3>
+                      <p className="text-muted-foreground mb-4">Get started by adding your first condominium</p>
+                      <Button asChild>
+                        <a href="/admin/condos">Add Condominium</a>
+                      </Button>
                     </div>
-                  ))}
+                  ) : (
+                    recentCondos.map((condo) => (
+                      <div key={condo.id} className="border border-border rounded-lg p-4 warm-hover">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start space-x-4">
+                            <Avatar className="h-12 w-12">
+                              <AvatarImage src={`/condo-${condo.id}.jpg`} />
+                              <AvatarFallback>
+                                <Building2 className="h-6 w-6" />
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <h3 className="font-medium warm-text-primary">{condo.name}</h3>
+                              <p className="text-sm warm-text-secondary">{condo.location}</p>
+                              <div className="flex items-center space-x-4 mt-1 text-xs warm-text-secondary">
+                                <span>{condo.units} units</span>
+                                <span>•</span>
+                                <span>{condo.activeUsers} active users</span>
+                                <span>•</span>
+                                <span>Joined {condo.joinDate}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <Badge variant="secondary" className="mb-2 warm-accent">
+                              {condo.plan}
+                            </Badge>
+                            <p className="text-sm font-medium warm-text-primary">RM{condo.revenue}/month</p>
+                            <Badge
+                              variant="outline"
+                              className="text-xs sage-success mt-1"
+                            >
+                              {condo.status === 'active' ? 'Active' : condo.status}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-4">
+                          <Button size="sm" variant="outline" className="warm-hover" asChild>
+                            <a href={`/admin/condos`}>
+                              <BarChart3 className="h-4 w-4 mr-1" />
+                              View Analytics
+                            </a>
+                          </Button>
+                          <Button size="sm" variant="ghost" className="warm-hover" asChild>
+                            <a href={`/admin/condos`}>
+                              <Settings className="h-4 w-4 mr-1" />
+                              Manage
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </CardContent>
               </Card>
             </motion.div>
