@@ -262,8 +262,8 @@ export default function AdminDashboard() {
     {
       id: 1,
       type: "condo_added",
-      title: "New condominium registered",
-      description: condominiums.length > 0 ? `${condominiums[0]?.name} has been added to the platform` : "New condominiums are being added",
+      title: "New property registered",
+      description: condominiums.length > 0 ? `${condominiums[0]?.name} has been added to the platform` : "New properties are being added",
       time: "2 hours ago",
       priority: "low"
     },
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
       id: 2,
       type: "user_signup",
       title: "User registration spike",
-      description: `${platformStats.totalUsers} total users across all condominiums`,
+      description: `${platformStats.totalUsers} total users across all properties`,
       time: "4 hours ago",
       priority: "medium"
     },
@@ -279,7 +279,7 @@ export default function AdminDashboard() {
       id: 3,
       type: "system_alert",
       title: "Platform health check",
-      description: `${platformStats.activeSubscriptions} active condominiums generating RM${platformStats.monthlyRevenue.toLocaleString()} monthly`,
+      description: `${platformStats.activeSubscriptions} active properties generating RM${platformStats.monthlyRevenue.toLocaleString()} monthly`,
       time: "6 hours ago",
       priority: "high"
     }
@@ -307,7 +307,7 @@ export default function AdminDashboard() {
               variant="outline" 
               onClick={refreshCondominiums}
               disabled={loading}
-              className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
+              className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
             >
               <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -317,11 +317,11 @@ export default function AdminDashboard() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div {...fadeInUp}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Condominiums</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total Properties</p>
                       <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-8" /> : platformStats.totalCondos}</p>
                     </div>
                     <Building2 className="h-8 w-8 text-primary" />
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -359,7 +359,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -373,18 +373,18 @@ export default function AdminDashboard() {
             </motion.div>
           </div>
 
-          {/* Recent Condominiums */}
+          {/* Recent Properties */}
           <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-foreground">Recent Condominiums</CardTitle>
+                    <CardTitle className="text-foreground">Recent Properties</CardTitle>
                     <CardDescription className="text-muted-foreground">Latest registered properties</CardDescription>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleCreate} className="border-2 hover:border-primary/50 hover:text-primary">
                     <Plus className="h-4 w-4 mr-2" />
-                    Add Condo
+                    Add Property
                   </Button>
                 </div>
               </CardHeader>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                             <Badge variant="secondary" className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
                               {propertyConfig.label}
                             </Badge>
-                            <Button size="sm" variant="outline" className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary">
+                            <Button size="sm" variant="outline" className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -439,7 +439,7 @@ export default function AdminDashboard() {
                   ) : (
                     <div className="text-center py-8">
                       <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No condominiums found</p>
+                      <p className="text-muted-foreground">No properties found</p>
                     </div>
                   )}
                   </div>
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
 
           {/* Recent Activities */}
           <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
-            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
               <CardHeader>
                 <CardTitle className="text-foreground">Recent Activities</CardTitle>
                 <CardDescription className="text-muted-foreground">Latest platform activities and alerts</CardDescription>
@@ -530,22 +530,22 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground dashboard-title">Condominium Management</h1>
-              <p className="text-muted-foreground dashboard-text">Manage all condominiums on the platform</p>
+              <h1 className="text-2xl font-bold text-foreground dashboard-title">Property Management</h1>
+              <p className="text-muted-foreground dashboard-text">Manage all properties on the platform</p>
             </div>
             <div className="flex items-center gap-3">
               <Button 
                 variant="outline" 
                 onClick={refreshCondominiums}
                 disabled={loading}
-                className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
+                className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
               >
                 <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button 
                 onClick={handleCreate}
-                className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90 dark:border-primary dark:bg-primary dark:hover:bg-primary/80 dark:hover:border-primary/80"
+                className="warm-button border-2 border-primary hover:border-primary/90 bg-primary hover:bg-primary/95 dark:border-primary dark:bg-primary dark:hover:bg-primary/90 dark:hover:border-primary/90"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Property
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Card className="warm-card border-2 border-primary/40 hover:border-primary/20 transition-all duration-200 hover:shadow-lg bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary/40 dark:hover:shadow-primary/20">
+          <Card className="warm-card border-2 border-primary/40 hover:border-primary/30 transition-all duration-200 hover:shadow-lg bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary/50 dark:hover:shadow-primary/40">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -611,7 +611,7 @@ export default function AdminDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
-                        <Card className="warm-card border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/30">
+                        <Card className="warm-card border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
                           <CardContent className="p-6">
                             <div className="flex items-start space-x-4">
                               <div className={`h-16 w-16 ${propertyConfig.bgColor} rounded-full flex items-center justify-center border-2 ${propertyConfig.borderColor}`}>
@@ -665,7 +665,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/10 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/20 dark:hover:text-primary"
+                                  className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -705,7 +705,7 @@ export default function AdminDashboard() {
                     </p>
                     <Button 
                       onClick={handleCreate}
-                      className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90 dark:border-primary dark:bg-primary dark:hover:bg-primary/80 dark:hover:border-primary/80"
+                      className="warm-button border-2 border-primary hover:border-primary/90 bg-primary hover:bg-primary/95 dark:border-primary dark:bg-primary dark:hover:bg-primary/90 dark:hover:border-primary/90"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Property
@@ -948,7 +948,7 @@ export default function AdminDashboard() {
                     RM{condominiums.filter(c => c.subscription_plan === 'basic').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {condominiums.filter(c => c.subscription_plan === 'basic').length} condominiums
+                    {condominiums.filter(c => c.subscription_plan === 'basic').length} properties
                   </p>
                     </div>
                 <div className="text-center p-6 bg-blue-50 rounded-lg">
@@ -958,7 +958,7 @@ export default function AdminDashboard() {
                     RM{condominiums.filter(c => c.subscription_plan === 'professional').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {condominiums.filter(c => c.subscription_plan === 'professional').length} condominiums
+                    {condominiums.filter(c => c.subscription_plan === 'professional').length} properties
                   </p>
                 </div>
                 <div className="text-center p-6 bg-purple-50 rounded-lg">
@@ -968,18 +968,18 @@ export default function AdminDashboard() {
                     RM{condominiums.filter(c => c.subscription_plan === 'enterprise').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {condominiums.filter(c => c.subscription_plan === 'enterprise').length} condominiums
+                    {condominiums.filter(c => c.subscription_plan === 'enterprise').length} properties
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Top Performing Condominiums */}
+          {/* Top Performing Properties */}
           <Card className="rounded-xl">
             <CardHeader>
-              <CardTitle>Top Performing Condominiums</CardTitle>
-              <CardDescription>Condominiums with highest revenue and user engagement</CardDescription>
+              <CardTitle>Top Performing Properties</CardTitle>
+              <CardDescription>Properties with highest revenue and user engagement</CardDescription>
                 </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -1126,7 +1126,7 @@ export default function AdminDashboard() {
                     </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {condominiums.filter(c => c.subscription_plan === 'basic').length} subscribers
+                      {condominiums.filter(c => c.subscription_plan === 'basic').length} properties
                     </p>
                     <p className="text-sm text-muted-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'basic').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
@@ -1140,7 +1140,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {condominiums.filter(c => c.subscription_plan === 'professional').length} subscribers
+                      {condominiums.filter(c => c.subscription_plan === 'professional').length} properties
                     </p>
                     <p className="text-sm text-muted-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'professional').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
@@ -1154,7 +1154,7 @@ export default function AdminDashboard() {
                   </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
-                      {condominiums.filter(c => c.subscription_plan === 'enterprise').length} subscribers
+                      {condominiums.filter(c => c.subscription_plan === 'enterprise').length} properties
                     </p>
                     <p className="text-sm text-muted-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'enterprise').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
@@ -1169,7 +1169,7 @@ export default function AdminDashboard() {
           <Card className="rounded-xl">
               <CardHeader>
               <CardTitle>Payment Status</CardTitle>
-              <CardDescription>Current payment status across all condominiums</CardDescription>
+              <CardDescription>Current payment status across all properties</CardDescription>
                 </CardHeader>
               <CardContent>
               <div className="space-y-4">

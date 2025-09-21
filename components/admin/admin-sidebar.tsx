@@ -50,7 +50,7 @@ interface AdminSidebarProps {
 export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
-    { id: "condos", label: "Condominiums", icon: Building2, badge: null },
+    { id: "condos", label: "Properties", icon: Building2, badge: null },
     { id: "users", label: "User Management", icon: Users, badge: null },
     { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
     { id: "billing", label: "Billing & Revenue", icon: DollarSign, badge: null },
@@ -151,7 +151,7 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
               <SidebarMenuItem>
                 <SidebarMenuButton onClick={() => onTabChange("condos")}>
                   <Building2 className="size-4" />
-                  <span>Add New Condo</span>
+                  <span>Add New Property</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
