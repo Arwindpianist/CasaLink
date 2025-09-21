@@ -30,7 +30,6 @@ interface Condominium {
   address: string
   city: string
   state?: string
-  country?: string
   postal_code?: string
   monthly_revenue: number
   total_units: number
@@ -76,7 +75,6 @@ export function InlineCondominiumForm({
     address: '',
     city: '',
     state: '',
-    country: 'Malaysia',
     postal_code: '',
     monthly_revenue: 0,
     total_units: 0,
@@ -99,28 +97,27 @@ export function InlineCondominiumForm({
   // Initialize form data
   useEffect(() => {
     if (condominium && mode === 'edit') {
-      setFormData({
-        name: condominium.name || '',
-        type: condominium.type || 'condo',
-        address: condominium.address || '',
-        city: condominium.city || '',
-        state: condominium.state || '',
-        country: condominium.country || 'Malaysia',
-        postal_code: condominium.postal_code || '',
-        monthly_revenue: condominium.monthly_revenue || 0,
-        total_units: condominium.total_units || 0,
-        base_price: condominium.base_price || 199,
-        price_per_unit: condominium.price_per_unit || 1.50,
-        addon_premium_ads: condominium.addon_premium_ads || false,
-        addon_white_label: condominium.addon_white_label || false,
-        addon_advanced_analytics: condominium.addon_advanced_analytics || false,
-        addon_priority_support: condominium.addon_priority_support || false,
-        addon_premium_ads_price: condominium.addon_premium_ads_price || 50,
-        addon_white_label_price: condominium.addon_white_label_price || 300,
-        addon_advanced_analytics_price: condominium.addon_advanced_analytics_price || 199,
-        addon_priority_support_price: condominium.addon_priority_support_price || 299,
-        calculated_monthly_total: condominium.calculated_monthly_total || 0
-      })
+        setFormData({
+          name: condominium.name || '',
+          type: condominium.type || 'condo',
+          address: condominium.address || '',
+          city: condominium.city || '',
+          state: condominium.state || '',
+          postal_code: condominium.postal_code || '',
+          monthly_revenue: condominium.monthly_revenue || 0,
+          total_units: condominium.total_units || 0,
+          base_price: condominium.base_price || 199,
+          price_per_unit: condominium.price_per_unit || 1.50,
+          addon_premium_ads: condominium.addon_premium_ads || false,
+          addon_white_label: condominium.addon_white_label || false,
+          addon_advanced_analytics: condominium.addon_advanced_analytics || false,
+          addon_priority_support: condominium.addon_priority_support || false,
+          addon_premium_ads_price: condominium.addon_premium_ads_price || 50,
+          addon_white_label_price: condominium.addon_white_label_price || 300,
+          addon_advanced_analytics_price: condominium.addon_advanced_analytics_price || 199,
+          addon_priority_support_price: condominium.addon_priority_support_price || 299,
+          calculated_monthly_total: condominium.calculated_monthly_total || 0
+        })
     }
   }, [condominium, mode])
 

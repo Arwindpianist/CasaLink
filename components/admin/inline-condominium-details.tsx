@@ -29,7 +29,6 @@ interface Condominium {
   address: string
   city: string
   state?: string
-  country?: string
   postal_code?: string
   monthly_revenue: number
   total_units: number

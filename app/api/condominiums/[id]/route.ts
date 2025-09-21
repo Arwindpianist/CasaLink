@@ -16,25 +16,7 @@ export async function GET(
 
       const { data, error } = await supabase
         .from('condominiums')
-        .select(`
-          *,
-          users!users_condo_id_fkey(
-            id,
-            name,
-            email,
-            role,
-            is_active,
-            created_at
-          ),
-          units!units_condo_id_fkey(
-            id,
-            unit_number,
-            floor_number,
-            tower,
-            status,
-            created_at
-          )
-        `)
+        .select('*')
         .eq('id', condoId)
         .single()
 
@@ -112,12 +94,21 @@ export async function PUT(
       address,
       city,
       state,
-      country,
       postal_code,
-      subscription_plan,
       monthly_revenue,
-      status,
-      settings
+      // New pricing fields
+      total_units,
+      base_price,
+      price_per_unit,
+      addon_premium_ads,
+      addon_white_label,
+      addon_advanced_analytics,
+      addon_priority_support,
+      addon_premium_ads_price,
+      addon_white_label_price,
+      addon_advanced_analytics_price,
+      addon_priority_support_price,
+      calculated_monthly_total
     } = body
 
     try {
@@ -137,23 +128,33 @@ export async function PUT(
         })
       }
 
-      // Prepare update data
+      // Prepare update data with only existing fields
       const updateData: any = {
         updated_at: new Date().toISOString()
       }
 
-      // Only include fields that are provided
+      // Only include fields that exist in the current schema
       if (name !== undefined) updateData.name = name
       if (type !== undefined) updateData.type = type
       if (address !== undefined) updateData.address = address
       if (city !== undefined) updateData.city = city
       if (state !== undefined) updateData.state = state
-      if (country !== undefined) updateData.country = country
       if (postal_code !== undefined) updateData.postal_code = postal_code
-      if (subscription_plan !== undefined) updateData.subscription_plan = subscription_plan
       if (monthly_revenue !== undefined) updateData.monthly_revenue = monthly_revenue
-      if (status !== undefined) updateData.status = status
-      if (settings !== undefined) updateData.settings = settings
+      
+      // Add new pricing fields if they exist in the schema
+      if (total_units !== undefined) updateData.total_units = total_units
+      if (base_price !== undefined) updateData.base_price = base_price
+      if (price_per_unit !== undefined) updateData.price_per_unit = price_per_unit
+      if (addon_premium_ads !== undefined) updateData.addon_premium_ads = addon_premium_ads
+      if (addon_white_label !== undefined) updateData.addon_white_label = addon_white_label
+      if (addon_advanced_analytics !== undefined) updateData.addon_advanced_analytics = addon_advanced_analytics
+      if (addon_priority_support !== undefined) updateData.addon_priority_support = addon_priority_support
+      if (addon_premium_ads_price !== undefined) updateData.addon_premium_ads_price = addon_premium_ads_price
+      if (addon_white_label_price !== undefined) updateData.addon_white_label_price = addon_white_label_price
+      if (addon_advanced_analytics_price !== undefined) updateData.addon_advanced_analytics_price = addon_advanced_analytics_price
+      if (addon_priority_support_price !== undefined) updateData.addon_priority_support_price = addon_priority_support_price
+      if (calculated_monthly_total !== undefined) updateData.calculated_monthly_total = calculated_monthly_total
 
       const { data, error } = await supabase
         .from('condominiums')
@@ -163,6 +164,7 @@ export async function PUT(
         .single()
 
       if (error) {
+        console.error('Supabase update error:', error)
         return new Response(JSON.stringify({ error: error.message }), {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
@@ -184,6 +186,7 @@ export async function PUT(
       })
     }
   } catch (error) {
+    console.error('PUT endpoint error:', error)
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Unknown error' 
     }), {
