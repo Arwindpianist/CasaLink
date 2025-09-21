@@ -18,18 +18,14 @@ export async function GET(request: NextRequest) {
       const supabase = await createServerSupabaseClient()
       const offset = (page - 1) * limit
 
-      console.log('Attempting to fetch condominiums from Supabase...')
-
-      // First, let's try a simple query to see what's in the database
+      // Check if we have data in the database
       const { data: simpleData, error: simpleError } = await supabase
         .from('condominiums')
         .select('*')
         .limit(10)
 
-      console.log('Simple query result:', { data: simpleData, error: simpleError })
-
       if (simpleError) {
-        console.error('Simple Supabase query failed:', simpleError)
+        console.error('Supabase query failed:', simpleError)
         throw simpleError
       }
 
@@ -38,14 +34,10 @@ export async function GET(request: NextRequest) {
         throw new Error('No condominiums in database')
       }
 
-      // Build query with relationships
+      // Build query - use simple select since relationships may not exist
       let query = supabase
         .from('condominiums')
-        .select(`
-          *,
-          users!users_condo_id_fkey(count),
-          units!units_condo_id_fkey(count)
-        `, { count: 'exact' })
+        .select('*', { count: 'exact' })
 
       // Apply filters
       if (search) {
@@ -77,6 +69,10 @@ export async function GET(request: NextRequest) {
         ...condo,
         monthly_revenue: condo.monthly_revenue || 0,
         subscription_plan: condo.subscription_plan || 'basic',
+        country: condo.country || 'Malaysia',
+        state: condo.state || 'Kuala Lumpur',
+        postal_code: condo.postal_code || '50000',
+        settings: condo.settings || {},
         users: condo.users || [{ count: 0 }],
         units: condo.units || [{ count: 0 }]
       }))
@@ -95,10 +91,6 @@ export async function GET(request: NextRequest) {
       })
     } catch (supabaseError) {
       console.error('Supabase connection failed, using mock data:', supabaseError)
-      console.error('Error details:', {
-        message: supabaseError instanceof Error ? supabaseError.message : 'Unknown error',
-        stack: supabaseError instanceof Error ? supabaseError.stack : undefined
-      })
       
       // Fallback to mock data
       const mockCondominiums = [
