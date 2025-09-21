@@ -233,7 +233,7 @@ export default function CondoManagement() {
           <motion.div className="mb-8 space-y-4" {...fadeInUp}>
             <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-foreground" />
                 <Input
                   placeholder="Search condominiums by name, location, or plan..."
                   value={searchTerm}
@@ -354,9 +354,9 @@ export default function CondoManagement() {
             ) : condominiums.length === 0 ? (
               <Card>
                 <CardContent className="p-12 text-center">
-                  <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <Building2 className="h-12 w-12 text-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No condominiums found</h3>
-                  <p className="text-muted-foreground mb-4">
+                  <p className="text-foreground mb-4">
                     {searchTerm || (statusFilter && statusFilter !== 'all') || (planFilter && planFilter !== 'all')
                       ? "Try adjusting your search filters"
                       : "Get started by adding your first condominium"
@@ -391,7 +391,7 @@ export default function CondoManagement() {
                               <div>
                                 <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
                                 <div className="flex items-center space-x-2 mt-1">
-                                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                                  <MapPin className="h-4 w-4 text-foreground" />
                                   <p className="text-sm text-foreground">{condo.address}</p>
                                 </div>
                                 {condo.city && (
@@ -470,7 +470,7 @@ export default function CondoManagement() {
             {/* Pagination */}
             {pagination.totalPages > 1 && (
               <div className="flex items-center justify-between mt-8">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-foreground">
                   Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} condominiums
                 </p>
                 <div className="flex items-center space-x-2">

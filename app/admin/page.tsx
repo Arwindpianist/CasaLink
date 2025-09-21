@@ -301,7 +301,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
                 <div>
               <h1 className="text-2xl font-bold text-foreground dashboard-title">Admin Dashboard</h1>
-              <p className="text-muted-foreground dashboard-text">Platform overview and key metrics</p>
+              <p className="text-foreground dashboard-text">Platform overview and key metrics</p>
             </div>
             <Button 
               variant="outline" 
@@ -438,8 +438,8 @@ export default function AdminDashboard() {
                     })
                   ) : (
                     <div className="text-center py-8">
-                      <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <p className="text-muted-foreground">No properties found</p>
+                      <Building2 className="h-12 w-12 text-foreground mx-auto mb-4" />
+                      <p className="text-foreground">No properties found</p>
                     </div>
                   )}
                   </div>
@@ -465,7 +465,7 @@ export default function AdminDashboard() {
                       <div className="flex-1">
                         <h3 className="font-medium text-foreground">{activity.title}</h3>
                         <p className="text-sm text-foreground">{activity.description}</p>
-                        <div className="flex items-center text-xs text-muted-foreground mt-2">
+                        <div className="flex items-center text-xs text-foreground mt-2">
                           <Clock className="h-3 w-3 mr-1" />
                           {activity.time}
                         </div>
@@ -622,7 +622,7 @@ export default function AdminDashboard() {
                                 <div>
                                   <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
                                   <div className="flex items-center space-x-2 mt-1">
-                                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                                    <MapPin className="h-4 w-4 text-foreground" />
                                     <p className="text-sm text-foreground">{condo.address}</p>
                                   </div>
                                   {condo.city && (
@@ -698,7 +698,7 @@ export default function AdminDashboard() {
                   })
                 ) : (
                   <div className="text-center py-16">
-                    <Building2 className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
+                    <Building2 className="h-20 w-20 text-foreground mx-auto mb-6" />
                     <h3 className="text-xl font-semibold text-foreground mb-3 dashboard-title">No properties found</h3>
                     <p className="text-foreground mb-6 max-w-md mx-auto dashboard-text">
                       Get started by adding your first property to the platform. You can configure pricing, add-ons, and manage all aspects of the property.
@@ -947,7 +947,7 @@ export default function AdminDashboard() {
                   <p className="text-3xl font-bold text-green-600">
                     RM{condominiums.filter(c => c.subscription_plan === 'basic').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground">
                     {condominiums.filter(c => c.subscription_plan === 'basic').length} properties
                   </p>
                     </div>
@@ -957,7 +957,7 @@ export default function AdminDashboard() {
                   <p className="text-3xl font-bold text-blue-600">
                     RM{condominiums.filter(c => c.subscription_plan === 'professional').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground">
                     {condominiums.filter(c => c.subscription_plan === 'professional').length} properties
                   </p>
                 </div>
@@ -967,7 +967,7 @@ export default function AdminDashboard() {
                   <p className="text-3xl font-bold text-purple-600">
                     RM{condominiums.filter(c => c.subscription_plan === 'enterprise').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-foreground">
                     {condominiums.filter(c => c.subscription_plan === 'enterprise').length} properties
                   </p>
                 </div>
@@ -1125,10 +1125,10 @@ export default function AdminDashboard() {
                     <Badge className="bg-green-100 text-green-800">RM1,800</Badge>
                     </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       {condominiums.filter(c => c.subscription_plan === 'basic').length} properties
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'basic').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
                     </p>
                   </div>
@@ -1139,10 +1139,10 @@ export default function AdminDashboard() {
                     <Badge className="bg-blue-100 text-blue-800">RM2,500</Badge>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       {condominiums.filter(c => c.subscription_plan === 'professional').length} properties
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'professional').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
                     </p>
                   </div>
@@ -1153,10 +1153,10 @@ export default function AdminDashboard() {
                     <Badge className="bg-purple-100 text-purple-800">RM3,200</Badge>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       {condominiums.filter(c => c.subscription_plan === 'enterprise').length} properties
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-foreground">
                       RM{condominiums.filter(c => c.subscription_plan === 'enterprise').reduce((sum, c) => sum + (c.monthly_revenue || 0), 0)}/month
                     </p>
                   </div>
@@ -1310,9 +1310,9 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
               <div className="text-center py-12">
-                <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <Shield className="h-16 w-16 text-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">Security Monitoring</h3>
-                <p className="text-muted-foreground mb-4">Security monitoring and access management features coming soon</p>
+                <p className="text-foreground mb-4">Security monitoring and access management features coming soon</p>
                 <Button variant="outline">
                   <Eye className="h-4 w-4 mr-2" />
                   View Security Logs
@@ -1347,8 +1347,8 @@ export default function AdminDashboard() {
                     }`} />
                     <div className="flex-1">
                       <h3 className="font-medium text-foreground">{activity.title}</h3>
-                      <p className="text-sm text-muted-foreground">{activity.description}</p>
-                      <div className="flex items-center text-xs text-muted-foreground mt-2">
+                      <p className="text-sm text-foreground">{activity.description}</p>
+                      <div className="flex items-center text-xs text-foreground mt-2">
                         <Clock className="h-3 w-3 mr-1" />
                         {activity.time}
                   </div>
@@ -1377,9 +1377,9 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-center py-12">
-                <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <Settings className="h-16 w-16 text-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">Platform Settings</h3>
-                <p className="text-muted-foreground mb-4">Configure platform-wide settings and preferences</p>
+                <p className="text-foreground mb-4">Configure platform-wide settings and preferences</p>
                 <Button variant="outline">
                   <Settings className="h-4 w-4 mr-2" />
                   Open Settings
@@ -1400,7 +1400,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground dashboard-text">Loading...</p>
+          <p className="text-foreground dashboard-text">Loading...</p>
         </div>
       </div>
     )

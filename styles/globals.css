@@ -20,7 +20,7 @@
   --primary-foreground: #fcf8f9;
   --secondary-foreground: var(--text);
   --muted: var(--secondary);
-  --muted-foreground: var(--text);
+  --muted-foreground: var(--secondary);
   --accent-foreground: var(--text);
 
   /* Alerts / States */
