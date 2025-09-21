@@ -64,24 +64,11 @@ interface CondominiumFormDialogProps {
   onSuccess: () => void
 }
 
-const SUBSCRIPTION_PLANS = [
-  { value: 'basic', label: 'Basic', price: 0, features: ['Basic features', 'Up to 50 units'] },
-  { value: 'professional', label: 'Professional', price: 99, features: ['Advanced features', 'Up to 200 units', 'Analytics'] },
-  { value: 'enterprise', label: 'Enterprise', price: 299, features: ['All features', 'Unlimited units', 'Priority support', 'Custom integrations'] }
-]
-
 const CONDOMINIUM_TYPES = [
   { value: 'condo', label: 'Condominium' },
   { value: 'apartment', label: 'Apartment' },
   { value: 'hotel', label: 'Hotel' },
   { value: 'office', label: 'Office Building' }
-]
-
-const STATUS_OPTIONS = [
-  { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800' },
-  { value: 'trial', label: 'Trial', color: 'bg-blue-100 text-blue-800' },
-  { value: 'suspended', label: 'Suspended', color: 'bg-red-100 text-red-800' },
-  { value: 'cancelled', label: 'Cancelled', color: 'bg-gray-100 text-gray-800' }
 ]
 
 export function CondominiumFormDialog({ 
@@ -90,6 +77,32 @@ export function CondominiumFormDialog({
   condominium, 
   onSuccess 
 }: CondominiumFormDialogProps) {
+  
+  // Helper function to determine subscription tier based on add-ons
+  const getSubscriptionTier = () => {
+    if (formData.addon_priority_support) return 'Enterprise'
+    if (formData.addon_advanced_analytics || formData.addon_white_label) return 'Professional'
+    if (formData.addon_premium_ads) return 'Standard'
+    return 'Basic'
+  }
+
+  // Helper function to get active add-ons
+  const getActiveAddons = () => {
+    const addons = []
+    if (formData.addon_premium_ads) {
+      addons.push({ name: 'Premium Ads', price: formData.addon_premium_ads_price })
+    }
+    if (formData.addon_white_label) {
+      addons.push({ name: 'White-Label Branding', price: formData.addon_white_label_price })
+    }
+    if (formData.addon_advanced_analytics) {
+      addons.push({ name: 'Advanced Analytics', price: formData.addon_advanced_analytics_price })
+    }
+    if (formData.addon_priority_support) {
+      addons.push({ name: 'Priority Support', price: formData.addon_priority_support_price })
+    }
+    return addons
+  }
   const [formData, setFormData] = useState({
     name: '',
     type: 'condo',
@@ -98,9 +111,7 @@ export function CondominiumFormDialog({
     state: '',
     country: 'Malaysia',
     postal_code: '',
-    subscription_plan: 'basic',
     monthly_revenue: 0,
-    status: 'active',
     // New pricing fields
     total_units: 0,
     base_price: 199,
@@ -130,9 +141,7 @@ export function CondominiumFormDialog({
           state: condominium.state || '',
           country: condominium.country || 'Malaysia',
           postal_code: condominium.postal_code || '',
-          subscription_plan: condominium.subscription_plan || 'basic',
           monthly_revenue: condominium.monthly_revenue || 0,
-          status: condominium.status || 'active',
           // New pricing fields
           total_units: condominium.total_units || 0,
           base_price: condominium.base_price || 199,
@@ -156,9 +165,7 @@ export function CondominiumFormDialog({
           state: '',
           country: 'Malaysia',
           postal_code: '',
-          subscription_plan: 'basic',
           monthly_revenue: 0,
-          status: 'active',
           // New pricing fields with defaults
           total_units: 0,
           base_price: 199,
@@ -198,10 +205,6 @@ export function CondominiumFormDialog({
 
     if (formData.postal_code && !/^\d{5}$/.test(formData.postal_code)) {
       newErrors.postal_code = 'Postal code must be 5 digits'
-    }
-
-    if (formData.monthly_revenue < 0) {
-      newErrors.monthly_revenue = 'Monthly revenue cannot be negative'
     }
 
     if (formData.total_units < 0) {
@@ -266,7 +269,6 @@ export function CondominiumFormDialog({
     }
   }
 
-  const selectedPlan = SUBSCRIPTION_PLANS.find(plan => plan.value === formData.subscription_plan)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -407,96 +409,49 @@ export function CondominiumFormDialog({
             </Card>
           </div>
 
-          {/* Subscription & Status */}
+          {/* Pricing Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <DollarSign className="h-4 w-4" />
-                Subscription & Status
+                Pricing Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="subscription_plan">Subscription Plan</Label>
-                  <Select 
-                    value={formData.subscription_plan} 
-                    onValueChange={(value) => setFormData(prev => ({ 
-                      ...prev, 
-                      subscription_plan: value,
-                      monthly_revenue: SUBSCRIPTION_PLANS.find(p => p.value === value)?.price || 0
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SUBSCRIPTION_PLANS.map((plan) => (
-                        <SelectItem key={plan.value} value={plan.value}>
-                          <div className="flex items-center justify-between w-full">
-                            <span>{plan.label}</span>
-                            <span className="text-muted-foreground">RM{plan.price}/mo</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
+                    RM{formData.monthly_revenue.toLocaleString()}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Monthly Cost</div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="monthly_revenue">Monthly Revenue (RM)</Label>
-                  <Input
-                    id="monthly_revenue"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={formData.monthly_revenue}
-                    onChange={(e) => setFormData(prev => ({ ...prev, monthly_revenue: parseFloat(e.target.value) || 0 }))}
-                    placeholder="0.00"
-                    className={errors.monthly_revenue ? 'border-red-500' : ''}
-                  />
-                  {errors.monthly_revenue && (
-                    <p className="text-sm text-red-500">{errors.monthly_revenue}</p>
-                  )}
+                
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-lg font-semibold">
+                    {formData.total_units} Units
+                  </div>
+                  <div className="text-sm text-muted-foreground">Total Capacity</div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select 
-                    value={formData.status} 
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {STATUS_OPTIONS.map((status) => (
-                        <SelectItem key={status.value} value={status.value}>
-                          <div className="flex items-center gap-2">
-                            <Badge className={status.color}>{status.label}</Badge>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                
+                <div className="text-center p-4 bg-muted/50 rounded-lg">
+                  <div className="text-lg font-semibold">
+                    {getSubscriptionTier()}
+                  </div>
+                  <div className="text-sm text-muted-foreground">Service Tier</div>
                 </div>
               </div>
 
-              {/* Plan Details */}
-              {selectedPlan && (
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <h4 className="font-medium mb-2">{selectedPlan.label} Plan</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    RM{selectedPlan.price}/month
-                  </p>
-                  <ul className="text-sm space-y-1">
-                    {selectedPlan.features.map((feature, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <div className="w-1 h-1 bg-primary rounded-full" />
-                        {feature}
-                      </li>
+              {/* Active Add-ons */}
+              {getActiveAddons().length > 0 && (
+                <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <h4 className="font-medium mb-3 text-primary">Active Add-ons</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {getActiveAddons().map((addon, index) => (
+                      <Badge key={index} variant="secondary" className="text-xs">
+                        {addon.name} (+RM{addon.price}/mo)
+                      </Badge>
                     ))}
-                  </ul>
+                  </div>
                 </div>
               )}
             </CardContent>

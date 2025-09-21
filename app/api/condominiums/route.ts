@@ -191,9 +191,7 @@ export async function POST(request: NextRequest) {
       state, 
       country = 'Malaysia', 
       postal_code,
-      subscription_plan = 'basic',
       monthly_revenue = 0,
-      status = 'active',
       settings = {},
       // New pricing fields
       total_units = 0,
@@ -208,6 +206,15 @@ export async function POST(request: NextRequest) {
       addon_advanced_analytics_price = 199,
       addon_priority_support_price = 299
     } = body
+
+    // Determine subscription plan and status based on add-ons
+    let subscription_plan = 'basic'
+    if (addon_priority_support) subscription_plan = 'enterprise'
+    else if (addon_advanced_analytics || addon_white_label) subscription_plan = 'professional'
+    else if (addon_premium_ads) subscription_plan = 'standard'
+
+    // Status is always active for new properties
+    const status = 'active'
 
     // Validate required fields
     if (!name || !address) {
