@@ -52,6 +52,7 @@ import { InlineCondominiumForm } from "@/components/admin/inline-condominium-for
 import { InlineCondominiumDetails } from "@/components/admin/inline-condominium-details"
 import { InlineDeleteConfirmation } from "@/components/admin/inline-delete-confirmation"
 import { toast } from "@/hooks/use-toast"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function AdminDashboard() {
   const { casalinkUser: user, isLoading: authLoading } = useSimpleAuth()
@@ -75,8 +76,9 @@ export default function AdminDashboard() {
   // Fetch condominiums data for dashboard
   useEffect(() => {
     const fetchCondominiums = async () => {
+      setLoading(true)
       try {
-        const response = await fetch('/api/condominiums?limit=3')
+        const response = await fetch('/api/condominiums?limit=10')
         if (response.ok) {
           const data = await response.json()
           setCondominiums(data.condominiums || [])
@@ -230,13 +232,14 @@ export default function AdminDashboard() {
           {/* Header */}
           <div className="flex items-center justify-between">
                 <div>
-              <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Platform overview and key metrics</p>
+              <h1 className="text-2xl font-bold text-foreground dashboard-title">Admin Dashboard</h1>
+              <p className="text-muted-foreground dashboard-text">Platform overview and key metrics</p>
             </div>
             <Button 
               variant="outline" 
               onClick={refreshCondominiums}
               disabled={loading}
+              className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
             >
               <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -246,12 +249,12 @@ export default function AdminDashboard() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div {...fadeInUp}>
-              <Card className="rounded-xl">
+              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Total Condominiums</p>
-                      <p className="text-2xl font-bold text-foreground">{platformStats.totalCondos}</p>
+                      <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-8" /> : platformStats.totalCondos}</p>
                     </div>
                     <Building2 className="h-8 w-8 text-primary" />
                   </div>
@@ -260,12 +263,12 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="rounded-xl">
+              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                      <p className="text-2xl font-bold text-foreground">{platformStats.totalUsers.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-12" /> : platformStats.totalUsers.toLocaleString()}</p>
                     </div>
                     <Users className="h-8 w-8 text-primary" />
                   </div>
@@ -274,12 +277,12 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="rounded-xl">
+              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Active Subscriptions</p>
-                      <p className="text-2xl font-bold text-foreground">{platformStats.activeSubscriptions}</p>
+                      <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-8" /> : platformStats.activeSubscriptions}</p>
                     </div>
                     <DollarSign className="h-8 w-8 text-primary" />
                   </div>
@@ -288,12 +291,12 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-              <Card className="rounded-xl">
+              <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
-                      <p className="text-2xl font-bold text-foreground">RM {platformStats.monthlyRevenue.toLocaleString()}</p>
+                      <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-16" /> : `RM ${platformStats.monthlyRevenue.toLocaleString()}`}</p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-primary" />
                   </div>
@@ -304,14 +307,14 @@ export default function AdminDashboard() {
 
           {/* Recent Condominiums */}
           <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="rounded-xl">
+            <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Recent Condominiums</CardTitle>
-                    <CardDescription>Latest registered properties</CardDescription>
+                    <CardTitle className="text-foreground">Recent Condominiums</CardTitle>
+                    <CardDescription className="text-muted-foreground">Latest registered properties</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleCreate}>
+                  <Button variant="outline" size="sm" onClick={handleCreate} className="border-2 hover:border-primary/50 hover:text-primary">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Condo
                   </Button>
@@ -320,9 +323,22 @@ export default function AdminDashboard() {
               <CardContent>
                 <div className="space-y-4">
                   {loading ? (
-                    <div className="text-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                      <p className="text-muted-foreground">Loading condominiums...</p>
+                    <div className="space-y-4">
+                      {[...Array(3)].map((_, i) => (
+                        <div key={i} className="flex items-center justify-between p-4 border rounded-lg">
+                          <div className="flex items-center space-x-4">
+                            <Skeleton className="h-10 w-10 rounded-lg" />
+                            <div className="space-y-2">
+                              <Skeleton className="h-4 w-48" />
+                              <Skeleton className="h-3 w-64" />
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <Skeleton className="h-6 w-16" />
+                            <Skeleton className="h-8 w-8" />
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   ) : condominiums.length > 0 ? (
                     condominiums.map((condo, index) => (
@@ -357,10 +373,10 @@ export default function AdminDashboard() {
 
           {/* Recent Activities */}
           <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
-            <Card className="rounded-xl">
+            <Card className="rounded-xl border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
               <CardHeader>
-                <CardTitle>Recent Activities</CardTitle>
-                <CardDescription>Latest platform activities and alerts</CardDescription>
+                <CardTitle className="text-foreground">Recent Activities</CardTitle>
+                <CardDescription className="text-muted-foreground">Latest platform activities and alerts</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -438,22 +454,22 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Condominium Management</h1>
-              <p className="text-muted-foreground">Manage all condominiums on the platform</p>
+              <h1 className="text-2xl font-bold text-foreground dashboard-title">Condominium Management</h1>
+              <p className="text-muted-foreground dashboard-text">Manage all condominiums on the platform</p>
             </div>
             <div className="flex items-center gap-3">
               <Button 
                 variant="outline" 
                 onClick={refreshCondominiums}
                 disabled={loading}
-                className="border-2 hover:border-primary/50 hover:text-primary"
+                className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
               >
                 <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button 
                 onClick={handleCreate}
-                className="border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+                className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Property
@@ -461,22 +477,51 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Card className="border-2 border-border/50 hover:border-primary/20 transition-colors">
+          <Card className="warm-card border-2 border-border/50 hover:border-primary/20 transition-all duration-200 hover:shadow-lg bg-card/50 backdrop-blur-sm">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="text-xl">All Properties</CardTitle>
-                  <CardDescription>View and manage registered properties</CardDescription>
+                  <CardTitle className="text-xl text-foreground">All Properties</CardTitle>
+                  <CardDescription className="text-muted-foreground">View and manage registered properties</CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {loading ? (
-                  <div className="text-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading properties...</p>
-            </div>
+                  <div className="space-y-6">
+                    {[...Array(3)].map((_, i) => (
+                      <Card key={i} className="border-2 border-border/50">
+                        <CardContent className="p-6">
+                          <div className="flex items-start space-x-4">
+                            <Skeleton className="h-16 w-16 rounded-full" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <div className="space-y-2">
+                                  <Skeleton className="h-6 w-48" />
+                                  <Skeleton className="h-4 w-64" />
+                                  <Skeleton className="h-3 w-32" />
+                                </div>
+                                <div className="flex flex-col items-end space-y-2">
+                                  <div className="flex items-center space-x-2">
+                                    <Skeleton className="h-6 w-16" />
+                                    <Skeleton className="h-6 w-20" />
+                                  </div>
+                                  <Skeleton className="h-6 w-24" />
+                                  <Skeleton className="h-3 w-20" />
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2 mt-4">
+                                <Skeleton className="h-8 w-24" />
+                                <Skeleton className="h-8 w-16" />
+                                <Skeleton className="h-8 w-20" />
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
                 ) : condominiums.length > 0 ? (
                   condominiums.map((condo, index) => (
                     <motion.div
@@ -485,7 +530,7 @@ export default function AdminDashboard() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className="border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200">
+                      <Card className="warm-card border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200 bg-card/50 backdrop-blur-sm">
                         <CardContent className="p-6">
                           <div className="flex items-start space-x-4">
                             <Avatar className="h-16 w-16 border-2 border-border">
@@ -539,7 +584,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className="border-2 hover:border-primary/50 hover:text-primary"
+                                  className="warm-hover border-2 hover:border-primary/50 hover:text-primary"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -548,7 +593,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleEdit(condo)}
-                                  className="border-2 hover:border-blue-500/50 hover:text-blue-600"
+                                  className="warm-hover border-2 hover:border-blue-500/50 hover:text-blue-600"
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -557,7 +602,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleDelete(condo)}
-                                  className="border-2 hover:border-destructive/50 hover:text-destructive"
+                                  className="warm-hover border-2 hover:border-destructive/50 hover:text-destructive"
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete
@@ -572,13 +617,13 @@ export default function AdminDashboard() {
                 ) : (
                   <div className="text-center py-16">
                     <Building2 className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
-                    <h3 className="text-xl font-semibold text-foreground mb-3">No properties found</h3>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    <h3 className="text-xl font-semibold text-foreground mb-3 dashboard-title">No properties found</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto dashboard-text">
                       Get started by adding your first property to the platform. You can configure pricing, add-ons, and manage all aspects of the property.
                     </p>
                     <Button 
                       onClick={handleCreate}
-                      className="border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+                      className="warm-button border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Property
@@ -1273,7 +1318,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground dashboard-text">Loading...</p>
         </div>
       </div>
     )
@@ -1284,24 +1329,28 @@ export default function AdminDashboard() {
       <SidebarProvider>
         <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-            <SidebarTrigger className="-ml-1" />
-            <div className="flex items-center gap-2">
-              <Crown className="h-5 w-5 text-primary" />
-              <h1 className="text-lg font-semibold">Admin Portal</h1>
-            </div>
-            <div className="ml-auto flex items-center gap-2">
-              <ThemeToggle />
-              <Button variant="ghost" size="icon">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <LogOut className="h-4 w-4" />
-              </Button>
+          <header className="glass-header border-b border-border px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <SidebarTrigger className="-ml-1 warm-hover" />
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-primary" />
+                  <h1 className="dashboard-title text-foreground">Admin Portal</h1>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <ThemeToggle />
+                <Button variant="ghost" size="icon" className="warm-hover">
+                  <Bell className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="icon" className="warm-hover">
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </header>
           
-          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0 bg-background/50">
             {renderContent()}
         </div>
         </SidebarInset>
