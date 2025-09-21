@@ -48,6 +48,10 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useSearchParams } from "next/navigation"
 import { useSimpleAuth } from "@/hooks/use-simple-auth"
 import { cn } from "@/lib/utils"
+import { CondominiumFormDialog } from "@/components/admin/condominium-form-dialog"
+import { CondominiumDetailsDialog } from "@/components/admin/condominium-details-dialog"
+import { CondominiumDeleteDialog } from "@/components/admin/condominium-delete-dialog"
+import { toast } from "@/hooks/use-toast"
 
 export default function AdminDashboard() {
   const { casalinkUser: user, isLoading: authLoading } = useSimpleAuth()
@@ -55,6 +59,12 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("dashboard")
   const [loading, setLoading] = useState(false)
   const [condominiums, setCondominiums] = useState<any[]>([])
+  
+  // Dialog states
+  const [formDialogOpen, setFormDialogOpen] = useState(false)
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [selectedCondominium, setSelectedCondominium] = useState<any | null>(null)
 
   // Handle URL parameters for deep linking
   useEffect(() => {
@@ -142,6 +152,35 @@ export default function AdminDashboard() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // CRUD operations
+  const handleCreate = () => {
+    setSelectedCondominium(null)
+    setFormDialogOpen(true)
+  }
+
+  const handleEdit = (condominium: any) => {
+    setSelectedCondominium(condominium)
+    setFormDialogOpen(true)
+  }
+
+  const handleView = (condominium: any) => {
+    setSelectedCondominium(condominium)
+    setDetailsDialogOpen(true)
+  }
+
+  const handleDelete = (condominium: any) => {
+    setSelectedCondominium(condominium)
+    setDeleteDialogOpen(true)
+  }
+
+  const handleSuccess = () => {
+    refreshCondominiums()
+    toast({
+      title: "Success",
+      description: "Condominium operation completed successfully",
+    })
   }
 
   const recentActivities = [
@@ -267,7 +306,7 @@ export default function AdminDashboard() {
                     <CardTitle>Recent Condominiums</CardTitle>
                     <CardDescription>Latest registered properties</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm">
+                  <Button variant="outline" size="sm" onClick={handleCreate}>
                     <Plus className="h-4 w-4 mr-2" />
                     Add Condo
                   </Button>
@@ -369,7 +408,7 @@ export default function AdminDashboard() {
                   <CardTitle>All Condominiums</CardTitle>
                   <CardDescription>View and manage registered properties</CardDescription>
                 </div>
-                <Button onClick={() => setActiveTab("condos")}>
+                <Button onClick={handleCreate}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Condo
                 </Button>
@@ -445,7 +484,7 @@ export default function AdminDashboard() {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {/* Handle view */}}
+                                  onClick={() => handleView(condo)}
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -453,7 +492,7 @@ export default function AdminDashboard() {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {/* Handle edit */}}
+                                  onClick={() => handleEdit(condo)}
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -461,7 +500,7 @@ export default function AdminDashboard() {
                                 <Button 
                                   size="sm" 
                                   variant="outline"
-                                  onClick={() => {/* Handle delete */}}
+                                  onClick={() => handleDelete(condo)}
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete
@@ -484,7 +523,7 @@ export default function AdminDashboard() {
                     <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-foreground mb-2">No condominiums found</h3>
                     <p className="text-muted-foreground mb-4">Get started by adding your first condominium</p>
-                    <Button onClick={() => setActiveTab("condos")}>
+                    <Button onClick={handleCreate}>
                       <Plus className="h-4 w-4 mr-2" />
                       Add Condominium
                     </Button>
@@ -1210,6 +1249,29 @@ export default function AdminDashboard() {
             {renderContent()}
           </div>
         </SidebarInset>
+
+        {/* Dialog Components */}
+        <CondominiumFormDialog
+          open={formDialogOpen}
+          onOpenChange={setFormDialogOpen}
+          condominium={selectedCondominium}
+          onSuccess={handleSuccess}
+        />
+
+        <CondominiumDetailsDialog
+          open={detailsDialogOpen}
+          onOpenChange={setDetailsDialogOpen}
+          condominiumId={selectedCondominium?.id || null}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
+
+        <CondominiumDeleteDialog
+          open={deleteDialogOpen}
+          onOpenChange={setDeleteDialogOpen}
+          condominium={selectedCondominium}
+          onSuccess={handleSuccess}
+        />
       </SidebarProvider>
     </ProtectedRoute>
   )

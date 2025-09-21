@@ -194,18 +194,8 @@ export async function POST(request: NextRequest) {
         .from('condominiums')
         .insert({
           name,
-          type,
           address,
-          city,
-          state,
-          country,
-          postal_code,
-          subscription_plan,
-          monthly_revenue,
-          status,
-          settings,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          city
         })
         .select()
         .single()
@@ -228,18 +218,9 @@ export async function POST(request: NextRequest) {
       const demoCondominium = {
         id: `demo-condo-${Date.now()}`,
         name,
-        type,
         address,
         city,
-        state,
-        country,
-        postal_code,
-        subscription_plan,
-        monthly_revenue,
-        status,
-        settings,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        created_at: new Date().toISOString()
       }
       
       return new Response(JSON.stringify({ condominium: demoCondominium }), {
