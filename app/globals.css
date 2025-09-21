@@ -326,17 +326,49 @@
     box-shadow: 0 4px 12px var(--primary);
   }
 
-  /* Simple dark mode styling - no complex effects */
+  /* Enhanced button hover effects for visibility */
   .dark button[data-variant="outline"] {
     border: 1px solid var(--text);
     background: transparent;
     color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .dark button[data-variant="outline"]:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--background);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(177, 57, 107, 0.3);
   }
 
   .dark button[data-variant="ghost"] {
     border: 1px solid transparent;
     background: transparent;
     color: var(--text);
+    transition: all 0.2s ease;
+  }
+
+  .dark button[data-variant="ghost"]:hover {
+    border-color: var(--primary);
+    background: rgba(177, 57, 107, 0.1);
+    color: var(--primary);
+  }
+
+  /* Primary button hover effects */
+  .dark button.bg-primary:hover {
+    background: var(--primary);
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(177, 57, 107, 0.4);
+  }
+
+  /* Card hover effects for better visibility */
+  .dark .hover\:border-primary:hover {
+    border-color: var(--primary) !important;
+    box-shadow: 0 2px 8px rgba(177, 57, 107, 0.2);
+    transform: translateY(-1px);
+    transition: all 0.2s ease;
   }
 
   /* Remove all opacity and complex effects */

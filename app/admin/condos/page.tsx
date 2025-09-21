@@ -216,11 +216,12 @@ export default function CondoManagement() {
                 size="sm"
                 onClick={fetchCondominiums}
                 disabled={loading}
+                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <Button size="sm" onClick={handleCreate}>
+              <Button size="sm" onClick={handleCreate} className="hover:bg-primary/90 hover:shadow-md transition-all duration-200">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Condo
               </Button>
@@ -362,7 +363,7 @@ export default function CondoManagement() {
                       : "Get started by adding your first condominium"
                     }
                   </p>
-                  <Button onClick={handleCreate}>
+                  <Button onClick={handleCreate} className="hover:bg-primary/90 hover:shadow-md transition-all duration-200">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Condominium
                   </Button>
@@ -431,6 +432,7 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleView(condo)}
+                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                               >
                                 <Eye className="h-4 w-4 mr-1" />
                                 View Details
@@ -439,6 +441,7 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleEdit(condo)}
+                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                               >
                                 <Edit className="h-4 w-4 mr-1" />
                                 Edit
@@ -447,12 +450,13 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleDelete(condo)}
+                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                               >
                                 <Trash2 className="h-4 w-4 mr-1" />
                                 Delete
                               </Button>
                               {condo.status === "trial" && (
-                                <Button size="sm" variant="outline">
+                                <Button size="sm" variant="outline" className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
                                   <TrendingUp className="h-4 w-4 mr-1" />
                                   Upgrade Plan
                                 </Button>

@@ -317,7 +317,7 @@ export default function AdminDashboard() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div {...fadeInUp}>
-              <Card className="rounded-xl border border-border bg-card">
+              <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="rounded-xl border border-border bg-card">
+              <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="rounded-xl border border-border bg-card">
+              <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -359,7 +359,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-              <Card className="rounded-xl border border-border bg-card">
+              <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200 cursor-pointer">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -375,14 +375,14 @@ export default function AdminDashboard() {
 
           {/* Recent Properties */}
           <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="rounded-xl border border-border bg-card">
+            <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-foreground">Recent Properties</CardTitle>
                     <CardDescription className="text-foreground">Latest registered properties</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleCreate} className="border-2 hover:border-primary/50 hover:text-primary">
+                  <Button variant="outline" size="sm" onClick={handleCreate} className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Property
                   </Button>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                             <Badge variant="secondary" className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
                               {propertyConfig.label}
                             </Badge>
-                            <Button size="sm" variant="outline" className=" border border-border">
+                            <Button size="sm" variant="outline" className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
 
           {/* Recent Activities */}
           <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
-            <Card className="rounded-xl border border-border bg-card">
+            <Card className="rounded-xl border border-border bg-card hover:border-primary hover:shadow-md transition-all duration-200">
               <CardHeader>
                 <CardTitle className="text-foreground">Recent Activities</CardTitle>
                 <CardDescription className="text-foreground">Latest platform activities and alerts</CardDescription>
@@ -545,7 +545,7 @@ export default function AdminDashboard() {
               </Button>
               <Button 
                 onClick={handleCreate}
-                className="bg-primary text-primary-foreground"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md transition-all duration-200"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Property
@@ -665,7 +665,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className=" border border-border"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleEdit(condo)}
-                                  className=" border border-border"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -683,7 +683,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleDelete(condo)}
-                                  className=" border border-border"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete
@@ -705,7 +705,7 @@ export default function AdminDashboard() {
                     </p>
                     <Button 
                       onClick={handleCreate}
-                      className="bg-primary text-primary-foreground"
+                      className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-md transition-all duration-200"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Property
