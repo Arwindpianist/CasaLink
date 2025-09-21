@@ -382,7 +382,7 @@ export default function AdminDashboard() {
                     <CardTitle className="text-foreground">Recent Properties</CardTitle>
                     <CardDescription className="text-foreground">Latest registered properties</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" onClick={handleCreate} className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
+                  <Button variant="outline" size="sm" onClick={handleCreate} className="border border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
                     <Plus className="h-4 w-4 mr-2" />
                     Add Property
                   </Button>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                             <Badge variant="secondary" className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
                               {propertyConfig.label}
                             </Badge>
-                            <Button size="sm" variant="outline" className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
+                            <Button size="sm" variant="outline" className="border border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -665,7 +665,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleEdit(condo)}
-                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -683,7 +683,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleDelete(condo)}
-                                  className="border border-border hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                  className="border border-border hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete

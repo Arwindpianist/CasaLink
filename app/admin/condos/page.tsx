@@ -216,7 +216,7 @@ export default function CondoManagement() {
                 size="sm"
                 onClick={fetchCondominiums}
                 disabled={loading}
-                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                className="hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
               >
                 <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
@@ -432,7 +432,7 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleView(condo)}
-                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                className="hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                               >
                                 <Eye className="h-4 w-4 mr-1" />
                                 View Details
@@ -441,7 +441,7 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleEdit(condo)}
-                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                className="hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                               >
                                 <Edit className="h-4 w-4 mr-1" />
                                 Edit
@@ -450,13 +450,13 @@ export default function CondoManagement() {
                                 size="sm" 
                                 variant="outline"
                                 onClick={() => handleDelete(condo)}
-                                className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200"
+                                className="hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200"
                               >
                                 <Trash2 className="h-4 w-4 mr-1" />
                                 Delete
                               </Button>
                               {condo.status === "trial" && (
-                                <Button size="sm" variant="outline" className="hover:border-primary hover:bg-primary hover:text-background transition-all duration-200">
+                                <Button size="sm" variant="outline" className="hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all duration-200">
                                   <TrendingUp className="h-4 w-4 mr-1" />
                                   Upgrade Plan
                                 </Button>
