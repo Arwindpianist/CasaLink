@@ -1,6 +1,6 @@
 "use client"
 
-import { useUser } from '@clerk/nextjs'
+import { useUser, useAuth } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
 
 export interface CasaLinkUser {
@@ -22,6 +22,7 @@ export interface CasaLinkUser {
 
 export function useSimpleAuth() {
   const { user: clerkUser, isLoaded: clerkLoaded } = useUser()
+  const { getToken } = useAuth()
   const [casalinkUser, setCasaLinkUser] = useState<CasaLinkUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -37,7 +38,18 @@ export function useSimpleAuth() {
         setIsLoading(true)
         setError(null)
 
-        const response = await fetch('/api/auth/verify')
+        // Get Clerk token
+        const token = await getToken()
+        
+        if (!token) {
+          throw new Error('No authentication token available')
+        }
+
+        const response = await fetch('/api/auth/verify', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        })
         
         if (response.ok) {
           const data = await response.json()
@@ -66,7 +78,18 @@ export function useSimpleAuth() {
       setIsLoading(true)
       setError(null)
       
-      const response = await fetch('/api/auth/verify')
+      // Get Clerk token
+      const token = await getToken()
+      
+      if (!token) {
+        throw new Error('No authentication token available')
+      }
+
+      const response = await fetch('/api/auth/verify', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
       
       if (response.ok) {
         const data = await response.json()
@@ -86,10 +109,18 @@ export function useSimpleAuth() {
     if (!clerkUser) return
 
     try {
+      // Get Clerk token
+      const token = await getToken()
+      
+      if (!token) {
+        throw new Error('No authentication token available')
+      }
+
       const response = await fetch('/api/auth/user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(updates),
       })

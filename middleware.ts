@@ -33,14 +33,15 @@ const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
   '/security(.*)',
   '/resident(.*)',
-  '/visitor(.*)'
+  '/visitor(.*)',
+  '/api/auth(.*)'
 ]);
 
 const isPublicRoute = createRouteMatcher([
   '/',
   '/login',
   '/demo',
-  '/api(.*)',
+  '/api/webhooks(.*)',
   '/_next(.*)',
   '/favicon.ico',
   '/casalink-favicon(.*)'
@@ -62,11 +63,10 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except for the ones starting with:
-     * - api (API routes)
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      */
-    '/((?!api|_next/static|_next/image|favicon.ico).*)',
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }
