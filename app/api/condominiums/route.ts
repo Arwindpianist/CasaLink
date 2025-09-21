@@ -18,7 +18,27 @@ export async function GET(request: NextRequest) {
       const supabase = await createServerSupabaseClient()
       const offset = (page - 1) * limit
 
-      // Build query
+      console.log('Attempting to fetch condominiums from Supabase...')
+
+      // First, let's try a simple query to see what's in the database
+      const { data: simpleData, error: simpleError } = await supabase
+        .from('condominiums')
+        .select('*')
+        .limit(10)
+
+      console.log('Simple query result:', { data: simpleData, error: simpleError })
+
+      if (simpleError) {
+        console.error('Simple Supabase query failed:', simpleError)
+        throw simpleError
+      }
+
+      if (!simpleData || simpleData.length === 0) {
+        console.log('No condominiums found in database, using mock data')
+        throw new Error('No condominiums in database')
+      }
+
+      // Build query with relationships
       let query = supabase
         .from('condominiums')
         .select(`
@@ -46,9 +66,11 @@ export async function GET(request: NextRequest) {
       const { data, error, count } = await query
 
       if (error) {
-        console.error('Supabase error:', error)
+        console.error('Complex Supabase query failed:', error)
         throw error
       }
+
+      console.log('Successfully fetched condominiums from Supabase:', data?.length || 0)
 
       // Transform data to match expected format
       const transformedData = (data || []).map(condo => ({
@@ -73,6 +95,10 @@ export async function GET(request: NextRequest) {
       })
     } catch (supabaseError) {
       console.error('Supabase connection failed, using mock data:', supabaseError)
+      console.error('Error details:', {
+        message: supabaseError instanceof Error ? supabaseError.message : 'Unknown error',
+        stack: supabaseError instanceof Error ? supabaseError.stack : undefined
+      })
       
       // Fallback to mock data
       const mockCondominiums = [
