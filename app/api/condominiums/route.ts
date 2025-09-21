@@ -4,7 +4,11 @@ import { createServerSupabaseClient, type CasaLinkUser } from '@/lib/clerk-supab
 
 // GET /api/condominiums - Get all condominiums (platform admin only)
 export async function GET(request: NextRequest) {
-  return withAuth(['platform_admin'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
+    // Check if user has platform_admin role
+    if (user.role !== 'platform_admin') {
+      return createAuthError('Access denied. Platform admin role required.', 403)
+    }
     try {
       const supabase = await createServerSupabaseClient()
       const { searchParams } = new URL(request.url)
@@ -77,7 +81,11 @@ export async function GET(request: NextRequest) {
 
 // POST /api/condominiums - Create new condominium (platform admin only)
 export async function POST(request: NextRequest) {
-  return withAuth(['platform_admin'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
+    // Check if user has platform_admin role
+    if (user.role !== 'platform_admin') {
+      return createAuthError('Access denied. Platform admin role required.', 403)
+    }
     try {
       const body = await request.json()
       const { 

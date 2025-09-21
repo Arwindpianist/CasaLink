@@ -7,7 +7,11 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  return withAuth(['platform_admin'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
+    // Check if user has platform_admin role
+    if (user.role !== 'platform_admin') {
+      return createAuthError('Access denied. Platform admin role required.', 403)
+    }
     try {
       const supabase = await createServerSupabaseClient()
       const condoId = params.id
@@ -66,7 +70,11 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  return withAuth(['platform_admin'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
+    // Check if user has platform_admin role
+    if (user.role !== 'platform_admin') {
+      return createAuthError('Access denied. Platform admin role required.', 403)
+    }
     try {
       const body = await request.json()
       const condoId = params.id
@@ -149,7 +157,11 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  return withAuth(['platform_admin'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
+    // Check if user has platform_admin role
+    if (user.role !== 'platform_admin') {
+      return createAuthError('Access denied. Platform admin role required.', 403)
+    }
     try {
       const supabase = await createServerSupabaseClient()
       const condoId = params.id
