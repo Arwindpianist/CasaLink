@@ -332,6 +332,75 @@
     box-shadow: 0 4px 12px var(--primary);
   }
 
+  /* Enhanced dark mode button visibility */
+  .dark button[data-variant="outline"] {
+    border: 2px solid var(--secondary);
+    background: transparent;
+    color: var(--text);
+  }
+
+  .dark button[data-variant="outline"]:hover {
+    border-color: var(--primary);
+    background: var(--primary);
+    color: var(--background);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px var(--primary);
+  }
+
+  .dark button[data-variant="ghost"] {
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text);
+  }
+
+  .dark button[data-variant="ghost"]:hover {
+    border-color: var(--secondary);
+    background: var(--secondary);
+    color: var(--text);
+  }
+
+  .dark .border-border {
+    border-color: var(--secondary) !important;
+  }
+
+  .dark .border-border\/50 {
+    border-color: var(--secondary) !important;
+    opacity: 0.5;
+  }
+
+  .dark .hover\:border-primary\/50:hover {
+    border-color: var(--primary) !important;
+    opacity: 0.5;
+  }
+
+  .dark .hover\:border-primary\/30:hover {
+    border-color: var(--primary) !important;
+    opacity: 0.3;
+  }
+
+  .dark .hover\:border-primary\/20:hover {
+    border-color: var(--primary) !important;
+    opacity: 0.2;
+  }
+
+  /* Enhanced card visibility in dark mode */
+  .dark .border-border\/50 {
+    border-color: var(--secondary);
+    border-width: 2px;
+  }
+
+  .dark .hover\:border-primary\/20:hover {
+    border-color: var(--primary);
+    border-width: 2px;
+    box-shadow: 0 4px 12px var(--primary);
+  }
+
+  .dark .hover\:border-primary\/30:hover {
+    border-color: var(--primary);
+    border-width: 2px;
+    box-shadow: 0 6px 16px var(--primary);
+  }
+
   /* Typography utilities */
   .font-premium {
     font-family: "Cormorant Garamond", ui-serif, Georgia;

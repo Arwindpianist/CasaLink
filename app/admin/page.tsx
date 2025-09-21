@@ -9,12 +9,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { 
-  Building2, 
-  Users, 
-  BarChart3, 
+import {
+  Building2,
+  Users,
+  BarChart3,
   DollarSign, 
-  Settings, 
+  Settings,
   Shield, 
   AlertTriangle, 
   Bell,
@@ -48,9 +48,9 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { useSearchParams } from "next/navigation"
 import { useSimpleAuth } from "@/hooks/use-simple-auth"
 import { cn } from "@/lib/utils"
-import { CondominiumFormDialog } from "@/components/admin/condominium-form-dialog"
-import { CondominiumDetailsDialog } from "@/components/admin/condominium-details-dialog"
-import { CondominiumDeleteDialog } from "@/components/admin/condominium-delete-dialog"
+import { InlineCondominiumForm } from "@/components/admin/inline-condominium-form"
+import { InlineCondominiumDetails } from "@/components/admin/inline-condominium-details"
+import { InlineDeleteConfirmation } from "@/components/admin/inline-delete-confirmation"
 import { toast } from "@/hooks/use-toast"
 
 export default function AdminDashboard() {
@@ -60,10 +60,8 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(false)
   const [condominiums, setCondominiums] = useState<any[]>([])
   
-  // Dialog states
-  const [formDialogOpen, setFormDialogOpen] = useState(false)
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false)
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  // Inline view states
+  const [inlineView, setInlineView] = useState<'list' | 'create' | 'edit' | 'details' | 'delete'>('list')
   const [selectedCondominium, setSelectedCondominium] = useState<any | null>(null)
 
   // Handle URL parameters for deep linking
@@ -157,30 +155,37 @@ export default function AdminDashboard() {
   // CRUD operations
   const handleCreate = () => {
     setSelectedCondominium(null)
-    setFormDialogOpen(true)
+    setInlineView('create')
   }
 
   const handleEdit = (condominium: any) => {
     setSelectedCondominium(condominium)
-    setFormDialogOpen(true)
+    setInlineView('edit')
   }
 
   const handleView = (condominium: any) => {
     setSelectedCondominium(condominium)
-    setDetailsDialogOpen(true)
+    setInlineView('details')
   }
 
   const handleDelete = (condominium: any) => {
     setSelectedCondominium(condominium)
-    setDeleteDialogOpen(true)
+    setInlineView('delete')
   }
 
   const handleSuccess = () => {
+    setInlineView('list')
+    setSelectedCondominium(null)
     refreshCondominiums()
     toast({
       title: "Success",
       description: "Condominium operation completed successfully",
     })
+  }
+
+  const handleCancel = () => {
+    setInlineView('list')
+    setSelectedCondominium(null)
   }
 
   const recentActivities = [
@@ -220,11 +225,11 @@ export default function AdminDashboard() {
   // Render different content based on active tab
   const renderContent = () => {
     if (activeTab === "dashboard") {
-      return (
+  return (
         <div className="space-y-6">
           {/* Header */}
           <div className="flex items-center justify-between">
-            <div>
+                <div>
               <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
               <p className="text-muted-foreground">Platform overview and key metrics</p>
             </div>
@@ -240,7 +245,7 @@ export default function AdminDashboard() {
 
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <motion.div {...fadeInUp}>
+          <motion.div {...fadeInUp}>
               <Card className="rounded-xl">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
@@ -325,8 +330,8 @@ export default function AdminDashboard() {
                         <div className="flex items-center space-x-4">
                           <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
                             <Building2 className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
+                    </div>
+                    <div>
                             <h3 className="font-medium text-foreground">{condo.name}</h3>
                             <p className="text-sm text-muted-foreground">{condo.address}</p>
                           </div>
@@ -345,9 +350,9 @@ export default function AdminDashboard() {
                       <p className="text-muted-foreground">No condominiums found</p>
                     </div>
                   )}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
           </motion.div>
 
           {/* Recent Activities */}
@@ -372,18 +377,63 @@ export default function AdminDashboard() {
                           <Clock className="h-3 w-3 mr-1" />
                           {activity.time}
                         </div>
-                      </div>
+                    </div>
                     </div>
                   ))}
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
           </motion.div>
         </div>
       )
     }
 
     if (activeTab === "condos") {
+      // Render inline views based on current state
+      if (inlineView === 'create') {
+        return (
+          <InlineCondominiumForm
+            condominium={null}
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+            mode="create"
+          />
+        )
+      }
+
+      if (inlineView === 'edit' && selectedCondominium) {
+        return (
+          <InlineCondominiumForm
+            condominium={selectedCondominium}
+            onSuccess={handleSuccess}
+            onCancel={handleCancel}
+            mode="edit"
+          />
+        )
+      }
+
+      if (inlineView === 'details' && selectedCondominium) {
+        return (
+          <InlineCondominiumDetails
+            condominium={selectedCondominium}
+            onEdit={() => setInlineView('edit')}
+            onDelete={() => setInlineView('delete')}
+            onClose={handleCancel}
+          />
+        )
+      }
+
+      if (inlineView === 'delete' && selectedCondominium) {
+  return (
+          <InlineDeleteConfirmation
+            condominium={selectedCondominium}
+            onConfirm={handleSuccess}
+            onCancel={handleCancel}
+          />
+        )
+      }
+
+      // Default list view
       return (
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -391,36 +441,42 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-bold text-foreground">Condominium Management</h1>
               <p className="text-muted-foreground">Manage all condominiums on the platform</p>
             </div>
-            <Button 
-              variant="outline" 
-              onClick={refreshCondominiums}
-              disabled={loading}
-            >
-              <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                onClick={refreshCondominiums}
+                disabled={loading}
+                className="border-2 hover:border-primary/50 hover:text-primary"
+              >
+                <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button 
+                onClick={handleCreate}
+                className="border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add New Property
+              </Button>
+            </div>
           </div>
 
-          <Card className="rounded-xl">
-            <CardHeader>
+          <Card className="border-2 border-border/50 hover:border-primary/20 transition-colors">
+            <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle>All Condominiums</CardTitle>
+                  <CardTitle className="text-xl">All Properties</CardTitle>
                   <CardDescription>View and manage registered properties</CardDescription>
                 </div>
-                <Button onClick={handleCreate}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add New Condo
-                </Button>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {loading ? (
-                  <div className="text-center py-8">
+                  <div className="text-center py-12">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-                    <p className="text-muted-foreground">Loading condominiums...</p>
-                  </div>
+                    <p className="text-muted-foreground">Loading properties...</p>
+            </div>
                 ) : condominiums.length > 0 ? (
                   condominiums.map((condo, index) => (
                     <motion.div
@@ -429,10 +485,10 @@ export default function AdminDashboard() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className="hover:shadow-md transition-shadow rounded-xl">
+                      <Card className="border-2 border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-200">
                         <CardContent className="p-6">
                           <div className="flex items-start space-x-4">
-                            <Avatar className="h-16 w-16">
+                            <Avatar className="h-16 w-16 border-2 border-border">
                               <AvatarImage src="/placeholder.svg" />
                               <AvatarFallback>
                                 <Building2 className="h-8 w-8" />
@@ -452,9 +508,7 @@ export default function AdminDashboard() {
                                     </p>
                                   )}
                                   <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
-                                    <span>{condo.units?.[0]?.count || 0} units</span>
-                                    <span>•</span>
-                                    <span>{condo.users?.[0]?.count || 0} users</span>
+                                    <span>{condo.total_units || 0} units</span>
                                     <span>•</span>
                                     <span className="flex items-center">
                                       <Calendar className="h-3 w-3 mr-1" />
@@ -464,20 +518,20 @@ export default function AdminDashboard() {
                                 </div>
                                 <div className="flex flex-col items-end space-y-2">
                                   <div className="flex items-center space-x-2">
-                                    <Badge className={getStatusConfig(condo.status).color}>
-                                      {getStatusConfig(condo.status).label}
+                                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                      Active
+              </Badge>
+                                    <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                      {condo.subscription_plan?.charAt(0).toUpperCase() + condo.subscription_plan?.slice(1) || 'Basic'}
                                     </Badge>
-                                    <Badge className={getPlanColor(condo.subscription_plan)}>
-                                      {condo.subscription_plan.charAt(0).toUpperCase() + condo.subscription_plan.slice(1)}
-                                    </Badge>
-                                  </div>
-                                  <p className="text-lg font-bold text-foreground">
-                                    {condo.monthly_revenue > 0 ? `RM${condo.monthly_revenue}/month` : "Trial"}
+            </div>
+                                  <p className="text-lg font-bold text-primary">
+                                    RM{condo.monthly_revenue?.toLocaleString() || '0'}/month
                                   </p>
                                   <p className="text-xs text-muted-foreground">
                                     Updated {new Date(condo.updated_at).toLocaleDateString()}
                                   </p>
-                                </div>
+          </div>
                               </div>
 
                               <div className="flex items-center space-x-2 mt-4">
@@ -485,6 +539,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
+                                  className="border-2 hover:border-primary/50 hover:text-primary"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -493,6 +548,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleEdit(condo)}
+                                  className="border-2 hover:border-blue-500/50 hover:text-blue-600"
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -501,31 +557,31 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleDelete(condo)}
+                                  className="border-2 hover:border-destructive/50 hover:text-destructive"
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete
                                 </Button>
-                                {condo.status === "trial" && (
-                                  <Button size="sm" variant="outline">
-                                    <TrendingUp className="h-4 w-4 mr-1" />
-                                    Upgrade Plan
-                                  </Button>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                    </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
                     </motion.div>
                   ))
                 ) : (
-                  <div className="text-center py-12">
-                    <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-foreground mb-2">No condominiums found</h3>
-                    <p className="text-muted-foreground mb-4">Get started by adding your first condominium</p>
-                    <Button onClick={handleCreate}>
+                  <div className="text-center py-16">
+                    <Building2 className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
+                    <h3 className="text-xl font-semibold text-foreground mb-3">No properties found</h3>
+                    <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                      Get started by adding your first property to the platform. You can configure pricing, add-ons, and manage all aspects of the property.
+                    </p>
+                    <Button 
+                      onClick={handleCreate}
+                      className="border-2 border-primary hover:border-primary/80 bg-primary hover:bg-primary/90"
+                    >
                       <Plus className="h-4 w-4 mr-2" />
-                      Add Condominium
+                      Add Your First Property
                     </Button>
                   </div>
                 )}
@@ -555,21 +611,21 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">User Management</h1>
             <p className="text-muted-foreground">Manage users across all condominiums</p>
-          </div>
+                    </div>
 
           {/* User Statistics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card className="rounded-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
+                    <div>
                     <p className="text-sm font-medium text-muted-foreground">Total Users</p>
                     <p className="text-2xl font-bold text-foreground">{userStats.totalUsers.toLocaleString()}</p>
-                  </div>
+                    </div>
                   <Users className="h-8 w-8 text-primary" />
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
             <Card className="rounded-xl">
               <CardContent className="p-6">
@@ -577,7 +633,7 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Active Users</p>
                     <p className="text-2xl font-bold text-foreground">{userStats.activeUsers.toLocaleString()}</p>
-                  </div>
+                    </div>
                   <Activity className="h-8 w-8 text-green-600" />
                 </div>
               </CardContent>
@@ -586,7 +642,7 @@ export default function AdminDashboard() {
             <Card className="rounded-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
+                    <div>
                     <p className="text-sm font-medium text-muted-foreground">New This Month</p>
                     <p className="text-2xl font-bold text-foreground">+{userStats.newThisMonth}</p>
                   </div>
@@ -603,11 +659,11 @@ export default function AdminDashboard() {
                     <p className="text-2xl font-bold text-foreground">
                       {platformStats.totalCondos > 0 ? Math.round(platformStats.totalUsers / platformStats.totalCondos) : 0}
                     </p>
-                  </div>
+                    </div>
                   <Building2 className="h-8 w-8 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
           </div>
 
           {/* User Distribution */}
@@ -622,7 +678,7 @@ export default function AdminDashboard() {
                   <Users className="h-8 w-8 text-green-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-green-600">{userStats.byRole.residents}</p>
                   <p className="text-sm text-muted-foreground">Residents</p>
-                </div>
+                    </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <Crown className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-blue-600">{userStats.byRole.management}</p>
@@ -637,10 +693,10 @@ export default function AdminDashboard() {
                   <User className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-purple-600">{userStats.byRole.others}</p>
                   <p className="text-sm text-muted-foreground">Others</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
           {/* Recent User Activity */}
           <Card className="rounded-xl">
@@ -663,7 +719,7 @@ export default function AdminDashboard() {
                         {condo.users?.[0]?.count || 0} users • {condo.status} status
                       </p>
                     </div>
-                    <div className="text-right">
+                        <div className="text-right">
                       <p className="text-sm font-medium text-foreground">
                         {condo.users?.[0]?.count || 0} users
                       </p>
@@ -694,10 +750,10 @@ export default function AdminDashboard() {
 
       return (
         <div className="space-y-6">
-          <div>
+                    <div>
             <h1 className="text-2xl font-bold text-foreground">Analytics & Reports</h1>
             <p className="text-muted-foreground">Platform analytics and performance metrics</p>
-          </div>
+                    </div>
 
           {/* Key Metrics */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -709,9 +765,9 @@ export default function AdminDashboard() {
                     <p className="text-2xl font-bold text-green-600">+{analytics.revenueGrowth}%</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
             <Card className="rounded-xl">
               <CardContent className="p-6">
@@ -719,7 +775,7 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">User Growth</p>
                     <p className="text-2xl font-bold text-blue-600">+{analytics.userGrowth}%</p>
-                  </div>
+                    </div>
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
               </CardContent>
@@ -728,14 +784,14 @@ export default function AdminDashboard() {
             <Card className="rounded-xl">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
+                    <div>
                     <p className="text-sm font-medium text-muted-foreground">Avg Revenue/Condo</p>
                     <p className="text-2xl font-bold text-foreground">RM{analytics.avgRevenuePerCondo}</p>
-                  </div>
+                    </div>
                   <DollarSign className="h-8 w-8 text-primary" />
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+                </CardContent>
+              </Card>
 
             <Card className="rounded-xl">
               <CardContent className="p-6">
@@ -743,7 +799,7 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Platform Growth</p>
                     <p className="text-2xl font-bold text-purple-600">+{analytics.growthRate}%</p>
-                  </div>
+            </div>
                   <BarChart3 className="h-8 w-8 text-purple-600" />
                 </div>
               </CardContent>
@@ -752,7 +808,7 @@ export default function AdminDashboard() {
 
           {/* Revenue Analysis */}
           <Card className="rounded-xl">
-            <CardHeader>
+                <CardHeader>
               <CardTitle>Revenue Analysis</CardTitle>
               <CardDescription>Monthly revenue breakdown by subscription plan</CardDescription>
             </CardHeader>
@@ -767,7 +823,7 @@ export default function AdminDashboard() {
                   <p className="text-sm text-muted-foreground">
                     {condominiums.filter(c => c.subscription_plan === 'basic').length} condominiums
                   </p>
-                </div>
+                    </div>
                 <div className="text-center p-6 bg-blue-50 rounded-lg">
                   <DollarSign className="h-12 w-12 text-blue-600 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-blue-600">Professional</h3>
@@ -797,7 +853,7 @@ export default function AdminDashboard() {
             <CardHeader>
               <CardTitle>Top Performing Condominiums</CardTitle>
               <CardDescription>Condominiums with highest revenue and user engagement</CardDescription>
-            </CardHeader>
+                </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {condominiums
@@ -807,35 +863,35 @@ export default function AdminDashboard() {
                     <div key={condo.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                       <div className="flex items-center justify-center w-8 h-8 bg-primary/10 rounded-full">
                         <span className="text-sm font-bold text-primary">#{index + 1}</span>
-                      </div>
+                        </div>
                       <Avatar className="h-10 w-10">
-                        <AvatarFallback>
+                            <AvatarFallback>
                           <Building2 className="h-5 w-5" />
-                        </AvatarFallback>
-                      </Avatar>
+                            </AvatarFallback>
+                          </Avatar>
                       <div className="flex-1">
                         <h3 className="font-medium text-foreground">{condo.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           {condo.users?.[0]?.count || 0} users • {condo.subscription_plan} plan
                         </p>
-                      </div>
-                      <div className="text-right">
+                        </div>
+                        <div className="text-right">
                         <p className="text-lg font-bold text-foreground">
                           RM{condo.monthly_revenue || 0}/month
                         </p>
                         <p className="text-xs text-muted-foreground">
                           {condo.status} status
                         </p>
+                        </div>
                       </div>
-                    </div>
                   ))}
               </div>
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
 
           {/* Export Options */}
           <Card className="rounded-xl">
-            <CardHeader>
+                <CardHeader>
               <CardTitle>Export Reports</CardTitle>
               <CardDescription>Download analytics and performance reports</CardDescription>
             </CardHeader>
@@ -844,7 +900,7 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="h-20 flex-col">
                   <Download className="h-6 w-6 mb-2" />
                   <span>Revenue Report</span>
-                </Button>
+                        </Button>
                 <Button variant="outline" className="h-20 flex-col">
                   <Download className="h-6 w-6 mb-2" />
                   <span>User Analytics</span>
@@ -852,11 +908,11 @@ export default function AdminDashboard() {
                 <Button variant="outline" className="h-20 flex-col">
                   <Download className="h-6 w-6 mb-2" />
                   <span>Platform Overview</span>
-                </Button>
-              </div>
+                        </Button>
+                      </div>
             </CardContent>
           </Card>
-        </div>
+                    </div>
       )
     }
 
@@ -870,7 +926,7 @@ export default function AdminDashboard() {
         avgPaymentTime: 3.2
       }
 
-      return (
+                    return (
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Billing & Revenue</h1>
@@ -888,8 +944,8 @@ export default function AdminDashboard() {
                   </div>
                   <DollarSign className="h-8 w-8 text-primary" />
                 </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
             <Card className="rounded-xl">
               <CardContent className="p-6">
@@ -909,9 +965,9 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Collection Rate</p>
                     <p className="text-2xl font-bold text-foreground">{billingStats.collectionRate}%</p>
-                  </div>
+                        </div>
                   <Activity className="h-8 w-8 text-blue-600" />
-                </div>
+                          </div>
               </CardContent>
             </Card>
 
@@ -921,16 +977,16 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Avg Payment Time</p>
                     <p className="text-2xl font-bold text-foreground">{billingStats.avgPaymentTime} days</p>
-                  </div>
+                        </div>
                   <Clock className="h-8 w-8 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
+                      </div>
+                </CardContent>
+              </Card>
           </div>
 
           {/* Subscription Plans */}
           <Card className="rounded-xl">
-            <CardHeader>
+                <CardHeader>
               <CardTitle>Subscription Plans</CardTitle>
               <CardDescription>Revenue breakdown by subscription plan</CardDescription>
             </CardHeader>
@@ -940,7 +996,7 @@ export default function AdminDashboard() {
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-semibold text-foreground">Basic Plan</h3>
                     <Badge className="bg-green-100 text-green-800">RM1,800</Badge>
-                  </div>
+                    </div>
                   <div className="space-y-2">
                     <p className="text-sm text-muted-foreground">
                       {condominiums.filter(c => c.subscription_plan === 'basic').length} subscribers
@@ -984,11 +1040,11 @@ export default function AdminDashboard() {
 
           {/* Payment Status */}
           <Card className="rounded-xl">
-            <CardHeader>
+              <CardHeader>
               <CardTitle>Payment Status</CardTitle>
               <CardDescription>Current payment status across all condominiums</CardDescription>
-            </CardHeader>
-            <CardContent>
+                </CardHeader>
+              <CardContent>
               <div className="space-y-4">
                 {condominiums.map((condo, index) => (
                   <div key={condo.id} className="flex items-center justify-between p-4 border rounded-lg">
@@ -1003,7 +1059,7 @@ export default function AdminDashboard() {
                         <p className="text-sm text-muted-foreground">
                           {condo.subscription_plan} plan • {condo.status}
                         </p>
-                      </div>
+                        </div>
                     </div>
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
@@ -1013,12 +1069,12 @@ export default function AdminDashboard() {
                         <p className="text-xs text-muted-foreground">
                           Due {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                         </p>
-                      </div>
+                  </div>
                       <Badge className={condo.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
                         {condo.status === 'active' ? 'Current' : 'Pending'}
-                      </Badge>
-                    </div>
-                  </div>
+                            </Badge>
+                          </div>
+                        </div>
                 ))}
               </div>
             </CardContent>
@@ -1047,8 +1103,8 @@ export default function AdminDashboard() {
               </div>
             </CardContent>
           </Card>
-        </div>
-      )
+                      </div>
+                    )
     }
 
     if (activeTab === "system") {
@@ -1069,8 +1125,8 @@ export default function AdminDashboard() {
                   </div>
                   <Activity className="h-8 w-8 text-green-600" />
                 </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
 
             <Card className="rounded-xl">
               <CardContent className="p-6">
@@ -1078,9 +1134,9 @@ export default function AdminDashboard() {
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Uptime</p>
                     <p className="text-2xl font-bold text-foreground">{systemHealth.uptime}</p>
-                  </div>
+          </div>
                   <Clock className="h-8 w-8 text-primary" />
-                </div>
+                    </div>
               </CardContent>
             </Card>
 
@@ -1092,7 +1148,7 @@ export default function AdminDashboard() {
                     <p className="text-2xl font-bold text-foreground">{systemHealth.responseTime}</p>
                   </div>
                   <Globe className="h-8 w-8 text-primary" />
-                </div>
+                    </div>
               </CardContent>
             </Card>
 
@@ -1121,11 +1177,11 @@ export default function AdminDashboard() {
           </div>
 
           <Card className="rounded-xl">
-            <CardHeader>
+              <CardHeader>
               <CardTitle>Security Dashboard</CardTitle>
               <CardDescription>Monitor security events and system access</CardDescription>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              <CardContent>
               <div className="text-center py-12">
                 <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-semibold text-foreground mb-2">Security Monitoring</h3>
@@ -1134,10 +1190,10 @@ export default function AdminDashboard() {
                   <Eye className="h-4 w-4 mr-2" />
                   View Security Logs
                 </Button>
-              </div>
+                    </div>
             </CardContent>
           </Card>
-        </div>
+                  </div>
       )
     }
 
@@ -1147,7 +1203,7 @@ export default function AdminDashboard() {
           <div>
             <h1 className="text-2xl font-bold text-foreground">Alerts & Logs</h1>
             <p className="text-muted-foreground">System alerts and activity logs</p>
-          </div>
+                    </div>
 
           <Card className="rounded-xl">
             <CardHeader>
@@ -1168,14 +1224,14 @@ export default function AdminDashboard() {
                       <div className="flex items-center text-xs text-muted-foreground mt-2">
                         <Clock className="h-3 w-3 mr-1" />
                         {activity.time}
-                      </div>
+                  </div>
                     </div>
                   </div>
                 ))}
-              </div>
+                    </div>
             </CardContent>
           </Card>
-        </div>
+                  </div>
       )
     }
 
@@ -1201,9 +1257,9 @@ export default function AdminDashboard() {
                   <Settings className="h-4 w-4 mr-2" />
                   Open Settings
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              </CardContent>
+            </Card>
         </div>
       )
     }
@@ -1247,31 +1303,10 @@ export default function AdminDashboard() {
           
           <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
             {renderContent()}
-          </div>
+        </div>
         </SidebarInset>
 
         {/* Dialog Components */}
-        <CondominiumFormDialog
-          open={formDialogOpen}
-          onOpenChange={setFormDialogOpen}
-          condominium={selectedCondominium}
-          onSuccess={handleSuccess}
-        />
-
-        <CondominiumDetailsDialog
-          open={detailsDialogOpen}
-          onOpenChange={setDetailsDialogOpen}
-          condominiumId={selectedCondominium?.id || null}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-
-        <CondominiumDeleteDialog
-          open={deleteDialogOpen}
-          onOpenChange={setDeleteDialogOpen}
-          condominium={selectedCondominium}
-          onSuccess={handleSuccess}
-        />
       </SidebarProvider>
     </ProtectedRoute>
   )
