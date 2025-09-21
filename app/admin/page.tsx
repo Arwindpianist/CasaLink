@@ -5,54 +5,63 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  Building2,
-  Users,
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { 
+  Building2, 
+  Users, 
+  BarChart3, 
+  DollarSign, 
+  Settings, 
+  Shield, 
+  AlertTriangle, 
+  Bell,
+  Plus,
+  Search,
+  Filter,
+  Crown,
+  Globe,
   Activity,
   TrendingUp,
-  AlertTriangle,
-  CheckCircle,
+  Download,
+  Eye,
+  Edit,
+  Trash2,
+  Home,
+  ChevronRight,
   Clock,
-  DollarSign,
-  Globe,
-  Server,
-  Zap,
-  Shield,
-  BarChart3,
-  Settings,
-  Crown,
+  User,
+  Mail,
+  Phone,
+  Calendar,
+  LogOut
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
-import { ShineBorderCard } from "@/components/magicui/shine-border-card"
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { ProtectedRoute } from "@/components/auth/protected-route"
-import { RoleNavigation } from "@/components/navigation/role-navigation"
-import { Skeleton } from "@/components/ui/skeleton"
-
-interface Condominium {
-  id: string
-  name: string
-  type: string
-  address: string
-  city?: string
-  state?: string
-  country: string
-  postal_code?: string
-  subscription_plan: string
-  monthly_revenue: number
-  status: string
-  settings: Record<string, any>
-  created_at: string
-  updated_at: string
-  users?: { count: number }[]
-  units?: { count: number }[]
-}
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { useSearchParams } from "next/navigation"
+import { useSimpleAuth } from "@/hooks/use-simple-auth"
+import { cn } from "@/lib/utils"
 
 export default function AdminDashboard() {
-  const [condominiums, setCondominiums] = useState<Condominium[]>([])
-  const [loading, setLoading] = useState(true)
+  const { casalinkUser: user, isLoading: authLoading } = useSimpleAuth()
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState("dashboard")
+  const [loading, setLoading] = useState(false)
+  const [condominiums, setCondominiums] = useState<any[]>([])
+
+  // Handle URL parameters for deep linking
+  useEffect(() => {
+    const tab = searchParams.get('tab')
+    if (tab && ['dashboard', 'condos', 'users', 'analytics', 'billing', 'system', 'security', 'alerts', 'settings'].includes(tab)) {
+      setActiveTab(tab)
+    }
+  }, [searchParams])
 
   // Fetch condominiums data for dashboard
   useEffect(() => {
@@ -64,13 +73,9 @@ export default function AdminDashboard() {
           setCondominiums(data.condominiums || [])
         } else {
           console.error('Failed to fetch condominiums:', response.status, response.statusText)
-          // Set empty array if API fails
-          setCondominiums([])
         }
       } catch (error) {
         console.error('Failed to fetch condominiums:', error)
-        // Set empty array if fetch fails
-        setCondominiums([])
       } finally {
         setLoading(false)
       }
@@ -79,412 +84,539 @@ export default function AdminDashboard() {
     fetchCondominiums()
   }, [])
 
-  // Calculate real stats from condominiums data
-  const getGlobalStats = () => {
-    const totalCondos = condominiums.length
-    const totalUsers = condominiums.reduce((sum, condo) => {
-      const userCount = condo.users?.[0]?.count || 0
-      return sum + userCount
-    }, 0)
-    const monthlyRevenue = condominiums.reduce((sum, condo) => sum + (condo.monthly_revenue || 0), 0)
-    
-    return {
-      totalCondos,
-      activeUsers: totalUsers,
-      monthlyRevenue,
-      systemUptime: 99.97, // Keep as is
-      qrScansToday: 3421, // Keep as is
-      supportTickets: 12, // Keep as is
-    }
-  }
-
-  const globalStats = getGlobalStats()
-  const recentCondos = condominiums.slice(0, 3).map(condo => ({
-    id: condo.id,
-    name: condo.name,
-    location: condo.city || 'Unknown',
-    units: condo.units?.[0]?.count || 0,
-    activeUsers: condo.users?.[0]?.count || 0,
-    plan: condo.subscription_plan.charAt(0).toUpperCase() + condo.subscription_plan.slice(1),
-    status: condo.status,
-    joinDate: new Date(condo.created_at).toLocaleDateString(),
-    revenue: condo.monthly_revenue,
-  }))
-
-  const systemAlerts = [
-    {
-      id: 1,
-      type: "warning",
-      message: "High API usage detected for Pavilion Residences",
-      time: "5 min ago",
-      severity: "medium",
-    },
-    {
-      id: 2,
-      type: "info",
-      message: "New condominium registration: Tropicana Gardens",
-      time: "1 hour ago",
-      severity: "low",
-    },
-    {
-      id: 3,
-      type: "error",
-      message: "Payment failed for KLCC Towers - subscription suspended",
-      time: "2 hours ago",
-      severity: "high",
-    },
-  ]
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case "error":
-        return AlertTriangle
-      case "warning":
-        return Clock
-      case "info":
-        return CheckCircle
-      default:
-        return Activity
-    }
-  }
-
-  const getAlertColor = (severity: string) => {
-    switch (severity) {
-      case "high":
-        return "text-primary"
-      case "medium":
-        return "text-primary"
-      case "low":
-        return "text-primary"
-      default:
-        return "text-primary"
-    }
-  }
-
   const fadeInUp = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6 },
   }
 
-  return (
-    <ProtectedRoute requiredRole="platform_admin">
-      <SidebarProvider>
-        <AdminSidebar />
-        <SidebarInset>
-        {/* Enhanced Header with Glass Effect */}
-        <header className="glass-header border-b border-border/50 px-4 lg:px-8 py-6 rounded-b-2xl">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <SidebarTrigger className="-ml-1 warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md" />
-              <div className="flex items-center space-x-2">
-                <Crown className="h-8 w-8 text-primary" />
-                <div>
-                  <h1 className="dashboard-title warm-text-primary">SaaS Admin Dashboard</h1>
-                  <p className="warm-text-secondary">Global platform monitoring and management</p>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant="secondary" className="sage-success backdrop-blur-sm">
-                <Activity className="h-3 w-3 mr-1" />
-                All Systems Operational
-              </Badge>
-              <ThemeToggle />
-            </div>
+  // Mock data
+  const platformStats = {
+    totalCondos: 24,
+    totalUsers: 1247,
+    activeSubscriptions: 22,
+    monthlyRevenue: 45600
+  }
+
+  const recentActivities = [
+    {
+      id: 1,
+      type: "condo_added",
+      title: "New condominium registered",
+      description: "Pavilion Residences has been added to the platform",
+      time: "2 hours ago",
+      priority: "low"
+    },
+    {
+      id: 2,
+      type: "user_signup",
+      title: "User registration spike",
+      description: "15 new users registered in the last hour",
+      time: "4 hours ago",
+      priority: "medium"
+    },
+    {
+      id: 3,
+      type: "system_alert",
+      title: "High server load detected",
+      description: "Server CPU usage reached 85%",
+      time: "6 hours ago",
+      priority: "high"
+    }
+  ]
+
+  const systemHealth = {
+    status: "healthy",
+    uptime: "99.9%",
+    responseTime: "120ms",
+    activeUsers: 847
+  }
+
+  // Render different content based on active tab
+  const renderContent = () => {
+    if (activeTab === "dashboard") {
+      return (
+        <div className="space-y-6">
+          {/* Header */}
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Platform overview and key metrics</p>
           </div>
-        </header>
 
-        <div className="p-4 lg:p-8 space-y-8">
-          {/* Enhanced Global Stats with Glass Effects */}
-          <motion.div {...fadeInUp}>
-            <div className="grid grid-cols-2 lg:grid-cols-6 gap-4">
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
+          {/* Platform Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <motion.div {...fadeInUp}>
+              <Card className="rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-2xl font-bold warm-text-primary">
-                        {loading ? <Skeleton className="h-6 w-8" /> : globalStats.totalCondos}
-                      </p>
-                      <p className="text-xs warm-text-secondary">Total Condos</p>
+                      <p className="text-sm font-medium text-muted-foreground">Total Condominiums</p>
+                      <p className="text-2xl font-bold text-foreground">{platformStats.totalCondos}</p>
                     </div>
+                    <Building2 className="h-8 w-8 text-primary" />
                   </div>
-                </CardContent>
-              </Card>
-
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <Users className="h-5 w-5 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold warm-text-primary">
-                        {loading ? <Skeleton className="h-6 w-12" /> : globalStats.activeUsers.toLocaleString()}
-                      </p>
-                      <p className="text-xs warm-text-secondary">Active Users</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold warm-text-primary">
-                        {loading ? <Skeleton className="h-6 w-16" /> : `RM${globalStats.monthlyRevenue.toLocaleString()}`}
-                      </p>
-                      <p className="text-xs warm-text-secondary">Monthly Revenue</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                      <Server className="h-5 w-5 text-purple-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold warm-text-primary">{globalStats.systemUptime}%</p>
-                      <p className="text-xs warm-text-secondary">System Uptime</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <Zap className="h-5 w-5 text-orange-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold warm-text-primary">{globalStats.qrScansToday.toLocaleString()}</p>
-                      <p className="text-xs warm-text-secondary">QR Scans Today</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="warm-card warm-hover backdrop-blur-sm hover:backdrop-blur-md hover:shadow-md border border-border/50">
-                <CardContent className="p-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <Shield className="h-5 w-5 text-red-600" />
-                    </div>
-                    <div>
-                      <p className="text-2xl font-bold warm-text-primary">{globalStats.supportTickets}</p>
-                      <p className="text-xs warm-text-secondary">Support Tickets</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Recent Condominiums */}
-            <motion.div className="lg:col-span-2" {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="warm-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center warm-text-primary space-x-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Building2 className="h-5 w-5 text-primary" />
-                    </div>
-                    <span>Active Condominiums</span>
-                  </CardTitle>
-                  <CardDescription className="warm-text-secondary">Overview of registered properties and their performance</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {loading ? (
-                    // Loading skeletons
-                    [...Array(3)].map((_, i) => (
-                      <div key={i} className="border border-border rounded-lg p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-4">
-                            <Skeleton className="h-12 w-12 rounded-full" />
-                            <div className="space-y-2">
-                              <Skeleton className="h-4 w-32" />
-                              <Skeleton className="h-3 w-24" />
-                              <Skeleton className="h-3 w-40" />
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Skeleton className="h-5 w-16" />
-                            <Skeleton className="h-4 w-20" />
-                            <Skeleton className="h-4 w-12" />
-                          </div>
-                        </div>
-                      </div>
-                    ))
-                  ) : recentCondos.length === 0 ? (
-                    <div className="text-center py-8">
-                      <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No condominiums yet</h3>
-                      <p className="text-muted-foreground mb-4">Get started by adding your first condominium</p>
-                      <Button asChild>
-                        <a href="/admin/condos">Add Condominium</a>
-                      </Button>
-                    </div>
-                  ) : (
-                    recentCondos.map((condo) => (
-                      <div key={condo.id} className="border border-border rounded-lg p-4 warm-hover">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start space-x-4">
-                            <Avatar className="h-12 w-12">
-                              <AvatarImage src={`/condo-${condo.id}.jpg`} />
-                              <AvatarFallback>
-                                <Building2 className="h-6 w-6" />
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="font-medium warm-text-primary">{condo.name}</h3>
-                              <p className="text-sm warm-text-secondary">{condo.location}</p>
-                              <div className="flex items-center space-x-4 mt-1 text-xs warm-text-secondary">
-                                <span>{condo.units} units</span>
-                                <span>•</span>
-                                <span>{condo.activeUsers} active users</span>
-                                <span>•</span>
-                                <span>Joined {condo.joinDate}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <Badge variant="secondary" className="mb-2 warm-accent">
-                              {condo.plan}
-                            </Badge>
-                            <p className="text-sm font-medium warm-text-primary">RM{condo.revenue}/month</p>
-                            <Badge
-                              variant="outline"
-                              className="text-xs sage-success mt-1"
-                            >
-                              {condo.status === 'active' ? 'Active' : condo.status}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2 mt-4">
-                          <Button size="sm" variant="outline" className="warm-hover" asChild>
-                            <a href={`/admin/condos`}>
-                              <BarChart3 className="h-4 w-4 mr-1" />
-                              View Analytics
-                            </a>
-                          </Button>
-                          <Button size="sm" variant="ghost" className="warm-hover" asChild>
-                            <a href={`/admin/condos`}>
-                              <Settings className="h-4 w-4 mr-1" />
-                              Manage
-                            </a>
-                          </Button>
-                        </div>
-                      </div>
-                    ))
-                  )}
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* System Alerts */}
+            <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
+              <Card className="rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                      <p className="text-2xl font-bold text-foreground">{platformStats.totalUsers.toLocaleString()}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="warm-card">
-                <CardHeader>
-                  <CardTitle className="flex items-center warm-text-primary space-x-3">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <AlertTriangle className="h-5 w-5 text-red-600" />
+              <Card className="rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Active Subscriptions</p>
+                      <p className="text-2xl font-bold text-foreground">{platformStats.activeSubscriptions}</p>
                     </div>
-                    <span>System Alerts</span>
-                  </CardTitle>
-                  <CardDescription className="warm-text-secondary">Recent system events and notifications</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {systemAlerts.map((alert) => {
-                    const Icon = getAlertIcon(alert.type)
-                    const colorClass = getAlertColor(alert.severity)
-                    return (
-                      <div key={alert.id} className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center flex-shrink-0">
-                          <Icon className={`h-4 w-4 ${colorClass}`} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm warm-text-primary">{alert.message}</p>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <span className="text-xs warm-text-secondary">{alert.time}</span>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs ${
-                                alert.severity === "high"
-                                  ? "rustic-error"
-                                  : alert.severity === "medium"
-                                    ? "amber-warning"
-                                    : "sage-success"
-                              }`}
-                            >
-                              {alert.severity}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
+                    <DollarSign className="h-8 w-8 text-primary" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
+              <Card className="rounded-xl">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
+                      <p className="text-2xl font-bold text-foreground">RM {platformStats.monthlyRevenue.toLocaleString()}</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-primary" />
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
           </div>
 
-          {/* Performance Metrics */}
-          <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-            <Card className="warm-card">
+          {/* Recent Condominiums */}
+          <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
+            <Card className="rounded-xl">
               <CardHeader>
-                <CardTitle className="flex items-center warm-text-primary">
-                  <TrendingUp className="h-5 w-5 mr-2 text-primary" />
-                  Platform Performance
-                </CardTitle>
-                <CardDescription className="warm-text-secondary">Key performance indicators and system health metrics</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Recent Condominiums</CardTitle>
+                    <CardDescription>Latest registered properties</CardDescription>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Condo
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Globe className="h-8 w-8 text-green-600" />
+                <div className="space-y-4">
+                  {loading ? (
+                    <div className="text-center py-8">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                      <p className="text-muted-foreground">Loading condominiums...</p>
                     </div>
-                    <p className="text-2xl font-bold warm-text-primary">99.97%</p>
-                    <p className="text-sm warm-text-secondary">API Uptime</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Zap className="h-8 w-8 text-blue-600" />
+                  ) : condominiums.length > 0 ? (
+                    condominiums.map((condo, index) => (
+                      <div key={condo.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center space-x-4">
+                          <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-foreground">{condo.name}</h3>
+                            <p className="text-sm text-muted-foreground">{condo.address}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Badge variant="secondary">{condo.type}</Badge>
+                          <Button size="sm" variant="outline">
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <p className="text-muted-foreground">No condominiums found</p>
                     </div>
-                    <p className="text-2xl font-bold warm-text-primary">142ms</p>
-                    <p className="text-sm warm-text-secondary">Avg Response Time</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Activity className="h-8 w-8 text-purple-600" />
-                    </div>
-                    <p className="text-2xl font-bold warm-text-primary">98.5%</p>
-                    <p className="text-sm warm-text-secondary">User Satisfaction</p>
-                  </div>
-                  <div className="text-center">
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <Shield className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <p className="text-2xl font-bold warm-text-primary">0</p>
-                    <p className="text-sm warm-text-secondary">Security Incidents</p>
-                  </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </motion.div>
 
+          {/* Recent Activities */}
+          <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
+            <Card className="rounded-xl">
+              <CardHeader>
+                <CardTitle>Recent Activities</CardTitle>
+                <CardDescription>Latest platform activities and alerts</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {recentActivities.map((activity) => (
+                    <div key={activity.id} className="flex items-start space-x-4 p-4 border rounded-lg">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        activity.priority === 'high' ? 'bg-red-500' : 
+                        activity.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                      }`} />
+                      <div className="flex-1">
+                        <h3 className="font-medium text-foreground">{activity.title}</h3>
+                        <p className="text-sm text-muted-foreground">{activity.description}</p>
+                        <div className="flex items-center text-xs text-muted-foreground mt-2">
+                          <Clock className="h-3 w-3 mr-1" />
+                          {activity.time}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
+      )
+    }
+
+    if (activeTab === "condos") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Condominium Management</h1>
+            <p className="text-muted-foreground">Manage all condominiums on the platform</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>All Condominiums</CardTitle>
+                  <CardDescription>View and manage registered properties</CardDescription>
+                </div>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New Condo
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Condominium Management</h3>
+                <p className="text-muted-foreground mb-4">Add, edit, and manage condominiums on the platform</p>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Condominium
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "users") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">User Management</h1>
+            <p className="text-muted-foreground">Manage users across all condominiums</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>All Users</CardTitle>
+                  <CardDescription>View and manage user accounts</CardDescription>
+                </div>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add User
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">User Management</h3>
+                <p className="text-muted-foreground mb-4">Manage users, roles, and permissions across the platform</p>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add New User
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "analytics") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Analytics & Reports</h1>
+            <p className="text-muted-foreground">Platform analytics and performance metrics</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle>Analytics Dashboard</CardTitle>
+              <CardDescription>Comprehensive platform analytics and insights</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <BarChart3 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Analytics Coming Soon</h3>
+                <p className="text-muted-foreground mb-4">Advanced analytics and reporting features will be available soon</p>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Data
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "billing") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Billing & Revenue</h1>
+            <p className="text-muted-foreground">Manage subscriptions and billing</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle>Billing Management</CardTitle>
+              <CardDescription>Manage subscriptions, payments, and revenue</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <DollarSign className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Billing System</h3>
+                <p className="text-muted-foreground mb-4">Subscription and billing management features coming soon</p>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export Invoices
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "system") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">System Health</h1>
+            <p className="text-muted-foreground">Monitor system performance and health</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">System Status</p>
+                    <p className="text-2xl font-bold text-green-600">Healthy</p>
+                  </div>
+                  <Activity className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Uptime</p>
+                    <p className="text-2xl font-bold text-foreground">{systemHealth.uptime}</p>
+                  </div>
+                  <Clock className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Response Time</p>
+                    <p className="text-2xl font-bold text-foreground">{systemHealth.responseTime}</p>
+                  </div>
+                  <Globe className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+                    <p className="text-2xl font-bold text-foreground">{systemHealth.activeUsers}</p>
+                  </div>
+                  <Users className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )
+    }
+
+    if (activeTab === "security") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Security Center</h1>
+            <p className="text-muted-foreground">Monitor security events and manage access</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle>Security Dashboard</CardTitle>
+              <CardDescription>Monitor security events and system access</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Shield className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Security Monitoring</h3>
+                <p className="text-muted-foreground mb-4">Security monitoring and access management features coming soon</p>
+                <Button variant="outline">
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Security Logs
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "alerts") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Alerts & Logs</h1>
+            <p className="text-muted-foreground">System alerts and activity logs</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle>System Alerts</CardTitle>
+              <CardDescription>Recent alerts and system notifications</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentActivities.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-4 p-4 border rounded-lg">
+                    <div className={`w-2 h-2 rounded-full mt-2 ${
+                      activity.priority === 'high' ? 'bg-red-500' : 
+                      activity.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
+                    }`} />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-foreground">{activity.title}</h3>
+                      <p className="text-sm text-muted-foreground">{activity.description}</p>
+                      <div className="flex items-center text-xs text-muted-foreground mt-2">
+                        <Clock className="h-3 w-3 mr-1" />
+                        {activity.time}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "settings") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Platform Settings</h1>
+            <p className="text-muted-foreground">Configure platform-wide settings</p>
+          </div>
+
+          <Card className="rounded-xl">
+            <CardHeader>
+              <CardTitle>System Configuration</CardTitle>
+              <CardDescription>Configure platform settings and preferences</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">Platform Settings</h3>
+                <p className="text-muted-foreground mb-4">Configure platform-wide settings and preferences</p>
+                <Button variant="outline">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Open Settings
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    return null
+  }
+
+  // Show loading state while authenticating
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <ProtectedRoute requiredRole="platform_admin">
+      <SidebarProvider>
+        <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
+        <SidebarInset>
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="flex items-center gap-2">
+              <Crown className="h-5 w-5 text-primary" />
+              <h1 className="text-lg font-semibold">Admin Portal</h1>
+            </div>
+            <div className="ml-auto flex items-center gap-2">
+              <ThemeToggle />
+              <Button variant="ghost" size="icon">
+                <Bell className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </header>
+          
+          <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+            {renderContent()}
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </ProtectedRoute>

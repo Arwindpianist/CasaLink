@@ -1,8 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -44,19 +42,22 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 
-export function AdminSidebar() {
-  const pathname = usePathname()
+interface AdminSidebarProps {
+  activeTab: string
+  onTabChange: (tab: string) => void
+}
 
+export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
   const menuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home, href: "/admin", badge: null },
-    { id: "condos", label: "Condominiums", icon: Building2, href: "/admin/condos", badge: null },
-    { id: "users", label: "User Management", icon: Users, href: "/admin/users", badge: null },
-    { id: "analytics", label: "Analytics", icon: BarChart3, href: "/admin/analytics", badge: null },
-    { id: "billing", label: "Billing & Revenue", icon: DollarSign, href: "/admin/billing", badge: null },
-    { id: "system", label: "System Health", icon: Globe, href: "/admin/system", badge: null },
-    { id: "security", label: "Security", icon: Shield, href: "/admin/security", badge: null },
-    { id: "alerts", label: "Alerts & Logs", icon: AlertTriangle, href: "/admin/alerts", badge: null },
-    { id: "settings", label: "Platform Settings", icon: Settings, href: "/admin/settings", badge: null },
+    { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
+    { id: "condos", label: "Condominiums", icon: Building2, badge: null },
+    { id: "users", label: "User Management", icon: Users, badge: null },
+    { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
+    { id: "billing", label: "Billing & Revenue", icon: DollarSign, badge: null },
+    { id: "system", label: "System Health", icon: Globe, badge: null },
+    { id: "security", label: "Security", icon: Shield, badge: null },
+    { id: "alerts", label: "Alerts & Logs", icon: AlertTriangle, badge: null },
+    { id: "settings", label: "Platform Settings", icon: Settings, badge: null },
   ]
 
   return (
@@ -108,17 +109,15 @@ export function AdminSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => {
                 const Icon = item.icon
-                const isActive = pathname === item.href
+                const isActive = activeTab === item.id
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton 
-                      asChild
                       isActive={isActive}
+                      onClick={() => onTabChange(item.id)}
                     >
-                      <Link href={item.href} className="w-full">
-                        <Icon className="size-4" />
-                        <span>{item.label}</span>
-                      </Link>
+                      <Icon className="size-4" />
+                      <span>{item.label}</span>
                     </SidebarMenuButton>
                     {item.badge && (
                       <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
@@ -134,11 +133,12 @@ export function AdminSidebar() {
       <SidebarFooter className="border-t border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <Link href="/admin/notifications">
-                <Bell className="size-4" />
-                <span>System Notifications</span>
-              </Link>
+            <SidebarMenuButton 
+              isActive={activeTab === "notifications"}
+              onClick={() => onTabChange("notifications")}
+            >
+              <Bell className="size-4" />
+              <span>System Notifications</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
@@ -149,35 +149,27 @@ export function AdminSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/admin/condos">
-                    <Building2 className="size-4" />
-                    <span>Add New Condo</span>
-                  </Link>
+                <SidebarMenuButton onClick={() => onTabChange("condos")}>
+                  <Building2 className="size-4" />
+                  <span>Add New Condo</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/admin/users">
-                    <Users className="size-4" />
-                    <span>User Management</span>
-                  </Link>
+                <SidebarMenuButton onClick={() => onTabChange("users")}>
+                  <Users className="size-4" />
+                  <span>User Management</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/admin/analytics">
-                    <BarChart3 className="size-4" />
-                    <span>Generate Reports</span>
-                  </Link>
+                <SidebarMenuButton onClick={() => onTabChange("analytics")}>
+                  <BarChart3 className="size-4" />
+                  <span>Generate Reports</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/admin/settings">
-                    <Settings className="size-4" />
-                    <span>System Settings</span>
-                  </Link>
+                <SidebarMenuButton onClick={() => onTabChange("settings")}>
+                  <Settings className="size-4" />
+                  <span>System Settings</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

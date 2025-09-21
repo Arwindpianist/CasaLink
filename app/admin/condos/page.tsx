@@ -76,8 +76,8 @@ export default function CondoManagement() {
   })
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState("")
-  const [planFilter, setPlanFilter] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [planFilter, setPlanFilter] = useState("all")
   
   // Dialog states
   const [formDialogOpen, setFormDialogOpen] = useState(false)
@@ -95,8 +95,8 @@ export default function CondoManagement() {
       })
       
       if (searchTerm) params.append('search', searchTerm)
-      if (statusFilter) params.append('status', statusFilter)
-      if (planFilter) params.append('plan', planFilter)
+      if (statusFilter && statusFilter !== 'all') params.append('status', statusFilter)
+      if (planFilter && planFilter !== 'all') params.append('plan', planFilter)
 
       const response = await fetch(`/api/condominiums?${params}`)
       if (!response.ok) {
@@ -247,7 +247,7 @@ export default function CondoManagement() {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Status</SelectItem>
+                    <SelectItem value="all">All Status</SelectItem>
                     <SelectItem value="active">Active</SelectItem>
                     <SelectItem value="trial">Trial</SelectItem>
                     <SelectItem value="suspended">Suspended</SelectItem>
@@ -259,7 +259,7 @@ export default function CondoManagement() {
                     <SelectValue placeholder="Plan" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All Plans</SelectItem>
+                    <SelectItem value="all">All Plans</SelectItem>
                     <SelectItem value="basic">Basic</SelectItem>
                     <SelectItem value="professional">Professional</SelectItem>
                     <SelectItem value="enterprise">Enterprise</SelectItem>
@@ -357,7 +357,7 @@ export default function CondoManagement() {
                   <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No condominiums found</h3>
                   <p className="text-muted-foreground mb-4">
-                    {searchTerm || statusFilter || planFilter 
+                    {searchTerm || (statusFilter && statusFilter !== 'all') || (planFilter && planFilter !== 'all')
                       ? "Try adjusting your search filters"
                       : "Get started by adding your first condominium"
                     }
