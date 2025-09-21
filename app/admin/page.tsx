@@ -321,7 +321,7 @@ export default function AdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Properties</p>
+                      <p className="text-sm font-medium text-foreground">Total Properties</p>
                       <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-8" /> : platformStats.totalCondos}</p>
                     </div>
                     <Building2 className="h-8 w-8 text-primary" />
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                      <p className="text-sm font-medium text-foreground">Total Users</p>
                       <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-12" /> : platformStats.totalUsers.toLocaleString()}</p>
                     </div>
                     <Users className="h-8 w-8 text-primary" />
@@ -349,7 +349,7 @@ export default function AdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Active Subscriptions</p>
+                      <p className="text-sm font-medium text-foreground">Active Subscriptions</p>
                       <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-8" /> : platformStats.activeSubscriptions}</p>
                     </div>
                     <DollarSign className="h-8 w-8 text-primary" />
@@ -363,7 +363,7 @@ export default function AdminDashboard() {
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
+                      <p className="text-sm font-medium text-foreground">Monthly Revenue</p>
                       <p className="text-2xl font-bold text-foreground">{loading ? <Skeleton className="h-8 w-16" /> : `RM ${platformStats.monthlyRevenue.toLocaleString()}`}</p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-primary" />
@@ -380,7 +380,7 @@ export default function AdminDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-foreground">Recent Properties</CardTitle>
-                    <CardDescription className="text-muted-foreground">Latest registered properties</CardDescription>
+                    <CardDescription className="text-foreground">Latest registered properties</CardDescription>
                   </div>
                   <Button variant="outline" size="sm" onClick={handleCreate} className="border-2 hover:border-primary/50 hover:text-primary">
                     <Plus className="h-4 w-4 mr-2" />
@@ -422,7 +422,7 @@ export default function AdminDashboard() {
                             </div>
                             <div>
                               <h3 className="font-medium text-foreground">{condo.name}</h3>
-                              <p className="text-sm text-muted-foreground">{condo.address}</p>
+                              <p className="text-sm text-foreground">{condo.address}</p>
                             </div>
                           </div>
                           <div className="flex items-center space-x-2">
@@ -452,7 +452,7 @@ export default function AdminDashboard() {
             <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
               <CardHeader>
                 <CardTitle className="text-foreground">Recent Activities</CardTitle>
-                <CardDescription className="text-muted-foreground">Latest platform activities and alerts</CardDescription>
+                <CardDescription className="text-foreground">Latest platform activities and alerts</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -464,7 +464,7 @@ export default function AdminDashboard() {
                       }`} />
                       <div className="flex-1">
                         <h3 className="font-medium text-foreground">{activity.title}</h3>
-                        <p className="text-sm text-muted-foreground">{activity.description}</p>
+                        <p className="text-sm text-foreground">{activity.description}</p>
                         <div className="flex items-center text-xs text-muted-foreground mt-2">
                           <Clock className="h-3 w-3 mr-1" />
                           {activity.time}
@@ -531,7 +531,7 @@ export default function AdminDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-foreground dashboard-title">Property Management</h1>
-              <p className="text-muted-foreground dashboard-text">Manage all properties on the platform</p>
+              <p className="text-foreground dashboard-text">Manage all properties on the platform</p>
             </div>
             <div className="flex items-center gap-3">
               <Button 
@@ -558,7 +558,7 @@ export default function AdminDashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle className="text-xl text-foreground">All Properties</CardTitle>
-                  <CardDescription className="text-muted-foreground">View and manage registered properties</CardDescription>
+                  <CardDescription className="text-foreground">View and manage registered properties</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -623,14 +623,14 @@ export default function AdminDashboard() {
                                   <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
                                   <div className="flex items-center space-x-2 mt-1">
                                     <MapPin className="h-4 w-4 text-muted-foreground" />
-                                    <p className="text-sm text-muted-foreground">{condo.address}</p>
+                                    <p className="text-sm text-foreground">{condo.address}</p>
                                   </div>
                                   {condo.city && (
-                                    <p className="text-sm text-muted-foreground ml-6">
+                                    <p className="text-sm text-foreground ml-6">
                                       {condo.city}{condo.state && `, ${condo.state}`} {condo.postal_code}
                                     </p>
                                   )}
-                                  <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                                  <div className="flex items-center space-x-4 mt-2 text-sm text-foreground">
                                     <span>{condo.total_units || 0} units</span>
                                     <span>•</span>
                                     <span className="flex items-center">
@@ -654,7 +654,7 @@ export default function AdminDashboard() {
                                   <p className="text-lg font-bold text-primary">
                                     RM{condo.monthly_revenue?.toLocaleString() || '0'}/month
                                   </p>
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="text-xs text-foreground">
                                     Updated {new Date(condo.updated_at).toLocaleDateString()}
                                   </p>
           </div>
@@ -700,7 +700,7 @@ export default function AdminDashboard() {
                   <div className="text-center py-16">
                     <Building2 className="h-20 w-20 text-muted-foreground mx-auto mb-6" />
                     <h3 className="text-xl font-semibold text-foreground mb-3 dashboard-title">No properties found</h3>
-                    <p className="text-muted-foreground mb-6 max-w-md mx-auto dashboard-text">
+                    <p className="text-foreground mb-6 max-w-md mx-auto dashboard-text">
                       Get started by adding your first property to the platform. You can configure pricing, add-ons, and manage all aspects of the property.
                     </p>
                     <Button 
@@ -737,7 +737,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">User Management</h1>
-            <p className="text-muted-foreground">Manage users across all condominiums</p>
+            <p className="text-foreground">Manage users across all condominiums</p>
                     </div>
 
           {/* User Statistics */}
@@ -746,7 +746,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                    <p className="text-sm font-medium text-muted-foreground">Total Users</p>
+                    <p className="text-sm font-medium text-foreground">Total Users</p>
                     <p className="text-2xl font-bold text-foreground">{userStats.totalUsers.toLocaleString()}</p>
                     </div>
                   <Users className="h-8 w-8 text-primary" />
@@ -758,7 +758,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+                    <p className="text-sm font-medium text-foreground">Active Users</p>
                     <p className="text-2xl font-bold text-foreground">{userStats.activeUsers.toLocaleString()}</p>
                     </div>
                   <Activity className="h-8 w-8 text-green-600" />
@@ -770,7 +770,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                    <p className="text-sm font-medium text-muted-foreground">New This Month</p>
+                    <p className="text-sm font-medium text-foreground">New This Month</p>
                     <p className="text-2xl font-bold text-foreground">+{userStats.newThisMonth}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -782,7 +782,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Avg per Condo</p>
+                    <p className="text-sm font-medium text-foreground">Avg per Condo</p>
                     <p className="text-2xl font-bold text-foreground">
                       {platformStats.totalCondos > 0 ? Math.round(platformStats.totalUsers / platformStats.totalCondos) : 0}
                     </p>
@@ -804,22 +804,22 @@ export default function AdminDashboard() {
                 <div className="text-center p-4 bg-green-50 rounded-lg">
                   <Users className="h-8 w-8 text-green-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-green-600">{userStats.byRole.residents}</p>
-                  <p className="text-sm text-muted-foreground">Residents</p>
+                  <p className="text-sm text-foreground">Residents</p>
                     </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <Crown className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-blue-600">{userStats.byRole.management}</p>
-                  <p className="text-sm text-muted-foreground">Management</p>
+                  <p className="text-sm text-foreground">Management</p>
                 </div>
                 <div className="text-center p-4 bg-orange-50 rounded-lg">
                   <Shield className="h-8 w-8 text-orange-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-orange-600">{userStats.byRole.security}</p>
-                  <p className="text-sm text-muted-foreground">Security</p>
+                  <p className="text-sm text-foreground">Security</p>
                 </div>
                 <div className="text-center p-4 bg-purple-50 rounded-lg">
                   <User className="h-8 w-8 text-purple-600 mx-auto mb-2" />
                   <p className="text-2xl font-bold text-purple-600">{userStats.byRole.others}</p>
-                  <p className="text-sm text-muted-foreground">Others</p>
+                  <p className="text-sm text-foreground">Others</p>
                     </div>
                   </div>
                 </CardContent>
@@ -842,7 +842,7 @@ export default function AdminDashboard() {
                     </Avatar>
                     <div className="flex-1">
                       <h3 className="font-medium text-foreground">{condo.name}</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-foreground">
                         {condo.users?.[0]?.count || 0} users • {condo.status} status
                       </p>
                     </div>
@@ -850,7 +850,7 @@ export default function AdminDashboard() {
                       <p className="text-sm font-medium text-foreground">
                         {condo.users?.[0]?.count || 0} users
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-foreground">
                         Updated {new Date(condo.updated_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -879,7 +879,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
                     <div>
             <h1 className="text-2xl font-bold text-foreground">Analytics & Reports</h1>
-            <p className="text-muted-foreground">Platform analytics and performance metrics</p>
+            <p className="text-foreground">Platform analytics and performance metrics</p>
                     </div>
 
           {/* Key Metrics */}
@@ -888,7 +888,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Revenue Growth</p>
+                    <p className="text-sm font-medium text-foreground">Revenue Growth</p>
                     <p className="text-2xl font-bold text-green-600">+{analytics.revenueGrowth}%</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
@@ -900,7 +900,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">User Growth</p>
+                    <p className="text-sm font-medium text-foreground">User Growth</p>
                     <p className="text-2xl font-bold text-blue-600">+{analytics.userGrowth}%</p>
                     </div>
                   <Users className="h-8 w-8 text-blue-600" />
@@ -912,7 +912,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                     <div>
-                    <p className="text-sm font-medium text-muted-foreground">Avg Revenue/Condo</p>
+                    <p className="text-sm font-medium text-foreground">Avg Revenue/Condo</p>
                     <p className="text-2xl font-bold text-foreground">RM{analytics.avgRevenuePerCondo}</p>
                     </div>
                   <DollarSign className="h-8 w-8 text-primary" />
@@ -924,7 +924,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Platform Growth</p>
+                    <p className="text-sm font-medium text-foreground">Platform Growth</p>
                     <p className="text-2xl font-bold text-purple-600">+{analytics.growthRate}%</p>
             </div>
                   <BarChart3 className="h-8 w-8 text-purple-600" />
@@ -998,7 +998,7 @@ export default function AdminDashboard() {
                           </Avatar>
                       <div className="flex-1">
                         <h3 className="font-medium text-foreground">{condo.name}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                           {condo.users?.[0]?.count || 0} users • {condo.subscription_plan} plan
                         </p>
                         </div>
@@ -1006,7 +1006,7 @@ export default function AdminDashboard() {
                         <p className="text-lg font-bold text-foreground">
                           RM{condo.monthly_revenue || 0}/month
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-foreground">
                           {condo.status} status
                         </p>
                         </div>
@@ -1057,7 +1057,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Billing & Revenue</h1>
-            <p className="text-muted-foreground">Manage subscriptions and billing</p>
+            <p className="text-foreground">Manage subscriptions and billing</p>
           </div>
 
           {/* Revenue Overview */}
@@ -1066,7 +1066,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Monthly Revenue</p>
+                    <p className="text-sm font-medium text-foreground">Monthly Revenue</p>
                     <p className="text-2xl font-bold text-foreground">RM{billingStats.totalRevenue.toLocaleString()}</p>
                   </div>
                   <DollarSign className="h-8 w-8 text-primary" />
@@ -1078,7 +1078,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Annual Projection</p>
+                    <p className="text-sm font-medium text-foreground">Annual Projection</p>
                     <p className="text-2xl font-bold text-foreground">RM{billingStats.projectedAnnual.toLocaleString()}</p>
                   </div>
                   <TrendingUp className="h-8 w-8 text-green-600" />
@@ -1090,7 +1090,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Collection Rate</p>
+                    <p className="text-sm font-medium text-foreground">Collection Rate</p>
                     <p className="text-2xl font-bold text-foreground">{billingStats.collectionRate}%</p>
                         </div>
                   <Activity className="h-8 w-8 text-blue-600" />
@@ -1102,7 +1102,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Avg Payment Time</p>
+                    <p className="text-sm font-medium text-foreground">Avg Payment Time</p>
                     <p className="text-2xl font-bold text-foreground">{billingStats.avgPaymentTime} days</p>
                         </div>
                   <Clock className="h-8 w-8 text-orange-600" />
@@ -1183,7 +1183,7 @@ export default function AdminDashboard() {
                       </Avatar>
                       <div>
                         <h3 className="font-medium text-foreground">{condo.name}</h3>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-foreground">
                           {condo.subscription_plan} plan • {condo.status}
                         </p>
                         </div>
@@ -1193,7 +1193,7 @@ export default function AdminDashboard() {
                         <p className="text-lg font-bold text-foreground">
                           RM{condo.monthly_revenue || 0}/month
                         </p>
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-xs text-foreground">
                           Due {new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}
                         </p>
                   </div>
@@ -1239,7 +1239,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">System Health</h1>
-            <p className="text-muted-foreground">Monitor system performance and health</p>
+            <p className="text-foreground">Monitor system performance and health</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1247,7 +1247,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">System Status</p>
+                    <p className="text-sm font-medium text-foreground">System Status</p>
                     <p className="text-2xl font-bold text-green-600">Healthy</p>
                   </div>
                   <Activity className="h-8 w-8 text-green-600" />
@@ -1259,7 +1259,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Uptime</p>
+                    <p className="text-sm font-medium text-foreground">Uptime</p>
                     <p className="text-2xl font-bold text-foreground">{systemHealth.uptime}</p>
           </div>
                   <Clock className="h-8 w-8 text-primary" />
@@ -1271,7 +1271,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Response Time</p>
+                    <p className="text-sm font-medium text-foreground">Response Time</p>
                     <p className="text-2xl font-bold text-foreground">{systemHealth.responseTime}</p>
                   </div>
                   <Globe className="h-8 w-8 text-primary" />
@@ -1283,7 +1283,7 @@ export default function AdminDashboard() {
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground">Active Users</p>
+                    <p className="text-sm font-medium text-foreground">Active Users</p>
                     <p className="text-2xl font-bold text-foreground">{systemHealth.activeUsers}</p>
                   </div>
                   <Users className="h-8 w-8 text-primary" />
@@ -1300,7 +1300,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Security Center</h1>
-            <p className="text-muted-foreground">Monitor security events and manage access</p>
+            <p className="text-foreground">Monitor security events and manage access</p>
           </div>
 
           <Card className="rounded-xl">
@@ -1329,7 +1329,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Alerts & Logs</h1>
-            <p className="text-muted-foreground">System alerts and activity logs</p>
+            <p className="text-foreground">System alerts and activity logs</p>
                     </div>
 
           <Card className="rounded-xl">
@@ -1367,7 +1367,7 @@ export default function AdminDashboard() {
         <div className="space-y-6">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Platform Settings</h1>
-            <p className="text-muted-foreground">Configure platform-wide settings</p>
+            <p className="text-foreground">Configure platform-wide settings</p>
           </div>
 
           <Card className="rounded-xl">

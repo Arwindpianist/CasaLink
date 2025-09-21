@@ -207,7 +207,7 @@ export default function CondoManagement() {
               <SidebarTrigger className="-ml-1" />
               <div>
                 <h1 className="text-2xl font-bold text-foreground">Condominium Management</h1>
-                <p className="text-muted-foreground">Manage all registered properties and their configurations</p>
+                <p className="text-foreground">Manage all registered properties and their configurations</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -277,7 +277,7 @@ export default function CondoManagement() {
                       <p className="text-2xl font-bold text-foreground">
                         {loading ? <Skeleton className="h-6 w-8" /> : pagination.total}
                       </p>
-                      <p className="text-xs text-muted-foreground">Total Properties</p>
+                      <p className="text-xs text-foreground">Total Properties</p>
                     </div>
                   </div>
                 </CardContent>
@@ -291,7 +291,7 @@ export default function CondoManagement() {
                       <p className="text-2xl font-bold text-foreground">
                         {loading ? <Skeleton className="h-6 w-12" /> : getTotalUsers().toLocaleString()}
                       </p>
-                      <p className="text-xs text-muted-foreground">Total Users</p>
+                      <p className="text-xs text-foreground">Total Users</p>
                     </div>
                   </div>
                 </CardContent>
@@ -305,7 +305,7 @@ export default function CondoManagement() {
                       <p className="text-2xl font-bold text-foreground">
                         {loading ? <Skeleton className="h-6 w-16" /> : `RM${getTotalRevenue().toLocaleString()}`}
                       </p>
-                      <p className="text-xs text-muted-foreground">Monthly Revenue</p>
+                      <p className="text-xs text-foreground">Monthly Revenue</p>
                     </div>
                   </div>
                 </CardContent>
@@ -319,7 +319,7 @@ export default function CondoManagement() {
                       <p className="text-2xl font-bold text-foreground">
                         {loading ? <Skeleton className="h-6 w-8" /> : getActiveCondominiums()}
                       </p>
-                      <p className="text-xs text-muted-foreground">Active Properties</p>
+                      <p className="text-xs text-foreground">Active Properties</p>
                     </div>
                   </div>
                 </CardContent>
@@ -392,14 +392,14 @@ export default function CondoManagement() {
                                 <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
                                 <div className="flex items-center space-x-2 mt-1">
                                   <MapPin className="h-4 w-4 text-muted-foreground" />
-                                  <p className="text-sm text-muted-foreground">{condo.address}</p>
+                                  <p className="text-sm text-foreground">{condo.address}</p>
                                 </div>
                                 {condo.city && (
-                                  <p className="text-sm text-muted-foreground ml-6">
+                                  <p className="text-sm text-foreground ml-6">
                                     {condo.city}{condo.state && `, ${condo.state}`} {condo.postal_code}
                                   </p>
                                 )}
-                                <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                                <div className="flex items-center space-x-4 mt-2 text-sm text-foreground">
                                   <span>{unitCount} units</span>
                                   <span>•</span>
                                   <span>{userCount} users</span>
@@ -420,7 +420,7 @@ export default function CondoManagement() {
                                 <p className="text-lg font-bold text-foreground">
                                   {condo.monthly_revenue > 0 ? `RM${condo.monthly_revenue}/month` : "Trial"}
                                 </p>
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs text-foreground">
                                   Updated {new Date(condo.updated_at).toLocaleDateString()}
                                 </p>
                               </div>
