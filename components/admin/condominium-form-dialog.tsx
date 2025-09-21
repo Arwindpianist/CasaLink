@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { toast } from "@/hooks/use-toast"
 import { Building2, MapPin, DollarSign, Settings } from "lucide-react"
+import { PricingCalculator } from "./pricing-calculator"
 
 interface Condominium {
   id: string
@@ -41,6 +42,19 @@ interface Condominium {
   settings: Record<string, any>
   created_at: string
   updated_at: string
+  // New pricing fields
+  total_units?: number
+  base_price?: number
+  price_per_unit?: number
+  addon_premium_ads?: boolean
+  addon_white_label?: boolean
+  addon_advanced_analytics?: boolean
+  addon_priority_support?: boolean
+  addon_premium_ads_price?: number
+  addon_white_label_price?: number
+  addon_advanced_analytics_price?: number
+  addon_priority_support_price?: number
+  calculated_monthly_total?: number
 }
 
 interface CondominiumFormDialogProps {
@@ -86,7 +100,20 @@ export function CondominiumFormDialog({
     postal_code: '',
     subscription_plan: 'basic',
     monthly_revenue: 0,
-    status: 'active'
+    status: 'active',
+    // New pricing fields
+    total_units: 0,
+    base_price: 199,
+    price_per_unit: 1.50,
+    addon_premium_ads: false,
+    addon_white_label: false,
+    addon_advanced_analytics: false,
+    addon_priority_support: false,
+    addon_premium_ads_price: 50,
+    addon_white_label_price: 300,
+    addon_advanced_analytics_price: 199,
+    addon_priority_support_price: 299,
+    calculated_monthly_total: 0
   })
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -105,7 +132,20 @@ export function CondominiumFormDialog({
           postal_code: condominium.postal_code || '',
           subscription_plan: condominium.subscription_plan || 'basic',
           monthly_revenue: condominium.monthly_revenue || 0,
-          status: condominium.status || 'active'
+          status: condominium.status || 'active',
+          // New pricing fields
+          total_units: condominium.total_units || 0,
+          base_price: condominium.base_price || 199,
+          price_per_unit: condominium.price_per_unit || 1.50,
+          addon_premium_ads: condominium.addon_premium_ads || false,
+          addon_white_label: condominium.addon_white_label || false,
+          addon_advanced_analytics: condominium.addon_advanced_analytics || false,
+          addon_priority_support: condominium.addon_priority_support || false,
+          addon_premium_ads_price: condominium.addon_premium_ads_price || 50,
+          addon_white_label_price: condominium.addon_white_label_price || 300,
+          addon_advanced_analytics_price: condominium.addon_advanced_analytics_price || 199,
+          addon_priority_support_price: condominium.addon_priority_support_price || 299,
+          calculated_monthly_total: condominium.calculated_monthly_total || 0
         })
       } else {
         setFormData({
@@ -118,7 +158,20 @@ export function CondominiumFormDialog({
           postal_code: '',
           subscription_plan: 'basic',
           monthly_revenue: 0,
-          status: 'active'
+          status: 'active',
+          // New pricing fields with defaults
+          total_units: 0,
+          base_price: 199,
+          price_per_unit: 1.50,
+          addon_premium_ads: false,
+          addon_white_label: false,
+          addon_advanced_analytics: false,
+          addon_priority_support: false,
+          addon_premium_ads_price: 50,
+          addon_white_label_price: 300,
+          addon_advanced_analytics_price: 199,
+          addon_priority_support_price: 299,
+          calculated_monthly_total: 0
         })
       }
     }
@@ -149,6 +202,12 @@ export function CondominiumFormDialog({
 
     if (formData.monthly_revenue < 0) {
       newErrors.monthly_revenue = 'Monthly revenue cannot be negative'
+    }
+
+    if (formData.total_units < 0) {
+      newErrors.total_units = 'Number of units cannot be negative'
+    } else if (formData.total_units === 0) {
+      newErrors.total_units = 'Number of units is required'
     }
 
     setErrors(newErrors)
@@ -442,6 +501,46 @@ export function CondominiumFormDialog({
               )}
             </CardContent>
           </Card>
+
+          {/* Pricing Calculator */}
+          <PricingCalculator
+            totalUnits={formData.total_units}
+            onUnitsChange={(units) => setFormData(prev => ({ 
+              ...prev, 
+              total_units: units,
+              monthly_revenue: prev.base_price + (prev.price_per_unit * units) + 
+                (prev.addon_premium_ads ? prev.addon_premium_ads_price : 0) +
+                (prev.addon_white_label ? prev.addon_white_label_price : 0) +
+                (prev.addon_advanced_analytics ? prev.addon_advanced_analytics_price : 0) +
+                (prev.addon_priority_support ? prev.addon_priority_support_price : 0)
+            }))}
+            addons={{
+              premiumAds: formData.addon_premium_ads,
+              whiteLabel: formData.addon_white_label,
+              advancedAnalytics: formData.addon_advanced_analytics,
+              prioritySupport: formData.addon_priority_support
+            }}
+            onAddonChange={(addon, value) => {
+              const addonKey = addon === 'premiumAds' ? 'addon_premium_ads' :
+                             addon === 'whiteLabel' ? 'addon_white_label' :
+                             addon === 'advancedAnalytics' ? 'addon_advanced_analytics' :
+                             'addon_priority_support'
+              
+              setFormData(prev => {
+                const newData = { ...prev, [addonKey]: value }
+                // Recalculate monthly revenue
+                const addonsCost = 
+                  (newData.addon_premium_ads ? newData.addon_premium_ads_price : 0) +
+                  (newData.addon_white_label ? newData.addon_white_label_price : 0) +
+                  (newData.addon_advanced_analytics ? newData.addon_advanced_analytics_price : 0) +
+                  (newData.addon_priority_support ? newData.addon_priority_support_price : 0)
+                
+                newData.monthly_revenue = newData.base_price + (newData.price_per_unit * newData.total_units) + addonsCost
+                return newData
+              })
+            }}
+            className="w-full"
+          />
 
           <DialogFooter>
             <Button 

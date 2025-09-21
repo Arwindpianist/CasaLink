@@ -194,7 +194,19 @@ export async function POST(request: NextRequest) {
       subscription_plan = 'basic',
       monthly_revenue = 0,
       status = 'active',
-      settings = {}
+      settings = {},
+      // New pricing fields
+      total_units = 0,
+      base_price = 199,
+      price_per_unit = 1.50,
+      addon_premium_ads = false,
+      addon_white_label = false,
+      addon_advanced_analytics = false,
+      addon_priority_support = false,
+      addon_premium_ads_price = 50,
+      addon_white_label_price = 300,
+      addon_advanced_analytics_price = 199,
+      addon_priority_support_price = 299
     } = body
 
     // Validate required fields
@@ -212,8 +224,27 @@ export async function POST(request: NextRequest) {
         .from('condominiums')
         .insert({
           name,
+          type,
           address,
-          city
+          city,
+          state,
+          country,
+          postal_code,
+          subscription_plan,
+          monthly_revenue,
+          status,
+          settings,
+          total_units,
+          base_price,
+          price_per_unit,
+          addon_premium_ads,
+          addon_white_label,
+          addon_advanced_analytics,
+          addon_priority_support,
+          addon_premium_ads_price,
+          addon_white_label_price,
+          addon_advanced_analytics_price,
+          addon_priority_support_price
         })
         .select()
         .single()
@@ -236,9 +267,30 @@ export async function POST(request: NextRequest) {
       const demoCondominium = {
         id: `demo-condo-${Date.now()}`,
         name,
+        type,
         address,
         city,
-        created_at: new Date().toISOString()
+        state,
+        country,
+        postal_code,
+        subscription_plan,
+        monthly_revenue,
+        status,
+        settings,
+        total_units,
+        base_price,
+        price_per_unit,
+        addon_premium_ads,
+        addon_white_label,
+        addon_advanced_analytics,
+        addon_priority_support,
+        addon_premium_ads_price,
+        addon_white_label_price,
+        addon_advanced_analytics_price,
+        addon_priority_support_price,
+        calculated_monthly_total: monthly_revenue,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }
       
       return new Response(JSON.stringify({ condominium: demoCondominium }), {
