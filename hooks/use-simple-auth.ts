@@ -38,18 +38,7 @@ export function useSimpleAuth() {
         setIsLoading(true)
         setError(null)
 
-        // Get Clerk token
-        const token = await getToken()
-        
-        if (!token) {
-          throw new Error('No authentication token available')
-        }
-
-        const response = await fetch('/api/auth/verify', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        const response = await fetch('/api/auth/verify')
         
         if (response.ok) {
           const data = await response.json()
@@ -78,18 +67,7 @@ export function useSimpleAuth() {
       setIsLoading(true)
       setError(null)
       
-      // Get Clerk token
-      const token = await getToken()
-      
-      if (!token) {
-        throw new Error('No authentication token available')
-      }
-
-      const response = await fetch('/api/auth/verify', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
+      const response = await fetch('/api/auth/verify')
       
       if (response.ok) {
         const data = await response.json()
@@ -109,18 +87,10 @@ export function useSimpleAuth() {
     if (!clerkUser) return
 
     try {
-      // Get Clerk token
-      const token = await getToken()
-      
-      if (!token) {
-        throw new Error('No authentication token available')
-      }
-
       const response = await fetch('/api/auth/user', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(updates),
       })

@@ -1,33 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-// Define protected routes and their required roles
-const PROTECTED_ROUTES = {
-  '/admin': ['platform_admin', 'management'],
-  '/admin/condos': ['platform_admin', 'management'],
-  '/security': ['platform_admin', 'security'],
-  '/security/visitors': ['platform_admin', 'security'],
-  '/resident': ['platform_admin', 'management', 'resident', 'moderator'],
-  '/resident/board': ['platform_admin', 'management', 'resident', 'moderator'],
-  '/resident/chat': ['platform_admin', 'management', 'resident', 'moderator'],
-  '/resident/profile': ['platform_admin', 'management', 'resident', 'moderator'],
-  '/resident/qr': ['platform_admin', 'management', 'resident'],
-  '/visitor': ['platform_admin', 'visitor'],
-  '/visitor/amenity': ['platform_admin', 'resident', 'visitor'],
-  '/visitor/scan': ['platform_admin', 'visitor'],
-  '/demo': ['platform_admin', 'management', 'security', 'resident', 'visitor', 'moderator']
-}
-
-// Public routes that don't require authentication
-const PUBLIC_ROUTES = [
-  '/',
-  '/login',
-  '/demo',
-  '/api',
-  '/_next',
-  '/favicon.ico',
-  '/casalink-favicon'
-]
-
 // Create route matchers for Clerk
 const isProtectedRoute = createRouteMatcher([
   '/admin(.*)',
