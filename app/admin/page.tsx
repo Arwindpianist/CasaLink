@@ -307,7 +307,7 @@ export default function AdminDashboard() {
               variant="outline" 
               onClick={refreshCondominiums}
               disabled={loading}
-              className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
+              className=" border border-border"
             >
               <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
               Refresh
@@ -317,7 +317,7 @@ export default function AdminDashboard() {
           {/* Platform Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <motion.div {...fadeInUp}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+              <Card className="rounded-xl border border-border bg-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -331,7 +331,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.1 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+              <Card className="rounded-xl border border-border bg-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -345,7 +345,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.2 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+              <Card className="rounded-xl border border-border bg-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -359,7 +359,7 @@ export default function AdminDashboard() {
             </motion.div>
 
             <motion.div {...fadeInUp} transition={{ delay: 0.3 }}>
-              <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+              <Card className="rounded-xl border border-border bg-card">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -375,7 +375,7 @@ export default function AdminDashboard() {
 
           {/* Recent Properties */}
           <motion.div {...fadeInUp} transition={{ delay: 0.4 }}>
-            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+            <Card className="rounded-xl border border-border bg-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                             <Badge variant="secondary" className={`${propertyConfig.bgColor} ${propertyConfig.iconColor} border ${propertyConfig.borderColor}`}>
                               {propertyConfig.label}
                             </Badge>
-                            <Button size="sm" variant="outline" className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary">
+                            <Button size="sm" variant="outline" className=" border border-border">
                               <Eye className="h-4 w-4" />
                             </Button>
                           </div>
@@ -449,7 +449,7 @@ export default function AdminDashboard() {
 
           {/* Recent Activities */}
           <motion.div {...fadeInUp} transition={{ delay: 0.5 }}>
-            <Card className="rounded-xl border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+            <Card className="rounded-xl border border-border bg-card">
               <CardHeader>
                 <CardTitle className="text-foreground">Recent Activities</CardTitle>
                 <CardDescription className="text-foreground">Latest platform activities and alerts</CardDescription>
@@ -538,14 +538,14 @@ export default function AdminDashboard() {
                 variant="outline" 
                 onClick={refreshCondominiums}
                 disabled={loading}
-                className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
+                className=" border border-border"
               >
                 <Activity className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
               <Button 
                 onClick={handleCreate}
-                className="warm-button border-2 border-primary hover:border-primary/90 bg-primary hover:bg-primary/95 dark:border-primary dark:bg-primary dark:hover:bg-primary/90 dark:hover:border-primary/90"
+                className="bg-primary text-primary-foreground"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add New Property
@@ -553,7 +553,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <Card className="warm-card border-2 border-primary/40 hover:border-primary/30 transition-all duration-200 hover:shadow-lg bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary/50 dark:hover:shadow-primary/40">
+          <Card className="warm-card border border-border bg-card">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -611,7 +611,7 @@ export default function AdminDashboard() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: index * 0.1 }}
                       >
-                        <Card className="warm-card border-2 border-primary/40 hover:border-primary hover:shadow-lg transition-all duration-200 bg-card/80 backdrop-blur-sm dark:bg-card/95 dark:border-primary/60 dark:hover:border-primary dark:hover:shadow-primary/50">
+                        <Card className="warm-card border border-border bg-card">
                           <CardContent className="p-6">
                             <div className="flex items-start space-x-4">
                               <div className={`h-16 w-16 ${propertyConfig.bgColor} rounded-full flex items-center justify-center border-2 ${propertyConfig.borderColor}`}>
@@ -665,7 +665,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleView(condo)}
-                                  className="warm-hover border-2 border-primary/50 hover:border-primary hover:text-primary hover:bg-primary/20 dark:border-primary/60 dark:hover:border-primary dark:hover:bg-primary/30 dark:hover:text-primary"
+                                  className=" border border-border"
                                 >
                                   <Eye className="h-4 w-4 mr-1" />
                                   View Details
@@ -674,7 +674,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleEdit(condo)}
-                                  className="warm-hover border-2 hover:border-blue-500/50 hover:text-blue-600"
+                                  className=" border border-border"
                                 >
                                   <Edit className="h-4 w-4 mr-1" />
                                   Edit
@@ -683,7 +683,7 @@ export default function AdminDashboard() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => handleDelete(condo)}
-                                  className="warm-hover border-2 hover:border-destructive/50 hover:text-destructive"
+                                  className=" border border-border"
                                 >
                                   <Trash2 className="h-4 w-4 mr-1" />
                                   Delete
@@ -705,7 +705,7 @@ export default function AdminDashboard() {
                     </p>
                     <Button 
                       onClick={handleCreate}
-                      className="warm-button border-2 border-primary hover:border-primary/90 bg-primary hover:bg-primary/95 dark:border-primary dark:bg-primary dark:hover:bg-primary/90 dark:hover:border-primary/90"
+                      className="bg-primary text-primary-foreground"
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Your First Property
@@ -1414,7 +1414,7 @@ export default function AdminDashboard() {
           <header className="glass-header border-b border-border px-4 py-4 dark:border-primary/30 dark:bg-background/90">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <SidebarTrigger className="-ml-1 warm-hover" />
+                <SidebarTrigger className="-ml-1 " />
                 <div className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-primary" />
                   <h1 className="dashboard-title text-foreground">Admin Portal</h1>
@@ -1422,10 +1422,10 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center gap-2">
                 <ThemeToggle />
-                <Button variant="ghost" size="icon" className="warm-hover">
+                <Button variant="ghost" size="icon" className="">
                   <Bell className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="icon" className="warm-hover">
+                <Button variant="ghost" size="icon" className="">
                   <LogOut className="h-4 w-4" />
                 </Button>
               </div>

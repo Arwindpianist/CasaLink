@@ -209,9 +209,9 @@
   }
 
   .warm-card {
-    @apply bg-card border border-border/50 shadow-sm;
+    @apply bg-card border border-border shadow-sm;
     background: var(--background);
-    border-color: var(--primary);
+    border-color: var(--text);
   }
 
   .theme-button {
@@ -252,15 +252,9 @@
     font-weight: 600;
   }
 
-  /* Hover effects */
+  /* Simple hover effects */
   .theme-hover {
-    @apply transition-all duration-200 ease-in-out;
-  }
-
-  .theme-hover:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--primary);
-    border: 2px solid var(--secondary);
+    @apply transition-colors duration-200;
   }
 
   /* Legacy class mappings for backward compatibility */
@@ -332,19 +326,11 @@
     box-shadow: 0 4px 12px var(--primary);
   }
 
-  /* Enhanced dark mode button visibility */
+  /* Simple dark mode styling - no complex effects */
   .dark button[data-variant="outline"] {
-    border: 2px solid var(--secondary);
+    border: 1px solid var(--text);
     background: transparent;
     color: var(--text);
-  }
-
-  .dark button[data-variant="outline"]:hover {
-    border-color: var(--primary);
-    background: var(--primary);
-    color: var(--background);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px var(--primary);
   }
 
   .dark button[data-variant="ghost"] {
@@ -353,137 +339,17 @@
     color: var(--text);
   }
 
-  .dark button[data-variant="ghost"]:hover {
-    border-color: var(--secondary);
-    background: var(--secondary);
-    color: var(--text);
+  /* Remove all opacity and complex effects */
+  .dark * {
+    opacity: 1 !important;
   }
 
   .dark .border-border {
-    border-color: var(--secondary) !important;
+    border-color: var(--text) !important;
   }
 
   .dark .border-border\/50 {
-    border-color: var(--secondary) !important;
-    opacity: 0.5;
-  }
-
-  .dark .hover\:border-primary\/50:hover {
-    border-color: var(--primary) !important;
-    opacity: 0.5;
-  }
-
-  .dark .hover\:border-primary\/30:hover {
-    border-color: var(--primary) !important;
-    opacity: 0.3;
-  }
-
-  .dark .hover\:border-primary\/20:hover {
-    border-color: var(--primary) !important;
-    opacity: 0.2;
-  }
-
-  /* Enhanced card visibility in dark mode */
-  .dark .border-border\/50 {
-    border-color: var(--secondary);
-    border-width: 2px;
-  }
-
-  .dark .hover\:border-primary\/20:hover {
-    border-color: var(--primary);
-    border-width: 2px;
-    box-shadow: 0 4px 12px var(--primary);
-  }
-
-  .dark .hover\:border-primary\/30:hover {
-    border-color: var(--primary);
-    border-width: 2px;
-    box-shadow: 0 6px 16px var(--primary);
-  }
-
-  /* Enhanced admin dashboard dark mode visibility */
-  .dark .border-primary\/40 {
-    border-color: var(--primary);
-    border-width: 2px;
-    opacity: 0.6;
-  }
-
-  .dark .border-primary\/60 {
-    border-color: var(--primary);
-    border-width: 2px;
-    opacity: 0.8;
-  }
-
-  .dark .bg-card\/95 {
-    background-color: var(--card);
-    opacity: 0.95;
-  }
-
-  .dark .hover\:border-primary:hover {
-    border-color: var(--primary) !important;
-    border-width: 2px;
-    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.5);
-  }
-
-  .dark .hover\:shadow-primary\/30:hover {
-    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.6);
-  }
-
-  .dark .hover\:bg-primary\/20:hover {
-    background-color: rgba(177, 57, 107, 0.3);
-  }
-
-  .dark button.warm-hover {
-    border: 2px solid var(--primary);
-    opacity: 1;
-    transition: all 0.2s ease-in-out;
-    background-color: rgba(177, 57, 107, 0.1);
-  }
-
-  .dark button.warm-hover:hover {
-    border-color: var(--primary);
-    background-color: rgba(177, 57, 107, 0.4);
-    color: var(--primary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.5);
-    opacity: 1;
-  }
-
-  /* Ensure all buttons are bright and visible in dark mode */
-  .dark button {
-    opacity: 1;
-  }
-
-  .dark button:hover {
-    opacity: 1;
-  }
-
-  .dark button[data-variant="outline"] {
-    border: 2px solid var(--primary);
-    opacity: 0.8;
-    background-color: rgba(177, 57, 107, 0.1);
-  }
-
-  .dark button[data-variant="outline"]:hover {
-    border-color: var(--primary);
-    background-color: rgba(177, 57, 107, 0.3);
-    color: var(--primary);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(177, 57, 107, 0.4);
-    opacity: 1;
-  }
-
-  .dark button[data-variant="ghost"] {
-    border: 1px solid transparent;
-    background-color: rgba(177, 57, 107, 0.05);
-    opacity: 0.9;
-  }
-
-  .dark button[data-variant="ghost"]:hover {
-    border-color: var(--primary);
-    background-color: rgba(177, 57, 107, 0.2);
-    color: var(--primary);
-    opacity: 1;
+    border-color: var(--text) !important;
   }
 
   /* Typography utilities */
