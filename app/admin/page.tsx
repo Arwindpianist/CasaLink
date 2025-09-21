@@ -62,9 +62,15 @@ export default function AdminDashboard() {
         if (response.ok) {
           const data = await response.json()
           setCondominiums(data.condominiums || [])
+        } else {
+          console.error('Failed to fetch condominiums:', response.status, response.statusText)
+          // Set empty array if API fails
+          setCondominiums([])
         }
       } catch (error) {
         console.error('Failed to fetch condominiums:', error)
+        // Set empty array if fetch fails
+        setCondominiums([])
       } finally {
         setLoading(false)
       }
