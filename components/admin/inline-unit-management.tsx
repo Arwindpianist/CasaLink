@@ -121,6 +121,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
     floors_per_block: 10,
     units_per_floor: 4,
     naming_scheme: {
+      scheme_type: 'analyze_existing', // analyze_existing, tower_floor_unit, block_level_apt, simple_numeric
       block_prefix: '',
       floor_prefix: '',
       unit_prefix: '',
@@ -128,11 +129,16 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       floor_format: '##',
       unit_format: '##',
       start_floor: 1,
-      start_unit: 1
+      start_unit: 1,
+      detected_pattern: null as any
     },
     unit_types: {} as Record<string, string>,
     excluded_units: [] as string[]
   })
+
+  // Sample unit names for analysis
+  const [sampleUnits, setSampleUnits] = useState<string[]>([])
+  const [analyzedPattern, setAnalyzedPattern] = useState<any>(null)
 
   // Calculate total units and validate against property limit
   const totalUnits = configForm.blocks * configForm.floors_per_block * configForm.units_per_floor
@@ -458,26 +464,226 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const unitStatuses = [...new Set(units.map(u => u.status))]
   const unitTypes = [...new Set(units.map(u => u.unit_type))]
 
+  // Intelligent naming scheme analyzer
+  const analyzeNamingScheme = (unitNames: string[]) => {
+    if (unitNames.length < 3) return null
+
+    const patterns = {
+      // Hyphenated patterns (Malaysian style)
+      hyphenated_tower_floor_unit: /^([A-Z])-(\d{1,2})-(\d{1,2})$/, // I-16-8, K-3A-6, G-19-1
+      hyphenated_block_level_apt: /^(\d)-([A-Z])(\d{1,2})-(\d{1,2})$/, // 1-L-16-8, 2-A-3-6
+      hyphenated_complex: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // I-3A-6, K-16B-8
+      
+      // Traditional patterns
+      tower_floor_unit: /^([A-Z])(\d{2})(\d{2})$/, // A0101, B0203
+      block_level_apt: /^(\d)([A-Z])(\d{2})$/, // 1L201, 2A302
+      simple_numeric: /^(\d{2})(\d{2})$/, // 0101, 0203
+      tower_floor_unit_alt: /^([A-Z])(\d{1,2})(\d{1,2})$/, // A101, B23
+      block_level_apt_alt: /^(\d)([A-Z])(\d{1,2})$/, // 1L21, 2A32
+      complex_tower: /^([A-Z])(\d{1,2})([A-Z])(\d{1,2})$/, // A1F01, B2L03
+      numeric_with_prefix: /^([A-Z]+)(\d{2})(\d{2})$/, // TOWER0101, BLOCK0203
+      
+      // Malaysian specific patterns
+      malay_tower_floor: /^([A-Z])-(\d{1,2})-(\d{1,2})$/, // I-16-8, K-3A-6
+      malay_block_floor: /^(\d)-(\d{1,2})-(\d{1,2})$/, // 1-16-8, 2-3-6
+      malay_complex: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // I-3A-6, K-16B-8
+    }
+
+    // Test each pattern
+    for (const [patternName, regex] of Object.entries(patterns)) {
+      const matches = unitNames.filter(name => regex.test(name))
+      if (matches.length >= unitNames.length * 0.8) { // 80% match threshold
+        const sample = matches[0]
+        const match = sample.match(regex)
+        if (match) {
+          return {
+            pattern: patternName,
+            confidence: (matches.length / unitNames.length) * 100,
+            sample: sample,
+            components: {
+              block: match[1] || '',
+              floor: match[2] || '',
+              unit: match[3] || '',
+              block_prefix: match[1]?.replace(/\d+$/, '') || '',
+              floor_prefix: match[2]?.replace(/\d+$/, '') || '',
+              unit_prefix: match[3]?.replace(/\d+$/, '') || '',
+            },
+            explanation: generateExplanation(patternName, match)
+          }
+        }
+      }
+    }
+
+    return null
+  }
+
+  const generateExplanation = (pattern: string, match: any) => {
+    switch (pattern) {
+      // Hyphenated patterns
+      case 'hyphenated_tower_floor_unit':
+      case 'malay_tower_floor':
+        return `${match[1]} = Tower, ${match[2]} = Floor, ${match[3]} = Unit`
+      case 'hyphenated_block_level_apt':
+        return `${match[1]} = Block, ${match[2]} = Level, ${match[3]} = Floor, ${match[4]} = Unit`
+      case 'hyphenated_complex':
+      case 'malay_complex':
+        return `${match[1]} = Tower, ${match[2]} = Floor/Level, ${match[3]} = Unit`
+      case 'malay_block_floor':
+        return `${match[1]} = Block, ${match[2]} = Floor, ${match[3]} = Unit`
+      
+      // Traditional patterns
+      case 'tower_floor_unit':
+        return `${match[1]} = Tower, ${match[2]} = Floor, ${match[3]} = Unit`
+      case 'block_level_apt':
+        return `${match[1]} = Block, ${match[2]} = Level, ${match[3]} = Apartment`
+      case 'simple_numeric':
+        return `${match[1]} = Floor, ${match[2]} = Unit`
+      case 'tower_floor_unit_alt':
+        return `${match[1]} = Tower, ${match[2]} = Floor, ${match[3]} = Unit`
+      case 'block_level_apt_alt':
+        return `${match[1]} = Block, ${match[2]} = Level, ${match[3]} = Apartment`
+      case 'complex_tower':
+        return `${match[1]} = Tower, ${match[2]} = Floor, ${match[3]} = Level, ${match[4]} = Unit`
+      case 'numeric_with_prefix':
+        return `${match[1]} = Prefix, ${match[2]} = Floor, ${match[3]} = Unit`
+      default:
+        return 'Custom pattern detected'
+    }
+  }
+
+  // Analyze sample units when they change
+  React.useEffect(() => {
+    if (sampleUnits.length >= 3) {
+      const analysis = analyzeNamingScheme(sampleUnits)
+      setAnalyzedPattern(analysis)
+      if (analysis) {
+        setConfigForm(prev => ({
+          ...prev,
+          naming_scheme: {
+            ...prev.naming_scheme,
+            detected_pattern: analysis,
+            block_prefix: analysis.components.block_prefix,
+            floor_prefix: analysis.components.floor_prefix,
+            unit_prefix: analysis.components.unit_prefix,
+            scheme_type: analysis.pattern
+          }
+        }))
+      }
+    }
+  }, [sampleUnits])
+
   // Generate unit preview based on naming scheme
   const generateUnitPreview = () => {
     const preview = []
     const { naming_scheme } = configForm
-    const maxPreview = 10 // Show max 10 units in preview
+    const maxPreview = 12 // Show max 12 units in preview
     
     let count = 0
     for (let block = 1; block <= configForm.blocks && count < maxPreview; block++) {
       for (let floor = 1; floor <= configForm.floors_per_block && count < maxPreview; floor++) {
         for (let unit = 1; unit <= configForm.units_per_floor && count < maxPreview; unit++) {
-          const blockStr = naming_scheme.block_prefix + block.toString().padStart(naming_scheme.block_format.length, '0')
-          const floorStr = naming_scheme.floor_prefix + (naming_scheme.start_floor + floor - 1).toString().padStart(naming_scheme.floor_format.length, '0')
-          const unitStr = naming_scheme.unit_prefix + (naming_scheme.start_unit + unit - 1).toString().padStart(naming_scheme.unit_format.length, '0')
+          let unitNumber
+          let explanation = ''
+
+          // Use analyzed pattern if available
+          if (naming_scheme.scheme_type === 'analyze_existing' && naming_scheme.detected_pattern) {
+            const pattern = naming_scheme.detected_pattern
+            const floorNum = naming_scheme.start_floor + floor - 1
+            const unitNum = naming_scheme.start_unit + unit - 1
+
+            switch (pattern.pattern) {
+              // Hyphenated patterns
+              case 'hyphenated_tower_floor_unit':
+              case 'malay_tower_floor':
+                const blockId = configForm.blocks === 1 ? (pattern.components.block || 'I') : 
+                               String.fromCharCode(64 + block) // A, B, C, etc.
+                unitNumber = `${blockId}-${floorNum}-${unitNum}`
+                explanation = `${blockId} Tower Floor${floorNum} Unit${unitNum}`
+                break
+              case 'hyphenated_block_level_apt':
+                const blockNum = configForm.blocks === 1 ? (pattern.components.block || '1') : block.toString()
+                const levelPrefix = pattern.components.floor_prefix || 'L'
+                unitNumber = `${blockNum}-${levelPrefix}${floorNum}-${unitNum}`
+                explanation = `Block${blockNum} Level${levelPrefix}${floorNum} Unit${unitNum}`
+                break
+              case 'hyphenated_complex':
+              case 'malay_complex':
+                const towerId = configForm.blocks === 1 ? (pattern.components.block || 'I') : 
+                               String.fromCharCode(64 + block)
+                const floorLevel = pattern.components.floor || `${floorNum}${String.fromCharCode(64 + unit)}`
+                unitNumber = `${towerId}-${floorLevel}-${unitNum}`
+                explanation = `${towerId} Tower Floor${floorLevel} Unit${unitNum}`
+                break
+              case 'malay_block_floor':
+                const blockNum2 = configForm.blocks === 1 ? (pattern.components.block || '1') : block.toString()
+                unitNumber = `${blockNum2}-${floorNum}-${unitNum}`
+                explanation = `Block${blockNum2} Floor${floorNum} Unit${unitNum}`
+                break
+              
+              // Traditional patterns
+              case 'tower_floor_unit':
+              case 'tower_floor_unit_alt':
+                const blockId3 = configForm.blocks === 1 ? (pattern.components.block_prefix || '') : 
+                               (pattern.components.block_prefix || '') + String.fromCharCode(64 + block)
+                unitNumber = `${blockId3}${floorNum.toString().padStart(2, '0')}${unitNum.toString().padStart(2, '0')}`
+                explanation = `${blockId3} Floor${floorNum.toString().padStart(2, '0')} Unit${unitNum.toString().padStart(2, '0')}`
+                break
+              case 'block_level_apt':
+              case 'block_level_apt_alt':
+                const blockNum4 = configForm.blocks === 1 ? (pattern.components.block || '1') : block.toString()
+                const levelPrefix3 = pattern.components.floor_prefix || 'L'
+                unitNumber = `${blockNum4}${levelPrefix3}${floorNum.toString().padStart(2, '0')}${unitNum.toString().padStart(2, '0')}`
+                explanation = `Block${blockNum4} Level${floorNum.toString().padStart(2, '0')} Apt${unitNum.toString().padStart(2, '0')}`
+                break
+              case 'simple_numeric':
+                unitNumber = `${floorNum.toString().padStart(2, '0')}${unitNum.toString().padStart(2, '0')}`
+                explanation = `Floor${floorNum.toString().padStart(2, '0')} Unit${unitNum.toString().padStart(2, '0')}`
+                break
+              case 'complex_tower':
+                const towerId3 = configForm.blocks === 1 ? (pattern.components.block_prefix || '') : 
+                               (pattern.components.block_prefix || '') + String.fromCharCode(64 + block)
+                unitNumber = `${towerId3}${floorNum}${pattern.components.floor_prefix || 'F'}${unitNum.toString().padStart(2, '0')}`
+                explanation = `${towerId3} Floor${floorNum} Level${unitNum.toString().padStart(2, '0')}`
+                break
+              case 'numeric_with_prefix':
+                const prefix2 = pattern.components.block_prefix || 'TOWER'
+                unitNumber = `${prefix2}${floorNum.toString().padStart(2, '0')}${unitNum.toString().padStart(2, '0')}`
+                explanation = `${prefix2} Floor${floorNum.toString().padStart(2, '0')} Unit${unitNum.toString().padStart(2, '0')}`
+                break
+              default:
+                // Fallback to manual configuration
+                const blockId4 = configForm.blocks === 1 ? (naming_scheme.block_prefix || '') : 
+                                (naming_scheme.block_prefix || '') + String.fromCharCode(64 + block)
+                const floorStr = naming_scheme.floor_prefix + floorNum.toString().padStart(2, '0')
+                const unitStr = naming_scheme.unit_prefix + unitNum.toString().padStart(2, '0')
+                unitNumber = `${blockId4}${floorStr}${unitStr}`
+                explanation = `${blockId4} ${floorStr} ${unitStr}`
+            }
+          } else {
+            // Manual configuration fallback
+            const blockId = configForm.blocks === 1 ? (naming_scheme.block_prefix || '') : 
+                           (naming_scheme.block_prefix || '') + String.fromCharCode(64 + block)
+            const floorNum = naming_scheme.start_floor + floor - 1
+            const floorStr = naming_scheme.floor_prefix + floorNum.toString().padStart(2, '0')
+            const unitNum = naming_scheme.start_unit + unit - 1
+            const unitStr = naming_scheme.unit_prefix + unitNum.toString().padStart(2, '0')
+            
+            if (naming_scheme.scheme_type === 'tower_floor_unit') {
+              unitNumber = `${blockId}${floorStr}${unitStr}`
+              explanation = `${blockId} ${floorStr} ${unitStr}`
+            } else if (naming_scheme.scheme_type === 'block_level_apt') {
+              unitNumber = `${blockId}${floorStr}${unitStr}`
+              explanation = `${blockId} ${floorStr} ${unitStr}`
+            } else {
+              unitNumber = `${floorNum.toString().padStart(2, '0')}${unitNum.toString().padStart(2, '0')}`
+              explanation = `Floor${floorNum.toString().padStart(2, '0')} Unit${unitNum.toString().padStart(2, '0')}`
+            }
+          }
           
           preview.push({
-            unit_number: `${blockStr}${floorStr}${unitStr}`,
-            block: blockStr,
-            floor: floorStr,
-            unit: unitStr,
-            full: `${blockStr}${floorStr}${unitStr}`
+            unit_number: unitNumber,
+            full: unitNumber,
+            explanation: explanation
           })
           count++
         }
@@ -828,88 +1034,307 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
 
               <Separator />
 
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-semibold">Naming Scheme</h3>
+                  <h3 className="text-lg font-semibold">Unit Naming Scheme</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Configure how unit numbers will be generated. Common Malaysian patterns include:
+                    Analyze your existing unit names or choose a new pattern. This affects all {totalUnits} units in your property.
                   </p>
-                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
-                    <p><strong>Example 1:</strong> Tower A, Floor 01, Unit 01 → A0101</p>
-                    <p><strong>Example 2:</strong> Block 1, Level 2, Apt 3 → 1L203</p>
-                    <p><strong>Example 3:</strong> No prefixes, just numbers → 0101, 0102, 0103...</p>
-                  </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="block_prefix">Block Prefix</Label>
-                    <Input
-                      id="block_prefix"
-                      placeholder="e.g., Tower, Block"
-                      value={configForm.naming_scheme.block_prefix}
-                      onChange={(e) => setConfigForm(prev => ({
-                        ...prev,
-                        naming_scheme: { ...prev.naming_scheme, block_prefix: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="floor_prefix">Floor Prefix</Label>
-                    <Input
-                      id="floor_prefix"
-                      placeholder="e.g., Floor, Level"
-                      value={configForm.naming_scheme.floor_prefix}
-                      onChange={(e) => setConfigForm(prev => ({
-                        ...prev,
-                        naming_scheme: { ...prev.naming_scheme, floor_prefix: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="unit_prefix">Unit Prefix</Label>
-                    <Input
-                      id="unit_prefix"
-                      placeholder="e.g., Unit, Apt"
-                      value={configForm.naming_scheme.unit_prefix}
-                      onChange={(e) => setConfigForm(prev => ({
-                        ...prev,
-                        naming_scheme: { ...prev.naming_scheme, unit_prefix: e.target.value }
-                      }))}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="start_floor">Starting Floor</Label>
-                    <Input
-                      id="start_floor"
-                      type="number"
-                      min="1"
-                      value={configForm.naming_scheme.start_floor}
-                      onChange={(e) => setConfigForm(prev => ({
-                        ...prev,
-                        naming_scheme: { ...prev.naming_scheme, start_floor: parseInt(e.target.value) || 1 }
-                      }))}
-                    />
+
+                {/* Intelligent Analysis Section */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Analyze Existing Units</Label>
+                  <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+                      🧠 Smart Pattern Detection
+                    </h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+                      Enter 3-5 sample unit names from your property to automatically detect the naming pattern:
+                    </p>
+                    
+                    <div className="space-y-3">
+                      <div className="flex flex-wrap gap-2">
+                        {sampleUnits.map((unit, index) => (
+                          <div key={index} className="flex items-center gap-1 bg-white dark:bg-gray-800 px-2 py-1 rounded border">
+                            <span className="text-sm font-mono">{unit}</span>
+                            <button
+                              onClick={() => setSampleUnits(prev => prev.filter((_, i) => i !== index))}
+                              className="text-red-500 hover:text-red-700 text-xs"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Enter unit name (e.g., I-16-8, K-3A-6, A0101, 1L201)"
+                          value=""
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              const value = e.currentTarget.value.trim()
+                              if (value && !sampleUnits.includes(value)) {
+                                setSampleUnits(prev => [...prev, value])
+                                e.currentTarget.value = ''
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            const input = document.querySelector('input[placeholder*="Enter unit name"]') as HTMLInputElement
+                            const value = input?.value.trim()
+                            if (value && !sampleUnits.includes(value)) {
+                              setSampleUnits(prev => [...prev, value])
+                              input.value = ''
+                            }
+                          }}
+                        >
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+
+                    {analyzedPattern && (
+                      <div className="mt-4 p-3 bg-green-50 dark:bg-green-950 rounded border border-green-200 dark:border-green-800">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                          <span className="font-semibold text-green-900 dark:text-green-100">
+                            Pattern Detected! ({analyzedPattern.confidence.toFixed(0)}% confidence)
+                          </span>
+                        </div>
+                        <div className="text-sm text-green-700 dark:text-green-300">
+                          <p><strong>Sample:</strong> {analyzedPattern.sample}</p>
+                          <p><strong>Pattern:</strong> {analyzedPattern.explanation}</p>
+                        </div>
+                        <Button
+                          size="sm"
+                          className="mt-2"
+                          onClick={() => {
+                            setConfigForm(prev => ({
+                              ...prev,
+                              naming_scheme: {
+                                ...prev.naming_scheme,
+                                scheme_type: 'analyze_existing',
+                                detected_pattern: analyzedPattern
+                              }
+                            }))
+                          }}
+                        >
+                          Use This Pattern
+                        </Button>
+                      </div>
+                    )}
+
+                    {sampleUnits.length >= 3 && !analyzedPattern && (
+                      <div className="mt-4 p-3 bg-yellow-50 dark:bg-yellow-950 rounded border border-yellow-200 dark:border-yellow-800">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                          <span className="font-semibold text-yellow-900 dark:text-yellow-100">
+                            No Clear Pattern Detected
+                          </span>
+                        </div>
+                        <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                          The unit names don't match common patterns. You can manually configure the naming scheme below.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
 
+                <Separator />
+
+                {/* Manual Configuration */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Manual Configuration</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        configForm.naming_scheme.scheme_type === 'tower_floor_unit' 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setConfigForm(prev => ({
+                        ...prev,
+                        naming_scheme: { ...prev.naming_scheme, scheme_type: 'tower_floor_unit' }
+                      }))}
+                    >
+                      <div className="font-semibold text-sm">Tower-Floor-Unit</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        A0101, A0102, B0101, B0102
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Perfect for multiple towers
+                      </div>
+                    </div>
+
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        configForm.naming_scheme.scheme_type === 'block_level_apt' 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setConfigForm(prev => ({
+                        ...prev,
+                        naming_scheme: { ...prev.naming_scheme, scheme_type: 'block_level_apt' }
+                      }))}
+                    >
+                      <div className="font-semibold text-sm">Block-Level-Apt</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        1L201, 1L202, 2L201, 2L202
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Traditional Malaysian style
+                      </div>
+                    </div>
+
+                    <div 
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-colors ${
+                        configForm.naming_scheme.scheme_type === 'simple_numeric' 
+                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-950' 
+                          : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                      onClick={() => setConfigForm(prev => ({
+                        ...prev,
+                        naming_scheme: { ...prev.naming_scheme, scheme_type: 'simple_numeric' }
+                      }))}
+                    >
+                      <div className="font-semibold text-sm">Simple Numeric</div>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        0101, 0102, 0103, 0104
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+                        Just floor and unit numbers
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Dynamic Configuration Based on Scheme Type */}
+                {configForm.naming_scheme.scheme_type !== 'simple_numeric' && (
+                  <div className="space-y-4">
+                    <Label className="text-base font-medium">Customize Labels</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="block_prefix">
+                          {configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'Tower Prefix' : 'Block Prefix'}
+                        </Label>
+                        <Input
+                          id="block_prefix"
+                          placeholder={configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'e.g., Tower' : 'e.g., Block'}
+                          value={configForm.naming_scheme.block_prefix}
+                          onChange={(e) => setConfigForm(prev => ({
+                            ...prev,
+                            naming_scheme: { ...prev.naming_scheme, block_prefix: e.target.value }
+                          }))}
+                        />
+                        <p className="text-xs text-gray-500">
+                          {configForm.blocks > 1 
+                            ? `Will generate: ${configForm.naming_scheme.block_prefix}A, ${configForm.naming_scheme.block_prefix}B, etc.`
+                            : 'Leave empty for single tower/block'
+                          }
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="floor_prefix">
+                          {configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'Floor Prefix' : 'Level Prefix'}
+                        </Label>
+                        <Input
+                          id="floor_prefix"
+                          placeholder={configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'e.g., Floor' : 'e.g., L'}
+                          value={configForm.naming_scheme.floor_prefix}
+                          onChange={(e) => setConfigForm(prev => ({
+                            ...prev,
+                            naming_scheme: { ...prev.naming_scheme, floor_prefix: e.target.value }
+                          }))}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Will generate: {configForm.naming_scheme.floor_prefix}01, {configForm.naming_scheme.floor_prefix}02, etc.
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="unit_prefix">
+                          {configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'Unit Prefix' : 'Apartment Prefix'}
+                        </Label>
+                        <Input
+                          id="unit_prefix"
+                          placeholder={configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'e.g., Unit' : 'e.g., Apt'}
+                          value={configForm.naming_scheme.unit_prefix}
+                          onChange={(e) => setConfigForm(prev => ({
+                            ...prev,
+                            naming_scheme: { ...prev.naming_scheme, unit_prefix: e.target.value }
+                          }))}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Will generate: {configForm.naming_scheme.unit_prefix}01, {configForm.naming_scheme.unit_prefix}02, etc.
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="start_floor">Starting Floor</Label>
+                        <Input
+                          id="start_floor"
+                          type="number"
+                          min="1"
+                          value={configForm.naming_scheme.start_floor}
+                          onChange={(e) => setConfigForm(prev => ({
+                            ...prev,
+                            naming_scheme: { ...prev.naming_scheme, start_floor: parseInt(e.target.value) || 1 }
+                          }))}
+                        />
+                        <p className="text-xs text-gray-500">
+                          Floor numbering starts from this number
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Unit Preview */}
                 <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
-                  <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">Unit Preview</h4>
+                  <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">Live Preview</h4>
                   <p className="text-sm text-green-700 dark:text-green-300 mb-3">
-                    Here's how your units will be named (showing first 10 units):
+                    Here's how your units will be named (showing first 12 units):
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                  
+                  {/* Show explanation for the naming pattern */}
+                  <div className="mb-4 p-3 bg-white dark:bg-gray-800 rounded border">
+                    <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                      Naming Pattern: {configForm.naming_scheme.scheme_type === 'tower_floor_unit' ? 'Tower-Floor-Unit' : 
+                                      configForm.naming_scheme.scheme_type === 'block_level_apt' ? 'Block-Level-Apartment' : 'Simple Numeric'}
+                    </div>
+                    {configForm.naming_scheme.scheme_type !== 'simple_numeric' && (
+                      <div className="text-xs text-gray-600 dark:text-gray-400">
+                        Format: {configForm.naming_scheme.block_prefix || 'Tower'}{configForm.blocks > 1 ? 'A' : ''} + {configForm.naming_scheme.floor_prefix || 'Floor'}01 + {configForm.naming_scheme.unit_prefix || 'Unit'}01
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                     {unitPreview.map((unit, index) => (
-                      <div key={index} className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Unit {index + 1}</div>
-                        <div className="font-mono text-sm font-semibold">{unit.full}</div>
+                      <div key={index} className="bg-white dark:bg-gray-800 p-3 rounded border text-center">
+                        <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Unit {index + 1}</div>
+                        <div className="font-mono text-sm font-semibold text-blue-600 dark:text-blue-400">{unit.full}</div>
+                        {unit.explanation && (
+                          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            {unit.explanation}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
-                  {totalUnits > 10 && (
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-2">
-                      ... and {totalUnits - 10} more units
-                    </p>
+                  
+                  {totalUnits > 12 && (
+                    <div className="mt-3 text-center">
+                      <p className="text-xs text-green-600 dark:text-green-400">
+                        ... and {totalUnits - 12} more units will be generated
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>
