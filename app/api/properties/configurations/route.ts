@@ -1,5 +1,5 @@
 import { NextRequest } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase-server"
+import { createServerSupabaseClient } from "@/lib/clerk-supabase"
 import { withAuth, createAuthError } from "@/lib/auth-helpers"
 import { CasaLinkUser } from "@/lib/clerk-supabase"
 
