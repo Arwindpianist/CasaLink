@@ -471,7 +471,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
 
     const patterns = {
       // Hyphenated patterns (Malaysian style)
-      hyphenated_tower_floor_unit: /^([A-Z])-(\d{1,2})-(\d{1,2})$/, // I-16-8, K-3A-6, G-19-1
+      hyphenated_tower_floor_unit: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // A-3A-4, B-1-5, A-1-1
       hyphenated_block_level_apt: /^(\d)-([A-Z])(\d{1,2})-(\d{1,2})$/, // 1-L-16-8, 2-A-3-6
       hyphenated_complex: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // I-3A-6, K-16B-8
       
@@ -485,7 +485,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       numeric_with_prefix: /^([A-Z]+)(\d{2})(\d{2})$/, // TOWER0101, BLOCK0203
       
       // Malaysian specific patterns
-      malay_tower_floor: /^([A-Z])-(\d{1,2})-(\d{1,2})$/, // I-16-8, K-3A-6
+      malay_tower_floor: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // A-3A-4, B-1-5, A-1-1
       malay_block_floor: /^(\d)-(\d{1,2})-(\d{1,2})$/, // 1-16-8, 2-3-6
       malay_complex: /^([A-Z])-(\d{1,2}[A-Z]?)-(\d{1,2})$/, // I-3A-6, K-16B-8
     }
@@ -589,36 +589,47 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
           // Use analyzed pattern if available
           if (naming_scheme.scheme_type === 'analyze_existing' && naming_scheme.detected_pattern) {
             const pattern = naming_scheme.detected_pattern
-            const floorNum = naming_scheme.start_floor + floor - 1
             const unitNum = naming_scheme.start_unit + unit - 1
+
+            // Generate proper floor number based on Malaysian convention (skip 4)
+            const generateFloorNumber = (floorIndex: number) => {
+              if (floorIndex <= 3) {
+                return floorIndex.toString()
+              } else if (floorIndex === 4) {
+                return '3A' // Skip 4, use 3A instead
+              } else {
+                return (floorIndex - 1).toString() // Continue from 5
+              }
+            }
+
+            const floorDisplay = generateFloorNumber(naming_scheme.start_floor + floor - 1)
 
             switch (pattern.pattern) {
               // Hyphenated patterns
               case 'hyphenated_tower_floor_unit':
               case 'malay_tower_floor':
-                const blockId = configForm.blocks === 1 ? (pattern.components.block || 'I') : 
+                const blockId = configForm.blocks === 1 ? (pattern.components.block || 'A') : 
                                String.fromCharCode(64 + block) // A, B, C, etc.
-                unitNumber = `${blockId}-${floorNum}-${unitNum}`
-                explanation = `${blockId} Tower Floor${floorNum} Unit${unitNum}`
+                unitNumber = `${blockId}-${floorDisplay}-${unitNum}`
+                explanation = `${blockId} Tower Floor${floorDisplay} Unit${unitNum}`
                 break
               case 'hyphenated_block_level_apt':
                 const blockNum = configForm.blocks === 1 ? (pattern.components.block || '1') : block.toString()
                 const levelPrefix = pattern.components.floor_prefix || 'L'
-                unitNumber = `${blockNum}-${levelPrefix}${floorNum}-${unitNum}`
-                explanation = `Block${blockNum} Level${levelPrefix}${floorNum} Unit${unitNum}`
+                unitNumber = `${blockNum}-${levelPrefix}${floorDisplay}-${unitNum}`
+                explanation = `Block${blockNum} Level${levelPrefix}${floorDisplay} Unit${unitNum}`
                 break
               case 'hyphenated_complex':
               case 'malay_complex':
-                const towerId = configForm.blocks === 1 ? (pattern.components.block || 'I') : 
+                const towerId = configForm.blocks === 1 ? (pattern.components.block || 'A') : 
                                String.fromCharCode(64 + block)
-                const floorLevel = pattern.components.floor || `${floorNum}${String.fromCharCode(64 + unit)}`
-                unitNumber = `${towerId}-${floorLevel}-${unitNum}`
-                explanation = `${towerId} Tower Floor${floorLevel} Unit${unitNum}`
+                unitNumber = `${towerId}-${floorDisplay}-${unitNum}`
+                explanation = `${towerId} Tower Floor${floorDisplay} Unit${unitNum}`
                 break
               case 'malay_block_floor':
                 const blockNum2 = configForm.blocks === 1 ? (pattern.components.block || '1') : block.toString()
-                unitNumber = `${blockNum2}-${floorNum}-${unitNum}`
-                explanation = `Block${blockNum2} Floor${floorNum} Unit${unitNum}`
+                unitNumber = `${blockNum2}-${floorDisplay}-${unitNum}`
+                explanation = `Block${blockNum2} Floor${floorDisplay} Unit${unitNum}`
                 break
               
               // Traditional patterns
