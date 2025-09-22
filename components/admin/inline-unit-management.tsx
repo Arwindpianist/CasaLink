@@ -231,7 +231,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       if (managersRes.ok) {
         const managersData = await managersRes.json()
         console.log('Managers data:', managersData)
-        setManagers(managersData.managers || [])
+        const managers = managersData.managers || []
+        console.log('Individual managers:', managers.map(m => ({ id: m.id, user: m.user, role: m.role })))
+        setManagers(managers)
       } else {
         const managersError = await managersRes.text()
         console.error('Managers API error:', managersError)
@@ -941,8 +943,12 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                             <User className="h-5 w-5 text-primary" />
                           </div>
                           <div>
-                            <h4 className="font-semibold">{manager.user.name}</h4>
-                            <p className="text-sm text-muted-foreground">{manager.user.email}</p>
+                            <h4 className="font-semibold">
+                              {manager.user?.name || 'Unknown User'}
+                            </h4>
+                            <p className="text-sm text-muted-foreground">
+                              {manager.user?.email || 'No email available'}
+                            </p>
                             <div className="flex items-center space-x-2 mt-1">
                               <Badge variant="outline" className="text-xs">
                                 {manager.role}
