@@ -552,7 +552,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   }
 
   // Analyze sample units when they change
-  React.useEffect(() => {
+  useEffect(() => {
     if (sampleUnits.length >= 3) {
       const analysis = analyzeNamingScheme(sampleUnits)
       setAnalyzedPattern(analysis)
