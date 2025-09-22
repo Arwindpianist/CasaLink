@@ -5,8 +5,13 @@ import { CasaLinkUser } from "@/lib/clerk-supabase"
 
 // GET /api/properties/configurations - List property configurations
 export async function GET(request: NextRequest) {
-  return withAuth(['platform_admin', 'management'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
     try {
+      // Check if user has required role
+      if (!['platform_admin', 'management'].includes(user.role)) {
+        return createAuthError('Access denied. Required roles: platform_admin, management', 403)
+      }
+
       const supabase = await createServerSupabaseClient()
       const url = new URL(request.url)
       const condoId = url.searchParams.get('condo_id')
@@ -58,8 +63,13 @@ export async function GET(request: NextRequest) {
 
 // POST /api/properties/configurations - Create property configuration
 export async function POST(request: NextRequest) {
-  return withAuth(['platform_admin', 'management'], async (user: CasaLinkUser) => {
+  return withAuth(async (user: CasaLinkUser) => {
     try {
+      // Check if user has required role
+      if (!['platform_admin', 'management'].includes(user.role)) {
+        return createAuthError('Access denied. Required roles: platform_admin, management', 403)
+      }
+
       const body = await request.json()
       const {
         condo_id,

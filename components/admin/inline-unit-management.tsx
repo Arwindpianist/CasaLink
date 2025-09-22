@@ -149,14 +149,23 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const loadPropertyData = async (propertyId: string) => {
     setLoading(true)
     try {
+      console.log('Loading property data for:', propertyId)
+      
       const [configRes, unitsRes, managersRes] = await Promise.all([
-        fetch(`/api/properties/configurations?property_id=${propertyId}`),
+        fetch(`/api/properties/configurations?condo_id=${propertyId}`),
         fetch(`/api/properties/${propertyId}/units`),
         fetch(`/api/properties/${propertyId}/managers`)
       ])
 
+      console.log('API responses:', {
+        config: { status: configRes.status, ok: configRes.ok },
+        units: { status: unitsRes.status, ok: unitsRes.ok },
+        managers: { status: managersRes.status, ok: managersRes.ok }
+      })
+
       if (configRes.ok) {
         const configData = await configRes.json()
+        console.log('Config data:', configData)
         setConfigurations(configData.configurations || [])
         
         // Load existing configuration into form
@@ -171,16 +180,27 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
             excluded_units: config.excluded_units
           })
         }
+      } else {
+        const configError = await configRes.text()
+        console.error('Config API error:', configError)
       }
 
       if (unitsRes.ok) {
         const unitsData = await unitsRes.json()
+        console.log('Units data:', unitsData)
         setUnits(unitsData.units || [])
+      } else {
+        const unitsError = await unitsRes.text()
+        console.error('Units API error:', unitsError)
       }
 
       if (managersRes.ok) {
         const managersData = await managersRes.json()
+        console.log('Managers data:', managersData)
         setManagers(managersData.managers || [])
+      } else {
+        const managersError = await managersRes.text()
+        console.error('Managers API error:', managersError)
       }
     } catch (error) {
       console.error('Failed to load property data:', error)
