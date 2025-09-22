@@ -32,7 +32,9 @@ import {
   ArrowLeft,
   ArrowRight,
   Save,
-  RefreshCw
+  RefreshCw,
+  Calendar,
+  User
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "@/hooks/use-toast"
