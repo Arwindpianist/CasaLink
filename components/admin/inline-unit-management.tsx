@@ -319,29 +319,53 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
 
     setLoading(true)
     try {
+      // First, save the configuration if it doesn't exist
+      let configurationId = configurations.find(c => c.condo_id === selectedProperty.id)?.id
+      
+      if (!configurationId) {
+        // Save configuration first
+        const configResponse = await fetch('/api/properties/configurations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            condo_id: selectedProperty.id,
+            ...configForm
+          })
+        })
+
+        if (!configResponse.ok) {
+          throw new Error('Failed to save configuration')
+        }
+
+        const configData = await configResponse.json()
+        configurationId = configData.id
+      }
+
+      // Now generate units using the configuration ID
       const response = await fetch(`/api/properties/${selectedProperty.id}/units`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          action: 'generate',
-          configuration: configForm
+          configuration_id: configurationId
         })
       })
 
       if (response.ok) {
+        const result = await response.json()
         toast({
           title: "Success",
-          description: "Units generated successfully"
+          description: `Generated ${result.units_created || 0} units successfully`
         })
         await loadPropertyData(selectedProperty.id)
       } else {
-        throw new Error('Failed to generate units')
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate units')
       }
     } catch (error) {
       console.error('Failed to generate units:', error)
       toast({
         title: "Error",
-        description: "Failed to generate units",
+        description: error instanceof Error ? error.message : "Failed to generate units",
         variant: "destructive"
       })
     } finally {
