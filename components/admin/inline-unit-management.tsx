@@ -134,6 +134,12 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
     excluded_units: [] as string[]
   })
 
+  // Calculate total units and validate against property limit
+  const totalUnits = configForm.blocks * configForm.floors_per_block * configForm.units_per_floor
+  const maxUnits = selectedProperty?.total_units || 0
+  const isValidUnitCount = totalUnits <= maxUnits
+  const remainingUnits = maxUnits - totalUnits
+
   // Manager assignment state
   const [managerForm, setManagerForm] = useState({
     email: '',
@@ -452,6 +458,37 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const unitStatuses = [...new Set(units.map(u => u.status))]
   const unitTypes = [...new Set(units.map(u => u.unit_type))]
 
+  // Generate unit preview based on naming scheme
+  const generateUnitPreview = () => {
+    const preview = []
+    const { naming_scheme } = configForm
+    const maxPreview = 10 // Show max 10 units in preview
+    
+    let count = 0
+    for (let block = 1; block <= configForm.blocks && count < maxPreview; block++) {
+      for (let floor = 1; floor <= configForm.floors_per_block && count < maxPreview; floor++) {
+        for (let unit = 1; unit <= configForm.units_per_floor && count < maxPreview; unit++) {
+          const blockStr = naming_scheme.block_prefix + block.toString().padStart(naming_scheme.block_format.length, '0')
+          const floorStr = naming_scheme.floor_prefix + (naming_scheme.start_floor + floor - 1).toString().padStart(naming_scheme.floor_format.length, '0')
+          const unitStr = naming_scheme.unit_prefix + (naming_scheme.start_unit + unit - 1).toString().padStart(naming_scheme.unit_format.length, '0')
+          
+          preview.push({
+            unit_number: `${blockStr}${floorStr}${unitStr}`,
+            block: blockStr,
+            floor: floorStr,
+            unit: unitStr,
+            full: `${blockStr}${floorStr}${unitStr}`
+          })
+          count++
+        }
+      }
+    }
+    
+    return preview
+  }
+
+  const unitPreview = generateUnitPreview()
+
   if (!selectedProperty) {
     return (
       <div className="space-y-6">
@@ -723,6 +760,31 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
               <CardDescription>Set up the property structure and naming scheme</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
+              {/* Unit Limit Information */}
+              <div className="bg-blue-50 dark:bg-blue-950 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-blue-900 dark:text-blue-100">Property Unit Limit</h4>
+                    <p className="text-sm text-blue-700 dark:text-blue-300">
+                      This property is licensed for <strong>{maxUnits} units</strong>
+                    </p>
+                  </div>
+                  <Badge variant={isValidUnitCount ? "default" : "destructive"}>
+                    {totalUnits} / {maxUnits} units
+                  </Badge>
+                </div>
+                {!isValidUnitCount && (
+                  <div className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    ⚠️ Exceeds property limit by {Math.abs(remainingUnits)} units
+                  </div>
+                )}
+                {isValidUnitCount && remainingUnits > 0 && (
+                  <div className="mt-2 text-sm text-green-600 dark:text-green-400">
+                    ✅ {remainingUnits} units remaining
+                  </div>
+                )}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="blocks">Number of Blocks</Label>
@@ -756,10 +818,28 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                 </div>
               </div>
 
+              {/* Unit Calculation Summary */}
+              <div className="bg-gray-50 dark:bg-gray-900 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">Unit Calculation</h4>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  <p>{configForm.blocks} blocks × {configForm.floors_per_block} floors × {configForm.units_per_floor} units = <strong>{totalUnits} total units</strong></p>
+                </div>
+              </div>
+
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="text-lg font-semibold">Naming Scheme</h3>
+                <div>
+                  <h3 className="text-lg font-semibold">Naming Scheme</h3>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    Configure how unit numbers will be generated. Common Malaysian patterns include:
+                  </p>
+                  <div className="mt-2 text-xs text-gray-500 dark:text-gray-500">
+                    <p><strong>Example 1:</strong> Tower A, Floor 01, Unit 01 → A0101</p>
+                    <p><strong>Example 2:</strong> Block 1, Level 2, Apt 3 → 1L203</p>
+                    <p><strong>Example 3:</strong> No prefixes, just numbers → 0101, 0102, 0103...</p>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="block_prefix">Block Prefix</Label>
@@ -811,6 +891,27 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                     />
                   </div>
                 </div>
+
+                {/* Unit Preview */}
+                <div className="bg-green-50 dark:bg-green-950 p-4 rounded-lg border border-green-200 dark:border-green-800">
+                  <h4 className="font-semibold text-green-900 dark:text-green-100 mb-3">Unit Preview</h4>
+                  <p className="text-sm text-green-700 dark:text-green-300 mb-3">
+                    Here's how your units will be named (showing first 10 units):
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                    {unitPreview.map((unit, index) => (
+                      <div key={index} className="bg-white dark:bg-gray-800 p-2 rounded border text-center">
+                        <div className="text-xs text-gray-500 dark:text-gray-400">Unit {index + 1}</div>
+                        <div className="font-mono text-sm font-semibold">{unit.full}</div>
+                      </div>
+                    ))}
+                  </div>
+                  {totalUnits > 10 && (
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                      ... and {totalUnits - 10} more units
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="flex justify-end space-x-4">
@@ -822,7 +923,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                 </Button>
                 <Button
                   onClick={handleSaveConfiguration}
-                  disabled={loading}
+                  disabled={loading || !isValidUnitCount}
                 >
                   <Save className="h-4 w-4 mr-2" />
                   Save Configuration
