@@ -139,6 +139,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   // Sample unit names for analysis
   const [sampleUnits, setSampleUnits] = useState<string[]>([])
   const [analyzedPattern, setAnalyzedPattern] = useState<any>(null)
+  const [sampleInput, setSampleInput] = useState('')
 
   // Calculate total units and validate against property limit
   const totalUnits = configForm.blocks * configForm.floors_per_block * configForm.units_per_floor
@@ -1071,13 +1072,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                       <div className="flex gap-2">
                         <Input
                           placeholder="Enter unit name (e.g., I-16-8, K-3A-6, A0101, 1L201)"
-                          value=""
+                          value={sampleInput}
+                          onChange={(e) => setSampleInput(e.target.value)}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') {
-                              const value = e.currentTarget.value.trim()
+                              const value = sampleInput.trim()
                               if (value && !sampleUnits.includes(value)) {
                                 setSampleUnits(prev => [...prev, value])
-                                e.currentTarget.value = ''
+                                setSampleInput('')
                               }
                             }
                           }}
@@ -1085,11 +1087,10 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                         <Button
                           size="sm"
                           onClick={() => {
-                            const input = document.querySelector('input[placeholder*="Enter unit name"]') as HTMLInputElement
-                            const value = input?.value.trim()
+                            const value = sampleInput.trim()
                             if (value && !sampleUnits.includes(value)) {
                               setSampleUnits(prev => [...prev, value])
-                              input.value = ''
+                              setSampleInput('')
                             }
                           }}
                         >
