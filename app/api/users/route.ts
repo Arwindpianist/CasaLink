@@ -10,7 +10,26 @@ export async function GET(request: NextRequest) {
       const { searchParams } = new URL(request.url)
       const condoId = searchParams.get('condo_id')
 
-      let query = supabase.from('users').select('*')
+      let query = supabase
+        .from('users')
+        .select(`
+          *,
+          units (
+            id,
+            unit_number,
+            block_number,
+            floor_number,
+            unit_type,
+            status
+          ),
+          property_managers (
+            id,
+            role,
+            permissions,
+            is_active,
+            assigned_at
+          )
+        `)
 
       // Platform admins can see all users, others only their condo
       if (user.role !== 'platform_admin' && condoId) {

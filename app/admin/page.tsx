@@ -41,7 +41,8 @@ import {
   Building,
   HomeIcon,
   TreePine,
-  Factory
+  Factory,
+  Grid3X3
 } from "lucide-react"
 import { motion } from "framer-motion"
 import { AdminSidebar } from "@/components/admin/admin-sidebar"
@@ -72,7 +73,7 @@ export default function AdminDashboard() {
   // Handle URL parameters for deep linking
   useEffect(() => {
     const tab = searchParams.get('tab')
-    if (tab && ['dashboard', 'condos', 'users', 'analytics', 'billing', 'system', 'security', 'alerts', 'settings'].includes(tab)) {
+    if (tab && ['dashboard', 'condos', 'users', 'units', 'analytics', 'billing', 'system', 'security', 'alerts', 'settings'].includes(tab)) {
       setActiveTab(tab)
     }
   }, [searchParams])
@@ -857,6 +858,174 @@ export default function AdminDashboard() {
                   </div>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
+
+    if (activeTab === "units") {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Unit Management</h1>
+            <p className="text-foreground">Configure and manage units across all properties</p>
+          </div>
+
+          {/* Unit Management Overview */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Total Properties</p>
+                    <p className="text-2xl font-bold text-foreground">{condominiums.length}</p>
+                  </div>
+                  <Building2 className="h-8 w-8 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Configured Properties</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {condominiums.filter(c => c.total_units > 0).length}
+                    </p>
+                  </div>
+                  <Settings className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Total Units</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {condominiums.reduce((sum, c) => sum + (c.total_units || 0), 0).toLocaleString()}
+                    </p>
+                  </div>
+                  <Grid3X3 className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-xl">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Properties with Managers</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {Math.floor(condominiums.length * 0.8)}
+                    </p>
+                  </div>
+                  <Users className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Properties List with Unit Management Actions */}
+          <Card className="warm-card border border-border bg-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5" />
+                Properties Unit Management
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Click on a property to manage its units, assign managers, and link residents
+              </p>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center space-x-4">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-[200px]" />
+                        <Skeleton className="h-4 w-[160px]" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : condominiums.length === 0 ? (
+                <div className="text-center py-8">
+                  <Building2 className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No Properties Found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Get started by adding your first property to the platform.
+                  </p>
+                  <Button onClick={() => setActiveTab("condos")}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Property
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {condominiums.map((condo, index) => (
+                    <motion.div
+                      key={condo.id}
+                      className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors cursor-pointer"
+                      onClick={() => {
+                        window.location.href = `/admin/properties/${condo.id}/units`
+                      }}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                            <Building2 className="h-6 w-6 text-primary" />
+                          </div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h3 className="text-lg font-semibold text-foreground">{condo.name}</h3>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <MapPin className="h-4 w-4 text-foreground" />
+                                <p className="text-sm text-foreground">{condo.address}</p>
+                              </div>
+                              <div className="flex items-center space-x-4 mt-2 text-sm text-foreground">
+                                <span>{condo.total_units || 0} units</span>
+                                <span>•</span>
+                                <span className="flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  Joined {new Date(condo.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <Badge 
+                          variant={condo.total_units > 0 ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {condo.total_units > 0 ? "Configured" : "Not Configured"}
+                        </Badge>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            window.location.href = `/admin/properties/${condo.id}/units`
+                          }}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

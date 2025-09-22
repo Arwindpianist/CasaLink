@@ -52,6 +52,7 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
     { id: "dashboard", label: "Dashboard", icon: Home, badge: null },
     { id: "condos", label: "Properties", icon: Building2, badge: null },
     { id: "users", label: "User Management", icon: Users, badge: null },
+    { id: "units", label: "Unit Management", icon: Building2, badge: null },
     { id: "analytics", label: "Analytics", icon: BarChart3, badge: null },
     { id: "billing", label: "Billing & Revenue", icon: DollarSign, badge: null },
     { id: "system", label: "System Health", icon: Globe, badge: null },
@@ -158,6 +159,12 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
                 <SidebarMenuButton onClick={() => onTabChange("users")}>
                   <Users className="size-4" />
                   <span>User Management</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton onClick={() => onTabChange("units")}>
+                  <Building2 className="size-4" />
+                  <span>Unit Management</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
