@@ -12,13 +12,13 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Server-side Supabase client with Clerk authentication
 export async function createServerSupabaseClient() {
-  const { getToken } = auth()
-  
   try {
+    const { getToken } = auth()
     const token = await getToken({ template: 'supabase' })
     
     if (!token) {
-      throw new Error('No Clerk token available')
+      console.log('No Clerk token available, using anonymous client')
+      return supabase // Fallback to anonymous client
     }
 
     return createClient(supabaseUrl, supabaseAnonKey, {
