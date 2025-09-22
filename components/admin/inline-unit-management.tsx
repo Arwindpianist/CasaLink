@@ -34,7 +34,8 @@ import {
   Save,
   RefreshCw,
   Calendar,
-  User
+  User,
+  Search
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "@/hooks/use-toast"
@@ -105,6 +106,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const [managers, setManagers] = useState<PropertyManager[]>([])
   const [loading, setLoading] = useState(false)
   const [activeStep, setActiveStep] = useState<'overview' | 'configure' | 'units' | 'managers' | 'residents'>('overview')
+  const [hasMockUnits, setHasMockUnits] = useState(false)
+  
+  // Filter and search states
+  const [unitSearchTerm, setUnitSearchTerm] = useState('')
+  const [unitStatusFilter, setUnitStatusFilter] = useState('all')
+  const [unitTypeFilter, setUnitTypeFilter] = useState('all')
+  const [unitExcludedFilter, setUnitExcludedFilter] = useState('all')
+  const [residentSearchTerm, setResidentSearchTerm] = useState('')
 
   // Configuration form state
   const [configForm, setConfigForm] = useState({
@@ -200,7 +209,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       if (unitsRes.ok) {
         const unitsData = await unitsRes.json()
         console.log('Units data:', unitsData)
-        setUnits(unitsData.units || [])
+        const realUnits = unitsData.units || []
+        setUnits(realUnits)
+        setHasMockUnits(false) // These are real units from the new system
       } else {
         const unitsError = await unitsRes.text()
         console.error('Units API error:', unitsError)
@@ -224,6 +235,10 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
             })
           }
           setUnits(mockUnits)
+          setHasMockUnits(true) // These are mock units for display only
+        } else {
+          setUnits([])
+          setHasMockUnits(false)
         }
       }
 
@@ -410,6 +425,32 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       emails: prev.emails.filter(e => e !== email)
     }))
   }
+
+  // Filter units based on search and filter criteria
+  const filteredUnits = units.filter(unit => {
+    // Search filter
+    const matchesSearch = !unitSearchTerm || 
+      unit.unit_number.toLowerCase().includes(unitSearchTerm.toLowerCase()) ||
+      unit.block_number?.toLowerCase().includes(unitSearchTerm.toLowerCase()) ||
+      unit.floor_number.toString().includes(unitSearchTerm)
+
+    // Status filter
+    const matchesStatus = unitStatusFilter === 'all' || unit.status === unitStatusFilter
+
+    // Type filter
+    const matchesType = unitTypeFilter === 'all' || unit.unit_type === unitTypeFilter
+
+    // Excluded filter
+    const matchesExcluded = unitExcludedFilter === 'all' || 
+      (unitExcludedFilter === 'excluded' && unit.excluded) ||
+      (unitExcludedFilter === 'included' && !unit.excluded)
+
+    return matchesSearch && matchesStatus && matchesType && matchesExcluded
+  })
+
+  // Get unique values for filter options
+  const unitStatuses = [...new Set(units.map(u => u.status))]
+  const unitTypes = [...new Set(units.map(u => u.unit_type))]
 
   if (!selectedProperty) {
     return (
@@ -602,7 +643,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                   <div>
                     <p className="text-sm font-medium text-foreground">Configured</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {configurations.length > 0 ? "Yes" : "Legacy"}
+                      {configurations.length > 0 ? "Yes" : hasMockUnits ? "Legacy" : "No"}
                     </p>
                   </div>
                   <Settings className="h-8 w-8 text-purple-600" />
@@ -612,7 +653,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
           </div>
 
           {/* Status Notice */}
-          {configurations.length === 0 && units.length > 0 && (
+          {configurations.length === 0 && hasMockUnits && (
             <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
               <CardContent className="p-4">
                 <div className="flex items-start space-x-3">
@@ -818,6 +859,27 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                     Configure Property
                   </Button>
                 </div>
+              ) : hasMockUnits ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center space-x-4">
+                      <Badge variant="outline">
+                        Legacy Units: {units.length}
+                      </Badge>
+                      <Badge variant="secondary">
+                        Display Only
+                      </Badge>
+                    </div>
+                    <Button onClick={() => setActiveStep('configure')}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configure Property
+                    </Button>
+                  </div>
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>These are legacy units displayed for reference.</p>
+                    <p>Configure the property structure to enable full unit management.</p>
+                  </div>
+                </div>
               ) : (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -831,11 +893,114 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                       <Badge variant="outline">
                         Excluded: {units.filter(u => u.excluded).length}
                       </Badge>
+                      <Badge variant="secondary">
+                        Showing: {filteredUnits.length}
+                      </Badge>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {units.map((unit) => (
+                  {/* Search and Filter Controls */}
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      {/* Search Input */}
+                      <div className="flex-1">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input
+                            placeholder="Search units by number, block, or floor..."
+                            value={unitSearchTerm}
+                            onChange={(e) => setUnitSearchTerm(e.target.value)}
+                            className="pl-10"
+                          />
+                        </div>
+                      </div>
+                      
+                      {/* Filter Dropdowns */}
+                      <div className="flex gap-2">
+                        <Select value={unitStatusFilter} onValueChange={setUnitStatusFilter}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            {unitStatuses.map(status => (
+                              <SelectItem key={status} value={status}>
+                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={unitTypeFilter} onValueChange={setUnitTypeFilter}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue placeholder="Type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Types</SelectItem>
+                            {unitTypes.map(type => (
+                              <SelectItem key={type} value={type}>
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <Select value={unitExcludedFilter} onValueChange={setUnitExcludedFilter}>
+                          <SelectTrigger className="w-32">
+                            <SelectValue placeholder="Include" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All Units</SelectItem>
+                            <SelectItem value="included">Included Only</SelectItem>
+                            <SelectItem value="excluded">Excluded Only</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    {/* Clear Filters Button */}
+                    {(unitSearchTerm || unitStatusFilter !== 'all' || unitTypeFilter !== 'all' || unitExcludedFilter !== 'all') && (
+                      <div className="flex justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setUnitSearchTerm('')
+                            setUnitStatusFilter('all')
+                            setUnitTypeFilter('all')
+                            setUnitExcludedFilter('all')
+                          }}
+                        >
+                          <X className="h-4 w-4 mr-2" />
+                          Clear Filters
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+
+                  {filteredUnits.length === 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No Units Found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        No units match your current search and filter criteria.
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          setUnitSearchTerm('')
+                          setUnitStatusFilter('all')
+                          setUnitTypeFilter('all')
+                          setUnitExcludedFilter('all')
+                        }}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear Filters
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {filteredUnits.map((unit) => (
                       <motion.div
                         key={unit.id}
                         className={cn(
@@ -867,8 +1032,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                           )}
                         </div>
                       </motion.div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -1001,7 +1167,61 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {units.filter(u => !u.excluded).map((unit) => (
+                  {/* Search for Residents */}
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4">
+                        <Badge variant="outline">
+                          Total Units: {units.filter(u => !u.excluded).length}
+                        </Badge>
+                        <Badge variant="outline">
+                          With Residents: {units.filter(u => !u.excluded && u.resident_emails.length > 0).length}
+                        </Badge>
+                        <Badge variant="outline">
+                          Vacant: {units.filter(u => !u.excluded && u.resident_emails.length === 0).length}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                      <Input
+                        placeholder="Search units by number, floor, or resident email..."
+                        value={residentSearchTerm}
+                        onChange={(e) => setResidentSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  {units.filter(u => !u.excluded && (
+                    !residentSearchTerm || 
+                    u.unit_number.toLowerCase().includes(residentSearchTerm.toLowerCase()) ||
+                    u.floor_number.toString().includes(residentSearchTerm) ||
+                    u.resident_emails.some(email => email.toLowerCase().includes(residentSearchTerm.toLowerCase()))
+                  )).length === 0 ? (
+                    <div className="text-center py-8">
+                      <Search className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                      <h3 className="text-lg font-semibold mb-2">No Units Found</h3>
+                      <p className="text-muted-foreground mb-4">
+                        No units match your search criteria.
+                      </p>
+                      <Button
+                        variant="outline"
+                        onClick={() => setResidentSearchTerm('')}
+                      >
+                        <X className="h-4 w-4 mr-2" />
+                        Clear Search
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {units.filter(u => !u.excluded && (
+                        !residentSearchTerm || 
+                        u.unit_number.toLowerCase().includes(residentSearchTerm.toLowerCase()) ||
+                        u.floor_number.toString().includes(residentSearchTerm) ||
+                        u.resident_emails.some(email => email.toLowerCase().includes(residentSearchTerm.toLowerCase()))
+                      )).map((unit) => (
                     <div key={unit.id} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-4">
                         <div>
@@ -1074,7 +1294,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                         )}
                       </div>
                     </div>
-                  ))}
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
