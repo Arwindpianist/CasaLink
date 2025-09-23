@@ -198,7 +198,9 @@ export async function POST(
             let unitName
             if (naming_scheme?.scheme_type === 'analyze_existing' && naming_scheme?.detected_pattern) {
               // Use detected pattern for hyphenated schemes
-              unitName = `${blockPrefix}-${floorDisplay}-${startUnit + unitIdx - 1}`
+              // Generate block letter (A, B, C, etc.)
+              const blockLetter = String.fromCharCode(64 + blockIdx) // A=65, B=66, etc.
+              unitName = `${blockLetter}-${floorDisplay}-${startUnit + unitIdx - 1}`
             } else {
               // Use traditional format
               const blockStr = blockIdx.toString().padStart(blockFormat.length, '0')
