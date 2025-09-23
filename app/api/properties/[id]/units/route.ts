@@ -164,20 +164,89 @@ export async function POST(
         throw new Error('Configuration not found')
       }
 
-      // Generate units based on configuration
-      const { data: unitsCreated, error: generateError } = await supabase
-        .rpc('create_units_from_configuration', {
-          p_condo_id: condoId,
-          p_configuration_id: configuration_id
-        })
-
-      if (generateError) {
-        throw new Error(`Failed to generate units: ${generateError.message}`)
+      // Generate units based on configuration (direct JavaScript implementation)
+      const units = []
+      const { blocks, floors_per_block, units_per_floor, naming_scheme, excluded_units = [], unit_types = {} } = configData
+      
+      // Extract naming scheme parameters
+      const blockPrefix = naming_scheme?.block_prefix || ''
+      const floorPrefix = naming_scheme?.floor_prefix || ''
+      const unitPrefix = naming_scheme?.unit_prefix || ''
+      const blockFormat = naming_scheme?.block_format || '##'
+      const floorFormat = naming_scheme?.floor_format || '##'
+      const unitFormat = naming_scheme?.unit_format || '##'
+      const startFloor = naming_scheme?.start_floor || 1
+      const startUnit = naming_scheme?.start_unit || 1
+      
+      // Generate units
+      for (let blockIdx = 1; blockIdx <= blocks; blockIdx++) {
+        for (let floorIdx = 1; floorIdx <= floors_per_block; floorIdx++) {
+          for (let unitIdx = 1; unitIdx <= units_per_floor; unitIdx++) {
+            // Generate floor display (Malaysian convention - skip 4, use 3A)
+            let floorDisplay
+            const actualFloor = startFloor + floorIdx - 1
+            if (actualFloor <= 3) {
+              floorDisplay = actualFloor.toString()
+            } else if (actualFloor === 4) {
+              floorDisplay = '3A'
+            } else {
+              floorDisplay = (actualFloor - 1).toString()
+            }
+            
+            // Generate unit name based on scheme type
+            let unitName
+            if (naming_scheme?.scheme_type === 'analyze_existing' && naming_scheme?.detected_pattern) {
+              // Use detected pattern for hyphenated schemes
+              unitName = `${blockPrefix}-${floorDisplay}-${startUnit + unitIdx - 1}`
+            } else {
+              // Use traditional format
+              const blockStr = blockIdx.toString().padStart(blockFormat.length, '0')
+              const floorStr = floorDisplay.padStart(floorFormat.length, '0')
+              const unitStr = (startUnit + unitIdx - 1).toString().padStart(unitFormat.length, '0')
+              unitName = `${blockPrefix}${blockStr}${floorPrefix}${floorStr}${unitPrefix}${unitStr}`
+            }
+            
+            // Check if unit is excluded
+            if (!excluded_units.includes(unitName)) {
+              units.push({
+                condo_id: condoId,
+                unit_number: unitName,
+                floor_number: actualFloor,
+                block_number: blockIdx.toString().padStart(blockFormat.length, '0'),
+                unit_type: unit_types[unitName] || 'residential',
+                status: 'vacant',
+                excluded: false,
+                resident_emails: [],
+                notes: null
+              })
+            }
+          }
+        }
+      }
+      
+      // Insert units in batches
+      const batchSize = 100
+      let unitsCreated = 0
+      
+      for (let i = 0; i < units.length; i += batchSize) {
+        const batch = units.slice(i, i + batchSize)
+        const { error: insertError } = await supabase
+          .from('units')
+          .upsert(batch, { 
+            onConflict: 'condo_id,unit_number',
+            ignoreDuplicates: false 
+          })
+        
+        if (insertError) {
+          throw new Error(`Failed to insert units batch: ${insertError.message}`)
+        }
+        
+        unitsCreated += batch.length
       }
 
       return new Response(JSON.stringify({ 
         units_created: unitsCreated,
-        message: `Generated ${unitsCreated || 0} units successfully`
+        message: `Generated ${unitsCreated} units successfully`
       }), {
         status: 201,
         headers: { 'Content-Type': 'application/json' }
