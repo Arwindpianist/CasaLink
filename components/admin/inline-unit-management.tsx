@@ -172,14 +172,131 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
     new_email: ''
   })
 
+  // Signup link generation state
+  const [signupLinkForm, setSignupLinkForm] = useState({
+    unit_id: '',
+    resident_email: '',
+    expires_in_hours: 168, // 7 days
+    max_uses: 1,
+    notes: ''
+  })
+  const [signupLinks, setSignupLinks] = useState<any[]>([])
+  const [showSignupLinkDialog, setShowSignupLinkDialog] = useState(false)
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null)
+
   // Don't auto-select - let user choose property manually
 
   // Load data when property is selected
   useEffect(() => {
     if (selectedProperty) {
       loadPropertyData(selectedProperty.id)
+      loadSignupLinks(selectedProperty.id)
     }
   }, [selectedProperty])
+
+  // Load signup links for the selected property
+  const loadSignupLinks = async (propertyId: string) => {
+    try {
+      const response = await fetch(`/api/signup-links?condo_id=${propertyId}`)
+      if (response.ok) {
+        const data = await response.json()
+        setSignupLinks(data.signup_links || [])
+      }
+    } catch (error) {
+      console.error('Failed to load signup links:', error)
+    }
+  }
+
+  // Generate signup link
+  const handleGenerateSignupLink = async () => {
+    if (!selectedProperty) return
+
+    setLoading(true)
+    try {
+      const response = await fetch('/api/signup-links', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          condo_id: selectedProperty.id,
+          ...signupLinkForm
+        })
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setGeneratedLink(data.signup_url)
+        toast({
+          title: "Signup Link Generated",
+          description: "The signup link has been created successfully"
+        })
+        await loadSignupLinks(selectedProperty.id)
+        setSignupLinkForm({
+          unit_id: '',
+          resident_email: '',
+          expires_in_hours: 168,
+          max_uses: 1,
+          notes: ''
+        })
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate signup link')
+      }
+    } catch (error) {
+      console.error('Failed to generate signup link:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to generate signup link",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Copy signup link to clipboard
+  const copySignupLink = async (link: string) => {
+    try {
+      await navigator.clipboard.writeText(link)
+      toast({
+        title: "Copied",
+        description: "Signup link copied to clipboard"
+      })
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      toast({
+        title: "Error",
+        description: "Failed to copy link to clipboard",
+        variant: "destructive"
+      })
+    }
+  }
+
+  // Delete signup link
+  const handleDeleteSignupLink = async (linkId: string) => {
+    try {
+      const response = await fetch(`/api/signup-links?id=${linkId}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Signup Link Deleted",
+          description: "The signup link has been removed"
+        })
+        await loadSignupLinks(selectedProperty!.id)
+      } else {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to delete signup link')
+      }
+    } catch (error) {
+      console.error('Failed to delete signup link:', error)
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete signup link",
+        variant: "destructive"
+      })
+    }
+  }
 
   const loadPropertyData = async (propertyId: string) => {
     setLoading(true)
@@ -1914,6 +2031,185 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
 
         {/* Residents Tab */}
         <TabsContent value="residents" className="space-y-6">
+          {/* Signup Link Generation */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Generate Signup Links</CardTitle>
+              <CardDescription>Create secure signup links for residents to self-register</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="signup_unit">Unit (Optional)</Label>
+                    <Select 
+                      value={signupLinkForm.unit_id} 
+                      onValueChange={(value) => setSignupLinkForm(prev => ({ ...prev, unit_id: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a unit (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">All Units</SelectItem>
+                        {units.filter(u => !u.excluded).map((unit) => (
+                          <SelectItem key={unit.id} value={unit.id}>
+                            {unit.unit_number} (Floor {unit.floor_number})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="signup_email">Resident Email</Label>
+                    <Input
+                      id="signup_email"
+                      type="email"
+                      placeholder="resident@example.com"
+                      value={signupLinkForm.resident_email}
+                      onChange={(e) => setSignupLinkForm(prev => ({ ...prev, resident_email: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <Label htmlFor="expires_hours">Expires In (Hours)</Label>
+                    <Input
+                      id="expires_hours"
+                      type="number"
+                      min="1"
+                      max="8760"
+                      value={signupLinkForm.expires_in_hours}
+                      onChange={(e) => setSignupLinkForm(prev => ({ ...prev, expires_in_hours: parseInt(e.target.value) || 168 }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="max_uses">Max Uses</Label>
+                    <Input
+                      id="max_uses"
+                      type="number"
+                      min="1"
+                      max="100"
+                      value={signupLinkForm.max_uses}
+                      onChange={(e) => setSignupLinkForm(prev => ({ ...prev, max_uses: parseInt(e.target.value) || 1 }))}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="signup_notes">Notes (Optional)</Label>
+                    <Input
+                      id="signup_notes"
+                      placeholder="Internal notes"
+                      value={signupLinkForm.notes}
+                      onChange={(e) => setSignupLinkForm(prev => ({ ...prev, notes: e.target.value }))}
+                    />
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleGenerateSignupLink}
+                  disabled={loading || !signupLinkForm.resident_email}
+                  className="w-full"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Generating Link...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Generate Signup Link
+                    </>
+                  )}
+                </Button>
+
+                {/* Generated Link Display */}
+                {generatedLink && (
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="font-medium text-green-800">Signup Link Generated</span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Input 
+                          value={generatedLink} 
+                          readOnly 
+                          className="bg-white"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={() => copySignupLink(generatedLink)}
+                        >
+                          Copy
+                        </Button>
+                      </div>
+                      <p className="text-sm text-green-700">
+                        Share this link with the resident to allow them to create their account.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Existing Signup Links */}
+          {signupLinks.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Active Signup Links</CardTitle>
+                <CardDescription>Manage existing signup links for this property</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {signupLinks.map((link) => (
+                    <div key={link.id} className="p-3 border rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium">{link.resident_email}</span>
+                            {link.units && (
+                              <Badge variant="outline" className="text-xs">
+                                {link.units.unit_number}
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Expires: {new Date(link.expires_at).toLocaleDateString()} • 
+                            Used: {link.used_count}/{link.max_uses}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => copySignupLink(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/signup?token=${link.token}`)}
+                          >
+                            Copy Link
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteSignupLink(link.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      {link.notes && (
+                        <div className="mt-2 text-sm text-muted-foreground">
+                          Note: {link.notes}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Resident Management */}
           <Card>
             <CardHeader>
               <CardTitle>Resident Management</CardTitle>
