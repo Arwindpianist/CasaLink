@@ -633,7 +633,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
               } else if (floorIndex === 4) {
                 return '3A' // Skip 4, use 3A instead
               } else {
-                return (floorIndex - 1).toString() // Continue from 5
+                return floorIndex.toString() // Continue normally (5, 6, 7, etc.)
               }
             }
 

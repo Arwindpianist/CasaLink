@@ -190,7 +190,8 @@ export async function POST(
             } else if (actualFloor === 4) {
               floorDisplay = '3A'
             } else {
-              floorDisplay = (actualFloor - 1).toString()
+              // For floors 5 and above, continue normally (5, 6, 7, etc.)
+              floorDisplay = actualFloor.toString()
             }
             
             // Generate unit name based on scheme type
