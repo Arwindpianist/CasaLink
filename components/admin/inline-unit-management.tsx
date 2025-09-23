@@ -172,6 +172,13 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
     new_email: ''
   })
 
+  // Auto-select first property if none is selected
+  useEffect(() => {
+    if (condominiums.length > 0 && !selectedProperty) {
+      setSelectedProperty(condominiums[0])
+    }
+  }, [condominiums, selectedProperty])
+
   // Load data when property is selected
   useEffect(() => {
     if (selectedProperty) {
@@ -209,7 +216,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       // Handle configurations
       if (configRes.ok) {
         const configData = await configRes.json()
-        console.log('Config data:', configData)
+        console.log('Config response data:', configData)
         setConfigurations(configData.configurations || [])
         
         // Load existing configuration into form
@@ -232,8 +239,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       // Handle units
       if (unitsRes.ok) {
         const unitsData = await unitsRes.json()
-        console.log('Units data:', unitsData)
+        console.log('Units response data:', unitsData)
         const realUnits = unitsData.units || []
+        console.log('Real units array:', realUnits)
         setUnits(realUnits)
         setHasMockUnits(false) // These are real units from the new system
       } else {
@@ -906,7 +914,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                               <p className="text-sm text-foreground">{condo.address}</p>
                             </div>
                             <div className="flex items-center space-x-4 mt-2 text-sm text-foreground">
-                              <span>{units.length} units</span>
+                              <span>{condo.units?.[0]?.count || 0} units</span>
                               <span>•</span>
                               <span className="flex items-center">
                                 <Calendar className="h-3 w-3 mr-1" />
@@ -919,10 +927,10 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                     </div>
                     <div className="flex items-center space-x-2">
                       <Badge
-                        variant={units.length > 0 ? "default" : "secondary"}
+                        variant={(condo.units?.[0]?.count || 0) > 0 ? "default" : "secondary"}
                         className="text-xs"
                       >
-                        {units.length > 0 ? "Configured" : "Not Configured"}
+                        {(condo.units?.[0]?.count || 0) > 0 ? "Configured" : "Not Configured"}
                       </Badge>
                       <Button
                         variant="ghost"

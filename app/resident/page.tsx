@@ -707,13 +707,13 @@ export default function ResidentApp() {
                   </div>
                   <p className="text-muted-foreground">{user?.email || 'sarah.chen@email.com'}</p>
                   <p className="text-sm text-muted-foreground">
-                    {user?.unit_number ? `Unit ${user.unit_number}` : 'Unit 12-A, Tower 1'}
+                    {user?.unit_id ? `Unit ${user.unit_id}` : 'Unit 12-A, Tower 1'}
                   </p>
                   {user?.phone && (
                     <p className="text-sm text-muted-foreground">{user.phone}</p>
                   )}
-                  {user?.condo_name && (
-                    <p className="text-sm text-muted-foreground">{user.condo_name}</p>
+                  {user?.condo_id && (
+                    <p className="text-sm text-muted-foreground">Property ID: {user.condo_id}</p>
                   )}
                 </div>
               </div>
