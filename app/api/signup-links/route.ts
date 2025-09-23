@@ -1,8 +1,22 @@
 import { NextRequest } from "next/server"
 import { createServerSupabaseClient, getUserByClerkId, CasaLinkUser } from "@/lib/clerk-supabase"
+import { createClient } from "@supabase/supabase-js"
 import { createAuthError } from "@/lib/auth-helpers"
 import { auth } from "@clerk/nextjs/server"
 import { randomBytes } from "crypto"
+
+// Create service role client that bypasses RLS
+function createServiceSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 // GET /api/signup-links - List signup links for a property
 export async function GET(request: NextRequest) {
@@ -29,7 +43,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
     const url = new URL(request.url)
     const condoId = url.searchParams.get('condo_id')
     const unitId = url.searchParams.get('unit_id')
@@ -129,7 +143,7 @@ export async function POST(request: NextRequest) {
       return createAuthError('Access denied to this condominium', 403)
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
 
     // Generate secure token
     const token = randomBytes(32).toString('hex')
@@ -231,7 +245,7 @@ export async function PUT(request: NextRequest) {
       return createAuthError('Signup link ID is required', 400)
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
 
     // Check if user has access to this signup link
     const { data: existingLink } = await supabase
@@ -332,7 +346,7 @@ export async function DELETE(request: NextRequest) {
       return createAuthError('Signup link ID is required', 400)
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
 
     // Check if user has access to this signup link
     const { data: existingLink } = await supabase
