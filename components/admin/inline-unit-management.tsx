@@ -35,7 +35,8 @@ import {
   RefreshCw,
   Calendar,
   User,
-  Search
+  Search,
+  Loader2
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "@/hooks/use-toast"
