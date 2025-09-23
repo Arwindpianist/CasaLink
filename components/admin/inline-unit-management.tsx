@@ -993,6 +993,11 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                   <div>
                     <p className="text-sm font-medium text-foreground">Total Units</p>
                     <p className="text-2xl font-bold text-foreground">{units.length}</p>
+                    {selectedProperty && (
+                      <p className="text-xs text-muted-foreground">
+                        Licensed: {selectedProperty.total_units}
+                      </p>
+                    )}
                   </div>
                   <Grid3X3 className="h-8 w-8 text-primary" />
                 </div>
@@ -1007,6 +1012,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                     <p className="text-2xl font-bold text-foreground">
                       {units.filter(u => !u.excluded).length}
                     </p>
+                    <p className="text-xs text-muted-foreground">
+                      {units.filter(u => u.excluded).length} excluded
+                    </p>
                   </div>
                   <Check className="h-8 w-8 text-green-600" />
                 </div>
@@ -1019,6 +1027,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                   <div>
                     <p className="text-sm font-medium text-foreground">Managers</p>
                     <p className="text-2xl font-bold text-foreground">{managers.length}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {managers.filter(m => m.is_active).length} active
+                    </p>
                   </div>
                   <Users className="h-8 w-8 text-blue-600" />
                 </div>
@@ -1029,10 +1040,15 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-foreground">Configured</p>
+                    <p className="text-sm font-medium text-foreground">Configuration</p>
                     <p className="text-2xl font-bold text-foreground">
-                      {configurations.length > 0 ? "Yes" : hasMockUnits ? "Legacy" : "No"}
+                      {configurations.length > 0 ? "Complete" : hasMockUnits ? "Legacy" : "Pending"}
                     </p>
+                    {configurations.length > 0 && (
+                      <p className="text-xs text-muted-foreground">
+                        {configurations[0].blocks} blocks, {configurations[0].floors_per_block} floors
+                      </p>
+                    )}
                   </div>
                   <Settings className="h-8 w-8 text-purple-600" />
                 </div>
@@ -1040,7 +1056,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
             </Card>
           </div>
 
-          {/* Status Notice */}
+          {/* Status Notices */}
           {configurations.length === 0 && hasMockUnits && (
             <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950">
               <CardContent className="p-4">
@@ -1055,6 +1071,50 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                     <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
                       This property has {units.length} units from the legacy system. 
                       Configure the property structure to enable advanced unit management features.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {configurations.length > 0 && (
+            <Card className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <Check className="h-5 w-5 text-green-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-green-800 dark:text-green-200">
+                      Property Successfully Configured
+                    </h3>
+                    <p className="mt-1 text-sm text-green-700 dark:text-green-300">
+                      This property is configured with {configurations[0].blocks} blocks, 
+                      {configurations[0].floors_per_block} floors per block, and 
+                      {configurations[0].units_per_floor} units per floor. 
+                      Total configured units: {units.length}.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {configurations.length > 0 && selectedProperty && units.length > selectedProperty.total_units && (
+            <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+              <CardContent className="p-4">
+                <div className="flex items-start space-x-3">
+                  <div className="flex-shrink-0">
+                    <X className="h-5 w-5 text-red-600" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
+                      Unit Limit Exceeded
+                    </h3>
+                    <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                      This property has {units.length} configured units but is only licensed for {selectedProperty.total_units} units. 
+                      Please remove {units.length - selectedProperty.total_units} units or upgrade the license.
                     </p>
                   </div>
                 </div>

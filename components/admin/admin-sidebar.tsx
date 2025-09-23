@@ -142,48 +142,6 @@ export function AdminSidebar({ activeTab, onTabChange }: AdminSidebarProps) {
               <span>System Notifications</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
-        </SidebarMenu>
-        
-        {/* Quick Actions Section */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Quick Actions</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => onTabChange("condos")}>
-                  <Building2 className="size-4" />
-                  <span>Add New Property</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => onTabChange("users")}>
-                  <Users className="size-4" />
-                  <span>User Management</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => onTabChange("units")}>
-                  <Building2 className="size-4" />
-                  <span>Unit Management</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => onTabChange("analytics")}>
-                  <BarChart3 className="size-4" />
-                  <span>Generate Reports</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => onTabChange("settings")}>
-                  <Settings className="size-4" />
-                  <span>System Settings</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-
-        <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton 
               onClick={() => {
