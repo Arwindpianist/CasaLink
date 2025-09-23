@@ -172,12 +172,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
     new_email: ''
   })
 
-  // Auto-select first property if none is selected
-  useEffect(() => {
-    if (condominiums.length > 0 && !selectedProperty) {
-      setSelectedProperty(condominiums[0])
-    }
-  }, [condominiums, selectedProperty])
+  // Don't auto-select - let user choose property manually
 
   // Load data when property is selected
   useEffect(() => {
