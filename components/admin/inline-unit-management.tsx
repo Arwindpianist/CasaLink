@@ -114,6 +114,17 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const [unitTypeFilter, setUnitTypeFilter] = useState('all')
   const [unitExcludedFilter, setUnitExcludedFilter] = useState('all')
   const [residentSearchTerm, setResidentSearchTerm] = useState('')
+  
+  // Unit editing states
+  const [editingUnit, setEditingUnit] = useState<Unit | null>(null)
+  const [unitEditForm, setUnitEditForm] = useState({
+    unit_number: '',
+    floor_number: '',
+    unit_type: 'residential',
+    status: 'vacant',
+    excluded: false,
+    notes: ''
+  })
 
   // Configuration form state
   const [configForm, setConfigForm] = useState({
@@ -184,7 +195,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       // Then try to get the new unit management data
       const [configRes, unitsRes, managersRes] = await Promise.all([
         fetch(`/api/properties/configurations?condo_id=${propertyId}`),
-        fetch(`/api/properties/${propertyId}/units`),
+        fetch(`/api/properties/${propertyId}/units?page=1&limit=1000`),
         fetch(`/api/properties/${propertyId}/managers`)
       ])
 
@@ -377,6 +388,93 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to generate units",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Unit editing functions
+  const handleEditUnit = (unit: Unit) => {
+    setEditingUnit(unit)
+    setUnitEditForm({
+      unit_number: unit.unit_number,
+      floor_number: unit.floor_number?.toString() || '',
+      unit_type: unit.unit_type || 'residential',
+      status: unit.status || 'vacant',
+      excluded: unit.excluded || false,
+      notes: unit.notes || ''
+    })
+  }
+
+  const handleSaveUnitEdit = async () => {
+    if (!editingUnit || !selectedProperty) return
+
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/properties/${selectedProperty.id}/units/${editingUnit.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          unit_number: unitEditForm.unit_number,
+          floor_number: parseInt(unitEditForm.floor_number) || 1,
+          unit_type: unitEditForm.unit_type,
+          status: unitEditForm.status,
+          excluded: unitEditForm.excluded,
+          notes: unitEditForm.notes
+        })
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Unit updated successfully"
+        })
+        setEditingUnit(null)
+        await loadPropertyData(selectedProperty.id)
+      } else {
+        throw new Error('Failed to update unit')
+      }
+    } catch (error) {
+      console.error('Failed to update unit:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update unit",
+        variant: "destructive"
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleDeleteUnit = async (unit: Unit) => {
+    if (!selectedProperty) return
+
+    if (!confirm(`Are you sure you want to delete unit ${unit.unit_number}? This action cannot be undone.`)) {
+      return
+    }
+
+    setLoading(true)
+    try {
+      const response = await fetch(`/api/properties/${selectedProperty.id}/units/${unit.id}`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Unit deleted successfully"
+        })
+        await loadPropertyData(selectedProperty.id)
+      } else {
+        throw new Error('Failed to delete unit')
+      }
+    } catch (error) {
+      console.error('Failed to delete unit:', error)
+      toast({
+        title: "Error",
+        description: "Failed to delete unit",
         variant: "destructive"
       })
     } finally {
@@ -1577,23 +1675,56 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                       <motion.div
                         key={unit.id}
                         className={cn(
-                          "p-4 border rounded-lg cursor-pointer transition-all",
+                          "p-4 border rounded-lg transition-all",
                           unit.excluded 
                             ? "bg-muted/50 border-dashed opacity-60" 
                             : "hover:bg-muted/50 hover:shadow-sm"
                         )}
-                        onClick={() => toggleUnitExclusion(unit.id)}
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.2 }}
                       >
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-semibold text-sm">{unit.unit_number}</h3>
-                          {unit.excluded ? (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-green-600" />
-                          )}
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleEditUnit(unit)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                handleDeleteUnit(unit)
+                              }}
+                              className="h-6 w-6 p-0 text-red-600 hover:text-red-700"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                toggleUnitExclusion(unit.id)
+                              }}
+                              className="h-6 w-6 p-0"
+                            >
+                              {unit.excluded ? (
+                                <EyeOff className="h-3 w-3 text-muted-foreground" />
+                              ) : (
+                                <Eye className="h-3 w-3 text-green-600" />
+                              )}
+                            </Button>
+                          </div>
                         </div>
                         <div className="space-y-1 text-xs text-muted-foreground">
                           <p>Floor: {unit.floor_number}</p>
@@ -1876,6 +2007,116 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Unit Edit Dialog */}
+      <Dialog open={!!editingUnit} onOpenChange={() => setEditingUnit(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Unit</DialogTitle>
+            <DialogDescription>
+              Make changes to unit {editingUnit?.unit_number}. Click save when you're done.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="unit_number" className="text-right">
+                Unit Number
+              </Label>
+              <Input
+                id="unit_number"
+                value={unitEditForm.unit_number}
+                onChange={(e) => setUnitEditForm(prev => ({ ...prev, unit_number: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="floor_number" className="text-right">
+                Floor Number
+              </Label>
+              <Input
+                id="floor_number"
+                type="number"
+                value={unitEditForm.floor_number}
+                onChange={(e) => setUnitEditForm(prev => ({ ...prev, floor_number: e.target.value }))}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="unit_type" className="text-right">
+                Unit Type
+              </Label>
+              <Select
+                value={unitEditForm.unit_type}
+                onValueChange={(value) => setUnitEditForm(prev => ({ ...prev, unit_type: value }))}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="residential">Residential</SelectItem>
+                  <SelectItem value="commercial">Commercial</SelectItem>
+                  <SelectItem value="office">Office</SelectItem>
+                  <SelectItem value="retail">Retail</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Status
+              </Label>
+              <Select
+                value={unitEditForm.status}
+                onValueChange={(value) => setUnitEditForm(prev => ({ ...prev, status: value }))}
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vacant">Vacant</SelectItem>
+                  <SelectItem value="occupied">Occupied</SelectItem>
+                  <SelectItem value="maintenance">Maintenance</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="notes" className="text-right">
+                Notes
+              </Label>
+              <Textarea
+                id="notes"
+                value={unitEditForm.notes}
+                onChange={(e) => setUnitEditForm(prev => ({ ...prev, notes: e.target.value }))}
+                className="col-span-3"
+                rows={3}
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="excluded" className="text-right">
+                Excluded
+              </Label>
+              <div className="col-span-3 flex items-center space-x-2">
+                <Checkbox
+                  id="excluded"
+                  checked={unitEditForm.excluded}
+                  onCheckedChange={(checked) => setUnitEditForm(prev => ({ ...prev, excluded: !!checked }))}
+                />
+                <Label htmlFor="excluded" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Exclude this unit from listings
+                </Label>
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setEditingUnit(null)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveUnitEdit} disabled={loading}>
+              {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              Save Changes
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
