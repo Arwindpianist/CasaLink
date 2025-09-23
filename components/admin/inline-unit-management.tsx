@@ -28,6 +28,7 @@ import {
   Eye,
   EyeOff,
   Check,
+  CheckCircle,
   X,
   ArrowLeft,
   ArrowRight,
