@@ -2044,14 +2044,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                   <div>
                     <Label htmlFor="signup_unit">Unit (Optional)</Label>
                     <Select 
-                      value={signupLinkForm.unit_id} 
-                      onValueChange={(value) => setSignupLinkForm(prev => ({ ...prev, unit_id: value }))}
+                      value={signupLinkForm.unit_id || "all"} 
+                      onValueChange={(value) => setSignupLinkForm(prev => ({ ...prev, unit_id: value === "all" ? "" : value }))}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select a unit (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Units</SelectItem>
+                        <SelectItem value="all">All Units</SelectItem>
                         {units.filter(u => !u.excluded).map((unit) => (
                           <SelectItem key={unit.id} value={unit.id}>
                             {unit.unit_number} (Floor {unit.floor_number})
