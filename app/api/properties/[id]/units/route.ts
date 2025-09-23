@@ -224,17 +224,22 @@ export async function POST(
         }
       }
       
+      // Remove duplicates from units array
+      const uniqueUnits = units.filter((unit, index, self) => 
+        index === self.findIndex(u => u.unit_number === unit.unit_number)
+      )
+      
       // Insert units in batches
       const batchSize = 100
       let unitsCreated = 0
       
-      for (let i = 0; i < units.length; i += batchSize) {
-        const batch = units.slice(i, i + batchSize)
+      for (let i = 0; i < uniqueUnits.length; i += batchSize) {
+        const batch = uniqueUnits.slice(i, i + batchSize)
         const { error: insertError } = await supabase
           .from('units')
           .upsert(batch, { 
             onConflict: 'condo_id,unit_number',
-            ignoreDuplicates: false 
+            ignoreDuplicates: true 
           })
         
         if (insertError) {

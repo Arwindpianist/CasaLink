@@ -334,11 +334,22 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
         })
 
         if (!configResponse.ok) {
-          throw new Error('Failed to save configuration')
+          if (configResponse.status === 409) {
+            // Configuration already exists, get the existing one
+            const existingConfigs = await fetch(`/api/properties/configurations?condo_id=${selectedProperty.id}`)
+            if (existingConfigs.ok) {
+              const existingData = await existingConfigs.json()
+              configurationId = existingData.configurations[0]?.id
+            }
+          }
+          
+          if (!configurationId) {
+            throw new Error('Failed to save configuration')
+          }
+        } else {
+          const configData = await configResponse.json()
+          configurationId = configData.id
         }
-
-        const configData = await configResponse.json()
-        configurationId = configData.id
       }
 
       // Now generate units using the configuration ID
