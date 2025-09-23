@@ -34,10 +34,14 @@ export async function GET(request: NextRequest) {
         throw new Error('No condominiums in database')
       }
 
-      // Build query - use simple select since relationships may not exist
+      // Build query with actual unit and user counts
       let query = supabase
         .from('condominiums')
-        .select('*', { count: 'exact' })
+        .select(`
+          *,
+          users:users(count),
+          units:units(count)
+        `, { count: 'exact' })
 
       // Apply filters
       if (search) {
@@ -64,7 +68,7 @@ export async function GET(request: NextRequest) {
 
       console.log('Successfully fetched condominiums from Supabase:', data?.length || 0)
 
-      // Transform data to match expected format
+      // Transform data to match expected format with real counts
       const transformedData = (data || []).map(condo => ({
         ...condo,
         monthly_revenue: condo.monthly_revenue || 0,
