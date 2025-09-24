@@ -145,8 +145,20 @@ export async function POST(request: NextRequest) {
 
     // Create user in Clerk first
     console.log('Creating user in Clerk...')
-    const clerkUser = await createClerkUser(email, password, firstName, lastName)
-    console.log('Clerk user created:', clerkUser.id)
+    let clerkUser
+    try {
+      clerkUser = await createClerkUser(email, password, firstName, lastName)
+      console.log('Clerk user created:', clerkUser.id)
+    } catch (clerkError) {
+      console.error('Failed to create Clerk user:', clerkError)
+      return new Response(JSON.stringify({ 
+        error: 'Failed to create user account',
+        details: clerkError instanceof Error ? clerkError.message : 'Unknown Clerk error'
+      }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      })
+    }
 
     // Create the user in our database with the real Clerk ID
     const { data: newUser, error: userError } = await supabase
@@ -154,22 +166,33 @@ export async function POST(request: NextRequest) {
       .insert({
         clerk_id: clerkUser.id,
         email: email,
-        first_name: firstName,
-        last_name: lastName,
+        name: `${firstName} ${lastName}`, // Combine first and last name
         role: 'resident',
         condo_id: signupLink.condo_id,
         unit_id: signupLink.unit_id,
-        status: 'active'
+        is_active: true // Use is_active instead of status
       })
       .select()
       .single()
 
     if (userError) {
       console.error('Failed to create user in database:', userError)
+      console.error('User data being inserted:', {
+        clerk_id: clerkUser.id,
+        email: email,
+        name: `${firstName} ${lastName}`,
+        role: 'resident',
+        condo_id: signupLink.condo_id,
+        unit_id: signupLink.unit_id,
+        is_active: true
+      })
+      
       // Note: Clerk user was created, but database sync failed
       // In production, you might want to clean up the Clerk user
       return new Response(JSON.stringify({ 
-        error: 'Failed to sync user to database' 
+        error: 'Failed to sync user to database',
+        details: userError.message,
+        clerk_user_id: clerkUser.id
       }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
