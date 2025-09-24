@@ -37,7 +37,8 @@ import {
   Calendar,
   User,
   Search,
-  Loader2
+  Loader2,
+  Copy
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "@/hooks/use-toast"
@@ -258,16 +259,42 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   // Copy signup link to clipboard
   const copySignupLink = async (link: string) => {
     try {
-      await navigator.clipboard.writeText(link)
-      toast({
-        title: "Copied",
-        description: "Signup link copied to clipboard"
-      })
+      // Try modern Clipboard API first
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(link)
+        toast({
+          title: "Copied",
+          description: "Signup link copied to clipboard"
+        })
+        return
+      }
+      
+      // Fallback for older browsers or non-secure contexts
+      const textArea = document.createElement('textarea')
+      textArea.value = link
+      textArea.style.position = 'fixed'
+      textArea.style.left = '-999999px'
+      textArea.style.top = '-999999px'
+      document.body.appendChild(textArea)
+      textArea.focus()
+      textArea.select()
+      
+      const successful = document.execCommand('copy')
+      document.body.removeChild(textArea)
+      
+      if (successful) {
+        toast({
+          title: "Copied",
+          description: "Signup link copied to clipboard"
+        })
+      } else {
+        throw new Error('execCommand failed')
+      }
     } catch (error) {
       console.error('Failed to copy link:', error)
       toast({
         title: "Error",
-        description: "Failed to copy link to clipboard",
+        description: "Failed to copy link to clipboard. Please copy manually: " + link,
         variant: "destructive"
       })
     }
@@ -2143,6 +2170,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                           size="sm"
                           onClick={() => copySignupLink(generatedLink)}
                         >
+                          <Copy className="w-4 h-4 mr-2" />
                           Copy
                         </Button>
                       </div>
@@ -2186,8 +2214,9 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copySignupLink(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/signup?token=${link.token}`)}
+                            onClick={() => copySignupLink(`${process.env.NEXT_PUBLIC_APP_URL || 'https://casalink.arwindpianist.store'}/signup?token=${link.token}`)}
                           >
+                            <Copy className="w-4 h-4 mr-2" />
                             Copy Link
                           </Button>
                           <Button

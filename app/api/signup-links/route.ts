@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate the full signup URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://casalink.arwindpianist.store'
     const signupUrl = `${baseUrl}/signup?token=${token}`
 
     return new Response(JSON.stringify({ 
