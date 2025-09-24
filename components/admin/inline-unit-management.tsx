@@ -38,7 +38,8 @@ import {
   User,
   Search,
   Loader2,
-  Copy
+  Copy,
+  CheckCircle2
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { toast } from "@/hooks/use-toast"
@@ -186,6 +187,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   const [signupLinks, setSignupLinks] = useState<any[]>([])
   const [showSignupLinkDialog, setShowSignupLinkDialog] = useState(false)
   const [generatedLink, setGeneratedLink] = useState<string | null>(null)
+  const [copiedStates, setCopiedStates] = useState<{[key: string]: boolean}>({})
 
   // Don't auto-select - let user choose property manually
 
@@ -257,7 +259,7 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
   }
 
   // Copy signup link to clipboard
-  const copySignupLink = async (link: string) => {
+  const copySignupLink = async (link: string, buttonId?: string) => {
     try {
       // Try modern Clipboard API first
       if (navigator.clipboard && window.isSecureContext) {
@@ -266,6 +268,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
           title: "Copied",
           description: "Signup link copied to clipboard"
         })
+        
+        // Show visual feedback
+        if (buttonId) {
+          setCopiedStates(prev => ({ ...prev, [buttonId]: true }))
+          setTimeout(() => {
+            setCopiedStates(prev => ({ ...prev, [buttonId]: false }))
+          }, 2000)
+        }
         return
       }
       
@@ -287,6 +297,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
           title: "Copied",
           description: "Signup link copied to clipboard"
         })
+        
+        // Show visual feedback
+        if (buttonId) {
+          setCopiedStates(prev => ({ ...prev, [buttonId]: true }))
+          setTimeout(() => {
+            setCopiedStates(prev => ({ ...prev, [buttonId]: false }))
+          }, 2000)
+        }
       } else {
         throw new Error('execCommand failed')
       }
@@ -2168,10 +2186,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                         />
                         <Button
                           size="sm"
-                          onClick={() => copySignupLink(generatedLink)}
+                          onClick={() => copySignupLink(generatedLink, 'generated-link')}
                         >
-                          <Copy className="w-4 h-4 mr-2" />
-                          Copy
+                          {copiedStates['generated-link'] ? (
+                            <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                          ) : (
+                            <Copy className="w-4 h-4 mr-2" />
+                          )}
+                          {copiedStates['generated-link'] ? 'Copied!' : 'Copy'}
                         </Button>
                       </div>
                       <p className="text-sm text-green-700">
@@ -2214,10 +2236,14 @@ export function InlineUnitManagement({ condominiums, onRefresh }: InlineUnitMana
                           <Button
                             size="sm"
                             variant="outline"
-                            onClick={() => copySignupLink(`${process.env.NEXT_PUBLIC_APP_URL || 'https://casalink.arwindpianist.store'}/signup?token=${link.token}`)}
+                            onClick={() => copySignupLink(`${process.env.NEXT_PUBLIC_APP_URL || 'https://casalink.arwindpianist.store'}/signup?token=${link.token}`, `link-${link.id}`)}
                           >
-                            <Copy className="w-4 h-4 mr-2" />
-                            Copy Link
+                            {copiedStates[`link-${link.id}`] ? (
+                              <CheckCircle2 className="w-4 h-4 mr-2 text-green-600" />
+                            ) : (
+                              <Copy className="w-4 h-4 mr-2" />
+                            )}
+                            {copiedStates[`link-${link.id}`] ? 'Copied!' : 'Copy Link'}
                           </Button>
                           <Button
                             size="sm"

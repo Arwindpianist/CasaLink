@@ -1,6 +1,19 @@
 import { NextRequest } from "next/server"
-import { createServerSupabaseClient } from "@/lib/clerk-supabase"
+import { createClient } from "@supabase/supabase-js"
 import { SignJWT } from "jose"
+
+// Create service role client that bypasses RLS
+function createServiceSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 // POST /api/auth/signup - Create user account and link to property/unit
 export async function POST(request: NextRequest) {
@@ -17,7 +30,7 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
 
     // Validate the signup token first
     const { data: signupLink, error: linkError } = await supabase
@@ -40,6 +53,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (linkError || !signupLink) {
+      console.error('Signup link validation failed:', linkError)
       return new Response(JSON.stringify({ 
         error: 'Invalid or expired signup link' 
       }), {
@@ -101,18 +115,24 @@ export async function POST(request: NextRequest) {
     // For now, we'll create a mock clerk_id
     const mockClerkId = `user_${Math.random().toString(36).substring(2, 15)}`
 
-    // Use the database function to create user and update signup link
-    const { data: result, error: userError } = await supabase
-      .rpc('validate_and_use_signup_link', {
-        p_token: token,
-        p_clerk_id: mockClerkId,
-        p_email: email,
-        p_first_name: firstName,
-        p_last_name: lastName
+    // Create the user in the database
+    const { data: newUser, error: userError } = await supabase
+      .from('users')
+      .insert({
+        clerk_id: mockClerkId,
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        role: 'resident',
+        condo_id: signupLink.condo_id,
+        unit_id: signupLink.unit_id,
+        status: 'active'
       })
+      .select()
+      .single()
 
     if (userError) {
-      console.error('Database error:', userError)
+      console.error('Failed to create user:', userError)
       return new Response(JSON.stringify({ 
         error: 'Failed to create user account' 
       }), {
@@ -121,23 +141,40 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    if (!result.success) {
-      return new Response(JSON.stringify({ 
-        error: result.error 
-      }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' }
+    // Update the signup link usage count
+    const { error: updateError } = await supabase
+      .from('signup_links')
+      .update({ 
+        used_count: signupLink.used_count + 1,
+        updated_at: new Date().toISOString()
       })
+      .eq('id', signupLink.id)
+
+    if (updateError) {
+      console.error('Failed to update signup link:', updateError)
+      // Don't fail the signup if we can't update the usage count
     }
 
-    // In a real implementation, you would:
-    // 1. Create the user in Clerk using their API
-    // 2. Get the actual clerk_id from Clerk
-    // 3. Update the user record with the real clerk_id
+    // Link the user to the unit if specified
+    if (signupLink.unit_id) {
+      const { error: linkError } = await supabase
+        .from('unit_residents')
+        .insert({
+          unit_id: signupLink.unit_id,
+          user_id: newUser.id,
+          role: 'resident',
+          status: 'active'
+        })
+
+      if (linkError) {
+        console.error('Failed to link user to unit:', linkError)
+        // Don't fail the signup if we can't link to unit
+      }
+    }
 
     return new Response(JSON.stringify({ 
       success: true,
-      user: result.user,
+      user: newUser,
       message: 'Account created successfully'
     }), {
       status: 201,
