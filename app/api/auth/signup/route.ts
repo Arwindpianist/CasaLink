@@ -15,6 +15,38 @@ function createServiceSupabaseClient() {
   })
 }
 
+// Create Clerk user using Clerk's API
+async function createClerkUser(email: string, password: string, firstName: string, lastName: string) {
+  const clerkSecretKey = process.env.CLERK_SECRET_KEY
+  
+  if (!clerkSecretKey) {
+    throw new Error('Clerk secret key not configured')
+  }
+
+  const response = await fetch('https://api.clerk.com/v1/users', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${clerkSecretKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email_address: [email],
+      password: password,
+      first_name: firstName,
+      last_name: lastName,
+      skip_password_checks: false,
+      skip_password_requirement: false,
+    }),
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Clerk API error: ${error}`)
+  }
+
+  return await response.json()
+}
+
 // POST /api/auth/signup - Create user account and link to property/unit
 export async function POST(request: NextRequest) {
   try {
@@ -111,15 +143,16 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // Create Clerk user (this would normally be done through Clerk's API)
-    // For now, we'll create a mock clerk_id
-    const mockClerkId = `user_${Math.random().toString(36).substring(2, 15)}`
+    // Create user in Clerk first
+    console.log('Creating user in Clerk...')
+    const clerkUser = await createClerkUser(email, password, firstName, lastName)
+    console.log('Clerk user created:', clerkUser.id)
 
-    // Create the user in the database
+    // Create the user in our database with the real Clerk ID
     const { data: newUser, error: userError } = await supabase
       .from('users')
       .insert({
-        clerk_id: mockClerkId,
+        clerk_id: clerkUser.id,
         email: email,
         first_name: firstName,
         last_name: lastName,
@@ -132,9 +165,11 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (userError) {
-      console.error('Failed to create user:', userError)
+      console.error('Failed to create user in database:', userError)
+      // Note: Clerk user was created, but database sync failed
+      // In production, you might want to clean up the Clerk user
       return new Response(JSON.stringify({ 
-        error: 'Failed to create user account' 
+        error: 'Failed to sync user to database' 
       }), {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
@@ -175,7 +210,13 @@ export async function POST(request: NextRequest) {
     return new Response(JSON.stringify({ 
       success: true,
       user: newUser,
-      message: 'Account created successfully'
+      clerk_user: {
+        id: clerkUser.id,
+        email_addresses: clerkUser.email_addresses,
+        first_name: clerkUser.first_name,
+        last_name: clerkUser.last_name
+      },
+      message: 'Account created successfully with Clerk authentication'
     }), {
       status: 201,
       headers: { 'Content-Type': 'application/json' }
