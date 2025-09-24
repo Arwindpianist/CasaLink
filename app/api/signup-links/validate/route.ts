@@ -1,5 +1,18 @@
 import { NextRequest } from "next/server"
-import { createServerSupabaseClient } from "@/lib/clerk-supabase"
+import { createClient } from "@supabase/supabase-js"
+
+// Create service role client that bypasses RLS
+function createServiceSupabaseClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  
+  return createClient(supabaseUrl, supabaseServiceKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  })
+}
 
 // GET /api/signup-links/validate - Validate signup link
 export async function GET(request: NextRequest) {
@@ -17,7 +30,7 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    const supabase = await createServerSupabaseClient()
+    const supabase = createServiceSupabaseClient()
 
     // Get the signup link with property and unit information
     const { data: signupLink, error } = await supabase
