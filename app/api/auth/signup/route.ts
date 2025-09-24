@@ -169,7 +169,6 @@ export async function POST(request: NextRequest) {
         name: `${firstName} ${lastName}`, // Combine first and last name
         role: 'resident',
         condo_id: signupLink.condo_id,
-        unit_id: signupLink.unit_id,
         is_active: true // Use is_active instead of status
       })
       .select()
@@ -183,7 +182,6 @@ export async function POST(request: NextRequest) {
         name: `${firstName} ${lastName}`,
         role: 'resident',
         condo_id: signupLink.condo_id,
-        unit_id: signupLink.unit_id,
         is_active: true
       })
       
@@ -197,6 +195,23 @@ export async function POST(request: NextRequest) {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       })
+    }
+
+    // Link the user to the unit if a specific unit was specified
+    if (signupLink.unit_id) {
+      console.log('Linking user to unit:', signupLink.unit_id)
+      const { error: unitLinkError } = await supabase
+        .from('units')
+        .update({ resident_id: newUser.id })
+        .eq('id', signupLink.unit_id)
+        .eq('condo_id', signupLink.condo_id)
+
+      if (unitLinkError) {
+        console.error('Failed to link user to unit:', unitLinkError)
+        // Don't fail the signup if we can't link to unit
+      } else {
+        console.log('Successfully linked user to unit')
+      }
     }
 
     // Update the signup link usage count
